@@ -1,40 +1,31 @@
 module.exports = (sequelize, DataTypes) => {
     const User = sequelize.define("User", {
-        name: {
+        firstName: {
+            type: DataTypes.STRING(50),
+            allowNull: false
+        },
+        lastName: {
             type: DataTypes.STRING(50),
             allowNull: false
         },
         email: {
             type: DataTypes.STRING(50),
-            allowNull: false,
-            unique: true,
-            validate: {
-                isEmail: true
-            }
+            allowNull: false
         },
         password: {
             type: DataTypes.STRING(100),
             allowNull: false
-        },
-        points: {
-            type: DataTypes.INTEGER,
-            allowNull: true,
-            defaultValue: 0
         }
     }, {
         tableName: 'users'
     });
 
-    User.associate = (models) => {
-        User.hasMany(models.Purchase, {
-            foreignKey: "userId",
-            onDelete: "cascade"
-        });
-        User.hasMany(models.Review, {
-            foreignKey: "userId",
-            onDelete: "cascade"
-        });
-    };
+    // User.associate = (models) => {
+    //     User.hasMany(models.Tutorial, {
+    //         foreignKey: "userId",
+    //         onDelete: "cascade"
+    //     });
+    // };
 
     return User;
 }

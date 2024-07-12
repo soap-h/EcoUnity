@@ -12,3 +12,4 @@ npm i dayjs
 npm i formik yup
 npm i react-toastify
 npm i react-slick slick-carousel
+npm i @mui/material @mui/lab @emotion/react @emotion/styled

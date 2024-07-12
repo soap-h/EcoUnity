@@ -20,10 +20,12 @@ app.get("/", (req, res) => {
 // Routes
 const productRoute = require('./routes/products');
 app.use("/products", productRoute);
-// const userRoute = require('./routes/user');
-// app.use("/user", userRoute);
+const userRoute = require('./routes/user');
+app.use("/user", userRoute);
 const fileRoute = require('./routes/file');
 app.use("/file", fileRoute);
+const eventsRoute = require('./routes/events');
+app.use("/events", eventsRoute);
 
 const db = require('./models');
 db.sequelize.sync({ alter: true })
