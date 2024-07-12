@@ -77,13 +77,15 @@ function Navbar() {
           
                     
                         
-                                <IconButton color="inherit" sx={{display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', mr: 3}}>
+                                <IconButton color="inherit" sx={{display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', mr: 3}}
+                                onClick={() => navigate("/Register")}>
                                     <PersonAddAlt1Icon sx={{height: 40, width: 40}} />
                                     <Typography>Sign Up</Typography>
                                 </IconButton>
    
 
-                                <IconButton color="inherit" sx={{display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', ml: 3}}>
+                                <IconButton color="inherit" sx={{display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', ml: 3}}
+                                onClick={() => navigate("/Login")}>
                                     <LoginIcon sx={{height: 40, width: 40}} />
                                     <Typography>Login</Typography>
                                 </IconButton>

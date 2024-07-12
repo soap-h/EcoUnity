@@ -11,8 +11,9 @@ import Events from './pages/Events.jsx';
 import Learning from './pages/Learning.jsx';
 import Merchandise from './pages/Merchandise.jsx';
 import AdminPage from './pages/AdminPage.jsx';
-import Reviews from './pages/ReviewPage.jsx'
-
+import Reviews from './pages/ReviewPage.jsx';
+import Login from './pages/Login.jsx';
+import Register from './pages/Register.jsx';
 import Navbar from './components/Navbar';
 
 
@@ -29,6 +30,8 @@ function App() {
                     <Route path={"/merchandise"} element={<Merchandise />} />
                     <Route path={"/adminpage"} element={<AdminPage />} />
                     <Route path={"/reviews"} element={<Reviews />} />
+                    <Route path={"/login"} element={<Login />} />
+                    <Route path={"/register"} element={<Register />} />
                     {/* <Route path={"/locations"} element={<Locations />} /> */}
                 </Routes>
             </Router>
