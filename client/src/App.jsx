@@ -15,6 +15,11 @@ import Reviews from './pages/ReviewPage.jsx';
 import Login from './pages/Login.jsx';
 import Register from './pages/Register.jsx';
 import Navbar from './components/Navbar';
+import Trackers from './pages/Tracker';
+import CreateActivity from './pages/CreateActivity';
+import EditActivity from './pages/EditActivity';
+import Activities from './pages/AllActivites';
+import AddActivity from './pages/AddActivity';
 
 
 function App() {
@@ -33,6 +38,11 @@ function App() {
                     <Route path={"/login"} element={<Login />} />
                     <Route path={"/register"} element={<Register />} />
                     {/* <Route path={"/locations"} element={<Locations />} /> */}
+                    <Route path={"/tracker"} element={<Trackers />} />
+                    <Route path={"/addactivity"} element={<AddActivity />} />
+                    <Route path={"/editactivity/:id"} element={<EditActivity />} />
+                    <Route path={"/activities"} element={<Activities />} />
+                    <Route path={"/createactivity"} element={<CreateActivity />} />
                 </Routes>
             </Router>
             {/* Other components */}
