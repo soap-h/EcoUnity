@@ -14,6 +14,10 @@ function Navbar() {
     const navigate = useNavigate();
     const location = useLocation();
     const { user } = useContext(UserContext);
+    const logout = () => {
+        localStorage.clear();
+        window.location = "/";
+      };
 
     const navItems = [
         { title: 'Home', path: '/' },
@@ -115,7 +119,7 @@ function Navbar() {
                             {
                                 user && (
                                     <IconButton color="inherit" sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', ml: 3 }}
-                                        onClick={() => navigate("/Login")}>
+                                        onClick={logout}>
                                         <LoginIcon sx={{ height: 40, width: 40 }} />
                                         <Typography>Logout</Typography>
                                     </IconButton>
