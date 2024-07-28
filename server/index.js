@@ -26,6 +26,10 @@ const fileRoute = require('./routes/file');
 app.use("/file", fileRoute);
 const eventsRoute = require('./routes/events');
 app.use("/events", eventsRoute);
+const trackerRoute = require('./routes/tracker');
+app.use("/tracker", trackerRoute)
+const activityRoute = require('./routes/activity');
+app.use("/activities", activityRoute)
 
 const db = require('./models');
 db.sequelize.sync({ alter: true })
