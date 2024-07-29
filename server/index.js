@@ -4,7 +4,7 @@ require('dotenv').config();
 
 const app = express();
 app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.urlencoded({ extended: false }));
 app.use(express.static('public'));
 
 // Enable CORS
@@ -32,7 +32,7 @@ const activityRoute = require('./routes/activity');
 app.use("/activities", activityRoute)
 
 const db = require('./models');
-db.sequelize.sync({ alter: true })
+db.sequelize.sync({ alter: true})
     .then(() => {
         let port = process.env.APP_PORT;
         app.listen(port, () => {

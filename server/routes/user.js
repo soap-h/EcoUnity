@@ -5,6 +5,7 @@ const { User } = require('../models');
 const yup = require("yup");
 const { sign } = require('jsonwebtoken');
 const { validateToken } = require('../middlewares/auth');
+const { ppupload } = require('../middlewares/upload'); 
 require('dotenv').config();
 
 router.post("/register", async (req, res) => {
@@ -79,7 +80,8 @@ router.post("/login", async (req, res) => {
             id: user.id,
             email: user.email,
             firstName: user.firstName,
-            lastName: user.lastName
+            lastName: user.lastName,
+            imageFile: user.imageFile
         };
         let accessToken = sign(userInfo, process.env.APP_SECRET,
             { expiresIn: process.env.TOKEN_EXPIRES_IN });
@@ -105,5 +107,32 @@ router.get("/auth", validateToken, (req, res) => {
         user: userInfo
     });
 });
+
+router.post('/upload/profile-pic', validateToken, (req, res) => {
+    ppupload(req, res, async (err) => {
+        if (err) {
+            console.error("Upload Error: ", err);
+            return res.status(400).json({ message: err.message });
+        } else if (!req.file) {
+            return res.status(400).json({ message: "No file uploaded" });
+        } else {
+            try {
+                const user = await User.findByPk(req.user.id);
+                if (!user) {
+                    return res.status(404).json({ message: "User not found" });
+                }
+
+                user.imageFile = req.file.filename;
+                await user.save();
+
+                res.json({ imageFile: user.imageFile });
+            } catch (error) {
+                console.error("Database Error: ", error);
+                res.status(500).json({ message: error.message });
+            }
+        }
+    });
+});
+
 
 module.exports = router;

@@ -15,6 +15,11 @@ module.exports = (sequelize, DataTypes) => {
         password: {
             type: DataTypes.STRING(100),
             allowNull: false
+        },
+        imageFile: {
+            type: DataTypes.STRING(20),
+            allowNull: true,
+            default: null
         }
     }, {
         tableName: 'users'

@@ -15,3 +15,9 @@ npm i react-slick slick-carousel
 npm i @mui/material @mui/lab @emotion/react @emotion/styled
 
 npm install chart.js react-chartjs-2
+
+under server:
+
+for file uploading 
+npm i multer
+npm i nanoid@3

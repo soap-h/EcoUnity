@@ -1,6 +1,6 @@
 import React from "react";
 import { useState, useEffect } from "react";
-import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Link, Navigate  } from "react-router-dom";
 import { ThemeProvider } from "@mui/material/styles";
 import http from "./http";
 
@@ -13,13 +13,21 @@ import AdminPage from "./pages/AdminPage.jsx";
 import Reviews from "./pages/ReviewPage.jsx";
 import Login from "./pages/Login.jsx";
 import Register from "./pages/Register.jsx";
-import Navbar from "./components/Navbar";
 import Trackers from "./pages/Tracker";
 import CreateActivity from "./pages/CreateActivity";
 import EditActivity from "./pages/EditActivity";
 import Activities from "./pages/AllActivites";
 import AddActivity from "./pages/AddActivity";
+import Profile from "./pages/Profile.jsx"
+
+// context
+
 import UserContext from "./contexts/UserContext";
+
+// components
+
+import Navbar from "./components/Navbar";
+
 
 function App() {
   const [user, setUser] = useState(null);
@@ -56,6 +64,8 @@ function App() {
             <Route path={"/editactivity/:id"} element={<EditActivity />} />
             <Route path={"/activities"} element={<Activities />} />
             <Route path={"/createactivity"} element={<CreateActivity />} />
+            <Route path="/profile/:id" element={user ? <Profile /> : <Navigate to="/login" />}
+            />
           </Routes>
         </Router>
         {/* Other components */}

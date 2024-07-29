@@ -3,6 +3,11 @@ require('dotenv').config();
 
 const validateToken = (req, res, next) => {
     try {
+        const authHeader = req.header("Authorization");
+        if (!authHeader) {
+            return res.sendStatus(401);
+        }
+
         const accessToken = req.header("Authorization").split(" ")[1];
         if (!accessToken) {
             return res.sendStatus(401);
@@ -13,6 +18,7 @@ const validateToken = (req, res, next) => {
         return next();
     }
     catch (err) {
+        console.error("Token validation error:", err);
         return res.sendStatus(401);
     }
 }

@@ -108,7 +108,7 @@ function Navbar() {
                                                         {
                                 user && (
                                     <IconButton color="inherit" sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', mr: 3 }}
-                                        onClick={() => navigate("/Register")}>
+                                        onClick={() => navigate(`/profile/${user.id}`)}>
                                         <PersonAddAlt1Icon sx={{ height: 40, width: 40 }} />
                                         <Typography>{user.firstName}</Typography>
                                     </IconButton>
