@@ -1,16 +1,14 @@
-import React, { useContext, useState, useEffect } from 'react';
-import { Box, Typography, Button, Grid, Avatar, Container, Paper } from '@mui/material';
-import http from '../http';
+import React, { useContext, useState } from 'react';
+import { Box, Typography, Grid, Avatar, Container, Paper, IconButton, Button } from '@mui/material';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import EmailIcon from '@mui/icons-material/Email';
-import PhoneIcon from '@mui/icons-material/Phone';
-
+import AddPhotoAlternateIcon from '@mui/icons-material/AddPhotoAlternate';
 import UserContext from '../contexts/UserContext';
+import http from '../http';
 
 function Profile() {
     const { user, setUser } = useContext(UserContext);
-    console.log(user.imageFile)
 
     const onFileChange = (e) => {
         let file = e.target.files[0];
@@ -28,8 +26,6 @@ function Profile() {
                 }
             })
                 .then((res) => {
-
-                    
                     setUser({ ...user, imageFile: res.data.imageFile });
                     toast.success('Profile picture uploaded successfully');
                 })
@@ -45,48 +41,73 @@ function Profile() {
     };
 
     return (
-
-        <Box>
-            <Container maxWidth="sm">
-                <Paper elevation={3} style={{ padding: '20px', marginTop: '20px' }}>
-                    <Box display="flex" justifyContent="center" alignItems="center" flexDirection="column">
-                        <Avatar
-                            alt={`${user.firstName} ${user.lastName}`}
-                            src={`${import.meta.env.VITE_FILE_BASE_URL}${user.imageFile}`}
-                            sx={{ width: 100, height: 100 }}
-                        />
-                        <Button variant="contained" component="label" sx={{ mt: 2 }}>
-                            Upload Profile Picture
-                            <input hidden accept="image/*" type="file"
-                                onChange={onFileChange} />
-                        </Button>
-                        <Typography variant="h5" component="h1" gutterBottom>
-                            {user.firstName} {user.lastName}
-                        </Typography>
-                        <Typography variant="body1" color="textSecondary" align="center">
-                            Student at Nanyang Polytechnic, pursuing a diploma in Information Technology.
-                            Passionate about discovering new topics and meeting and learning from new people.
-                            Strives to become a better version of themselves daily and challenges themselves to push their capabilities beyond their limits.
-                        </Typography>
-                    </Box>
-                    <Grid container spacing={2} style={{ marginTop: '20px' }}>
-                        <Grid item xs={12} sm={6}>
-                            <Box display="flex" alignItems="center">
-                                <EmailIcon style={{ marginRight: '8px' }} />
-                                <Typography variant="body1">{user.email}</Typography>
-                            </Box>
-                        </Grid>
-                        <Grid item xs={12} sm={6}>
-                            <Box display="flex" alignItems="center">
-                                <PhoneIcon style={{ marginRight: '8px' }} />
-                                <Typography variant="body1">{user.phone || '+65 1234 5678'}</Typography>
-                            </Box>
-                        </Grid>
+        <Container maxWidth="lg">
+            <Paper elevation={3} sx={{ padding: 4, marginTop: 4 }}>
+                <Grid container spacing={3}>
+                    <Grid item xs={12} md={4}>
+                        <Box sx={{ position: 'relative', display: 'inline-block' }}>
+                            <Avatar
+                                alt={`${user.firstName} ${user.lastName}`}
+                                src={`${import.meta.env.VITE_FILE_BASE_URL}${user.imageFile}`}
+                                sx={{ width: 150, height: 150, marginLeft:12 }}
+                            />
+                            <IconButton
+                                component="label"
+                                sx={{
+                                    position: 'absolute',
+                                    bottom: 0,
+                                    right: 0,
+                                    backgroundColor: 'white',
+                                    borderRadius: '50%',
+                                    padding: '5px',
+                                    '&:hover': { backgroundColor: 'lightgrey' },
+                                }}
+                            >
+                                <AddPhotoAlternateIcon />
+                                <input hidden accept="image/*" type="file" onChange={onFileChange} />
+                            </IconButton>
+                        </Box>
                     </Grid>
-                </Paper>
-            </Container>
+                    <Grid item xs={12} md={8}>
+                        <Typography variant="h4">{user.firstName} {user.lastName}</Typography>
+                        <Typography variant="body1" color="textSecondary">{user.email}</Typography>
+                        <Typography variant="body1" color="textSecondary">
+                            Just a regular guy who cares a lot about the planet. Trying to help out with stuff like reducing carbon footprints and cleaning up nature spots. I'm all about spreading the word on why we need to take care of our home. Outside of that, you can catch me hiking, watching birds, or lending a hand at local clean-up events. Let's make a change together!
+                        </Typography>
+                        <Typography variant="body2" color="textSecondary" sx={{ marginTop: 2 }}>
+                            Posts: 3 | Member since: 11/11/2023
+                        </Typography>
+                    </Grid>
+                </Grid>
+                <Grid container spacing={4} sx={{ marginTop: 4 }}>
+                    <Grid item xs={12} md={6}>
+                        <Typography variant="h6" gutterBottom>Stats</Typography>
+                        <Paper elevation={2} sx={{ padding: 2 }}>
+                            <Typography variant="body1">Recycling Points: 112</Typography>
+                            <Typography variant="body1">Events participated: 2</Typography>
+                            <Typography variant="body1">Quizzes taken: 3</Typography>
+                            <Typography variant="body1">CO2 saved: 1000g</Typography>
+                        </Paper>
+                    </Grid>
+                    <Grid item xs={12} md={6}>
+                        <Typography variant="h6" gutterBottom>Activities</Typography>
+                        <Paper elevation={2} sx={{ padding: 2 }}>
+                            <Box display="flex" justifyContent="space-between" alignItems="center" sx={{ marginBottom: 1 }}>
+                                <Typography variant="body1">31/4/2024</Typography>
+                                <Typography variant="body1">Plant-a-tree</Typography>
+                                <Button variant="contained" color="primary">Give Feedback</Button>
+                            </Box>
+                            <Box display="flex" justifyContent="space-between" alignItems="center">
+                                <Typography variant="body1">29/2/2024</Typography>
+                                <Typography variant="body1">ZeroWaste Upcycling Workshop</Typography>
+                                <Button variant="contained" color="secondary">Give Feedback</Button>
+                            </Box>
+                        </Paper>
+                    </Grid>
+                </Grid>
+            </Paper>
             <ToastContainer />
-        </Box>
+        </Container>
     );
 }
 

@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useContext } from 'react';
-import { AppBar, Toolbar, Typography, Button, IconButton, TextField, InputAdornment, Box, Grid } from '@mui/material';
+import { AppBar, Toolbar, Typography, Button, IconButton, TextField, InputAdornment, Box, Grid, Avatar, Menu, MenuItem } from '@mui/material';
 import { Link } from 'react-router-dom';
 import { useNavigate, useLocation } from 'react-router-dom';
 import MenuIcon from '@mui/icons-material/Menu';
@@ -7,6 +7,7 @@ import SearchIcon from '@mui/icons-material/Search';
 import PersonAddAlt1Icon from '@mui/icons-material/PersonAddAlt1';
 import LoginIcon from '@mui/icons-material/Login'
 import EcoUnityLogo from '../assets/Eco Unity.png';
+import TrackerLogo from "../assets/images/tracker.png";
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import UserContext from '../contexts/UserContext';
 
@@ -14,10 +15,20 @@ function Navbar() {
     const navigate = useNavigate();
     const location = useLocation();
     const { user } = useContext(UserContext);
+    const [anchorEl, setAnchorEl] = useState(null);
+
+    const handleMenuOpen = (event) => {
+        setAnchorEl(event.currentTarget);
+    };
+
+    const handleMenuClose = () => {
+        setAnchorEl(null);
+    };
+
     const logout = () => {
         localStorage.clear();
         window.location = "/";
-      };
+    };
 
     const navItems = [
         { title: 'Home', path: '/' },
@@ -95,7 +106,7 @@ function Navbar() {
                                 )
                             }
                             {
-                                
+
                                 !user && (
                                     <IconButton color="inherit" sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', ml: 3 }}
                                         onClick={() => navigate("/Login")}>
@@ -105,26 +116,43 @@ function Navbar() {
                                 )
                             }
 
-                                                        {
+                            {
                                 user && (
                                     <IconButton color="inherit" sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', mr: 3 }}
-                                        onClick={() => navigate(`/profile/${user.id}`)}>
-                                        <PersonAddAlt1Icon sx={{ height: 40, width: 40 }} />
+                                        onClick={() => navigate("/Tracker")}>
+                                        <Avatar
+                                            alt={`${user.firstName} ${user.lastName}`}
+                                            src={TrackerLogo}
+                                            sx={{ width: 50, height: 50 }}
+                                        />
+                                        <Typography>EcoTracker</Typography>
+                                    </IconButton>
+                                )
+                            }
+
+                            {user && (
+                                <>
+                                    <IconButton color="inherit" sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', ml: 3 }}
+                                        onClick={handleMenuOpen}>
+                                        <Avatar
+                                            alt={`${user.firstName} ${user.lastName}`}
+                                            src={`${import.meta.env.VITE_FILE_BASE_URL}${user.imageFile}`}
+                                            sx={{ width: 50, height: 50 }}
+                                        />
                                         <Typography>{user.firstName}</Typography>
                                     </IconButton>
 
-
-                                )
-                            }
-                            {
-                                user && (
-                                    <IconButton color="inherit" sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', ml: 3 }}
-                                        onClick={logout}>
-                                        <LoginIcon sx={{ height: 40, width: 40 }} />
-                                        <Typography>Logout</Typography>
-                                    </IconButton>
-                                )
-                            }
+                                    <Menu
+                                        anchorEl={anchorEl}
+                                        open={Boolean(anchorEl)}
+                                        onClose={handleMenuClose}
+                                    >
+                                        <MenuItem onClick={() => { handleMenuClose(); navigate(`/profile/${user.id}`) }}>Profile</MenuItem>
+                                        <MenuItem onClick={() => { handleMenuClose(); navigate('/settings') }}>Inbox</MenuItem>
+                                        <MenuItem onClick={() => { handleMenuClose(); logout(); }}>Logout</MenuItem>
+                                    </Menu>
+                                </>
+                            )}
 
                         </Grid>
                     </Grid>

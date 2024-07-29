@@ -27,7 +27,7 @@ router.post('/upload/profile-pic', (req, res) => {
             return res.status(400).json({ message: "No file uploaded" });
         } else {
             try {
-                const user = await User.findByPk(req.user.id); // Assuming req.user contains authenticated user's info
+                const user = await User.findByPk(req.user.id); 
                 if (!user) {
                     return res.status(404).json({ message: "User not found" });
                 }
