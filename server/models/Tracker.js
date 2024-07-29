@@ -16,11 +16,11 @@ module.exports = (sequelize, DataTypes) => {
         tableName: 'trackers'
     });
 
-    // Tracker.associate = (models) => {
-    //     Tracker.hasMany(models.Activity, {
-    //         foreignKey: "activityId",
-    //         onDelete: "cascade"
-    //     });
-    // };
+    Tracker.associate = (models) => {
+        Tracker.belongsTo(models.User, {
+            foreignKey: 'userId',
+            onDelete: 'cascade'
+        });
+    };
     return Tracker;
 }

@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import { Box, Typography, Grid, Avatar, Container, Paper, IconButton, Button } from '@mui/material';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -9,6 +9,23 @@ import http from '../http';
 
 function Profile() {
     const { user, setUser } = useContext(UserContext);
+    const [trackerList, setTrackerList] = useState([]);
+    const getTrackers = () => {
+        http.get("/tracker").then((res) => {
+          console.log(res.data);
+          setTrackerList(res.data);
+        });
+      };
+    
+      useEffect(() => {
+        getTrackers();
+      }, []);
+
+      const userTrackers = trackerList.filter(tracker => user && user.id === tracker.userId);
+      const totalPoints = userTrackers.reduce(
+        (total, tracker) => total + tracker.points,
+        0
+      );
 
     const onFileChange = (e) => {
         let file = e.target.files[0];
@@ -86,7 +103,7 @@ function Profile() {
                             <Typography variant="body1">Recycling Points: 112</Typography>
                             <Typography variant="body1">Events participated: 2</Typography>
                             <Typography variant="body1">Quizzes taken: 3</Typography>
-                            <Typography variant="body1">CO2 saved: 1000g</Typography>
+                            <Typography variant="body1">CO2 saved: {totalPoints}</Typography>
                         </Paper>
                     </Grid>
                     <Grid item xs={12} md={6}>
