@@ -33,11 +33,17 @@ const validateToken = (req, res, next) => {
     try {
         const validToken = verify(token, process.env.APP_SECRET);
         req.user = validToken;
-        console.log('Token is valid. User:', req.user);  // Debugging line
         next();
     } catch (err) {
         return res.status(403).json({ error: "Invalid token" });
     }
 };
+
+// const checkAdmin = (req, res, next) => {
+//     if (req.user.role !== 'admin') {
+//         return res.status(403).json({ error: "Access denied" });
+//     }
+//     next();
+// };
 
 module.exports = { validateToken };

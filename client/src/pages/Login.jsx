@@ -9,7 +9,7 @@ import WelcomePopup from "./WelcomePopup";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-function Login() {
+function Login({ onClose }) {
   const [showPopup, setShowPopup] = useState(false);
   const [userName, setUserName] = useState("");
   const navigate = useNavigate();
@@ -37,6 +37,7 @@ function Login() {
     onSubmit: (data) => {
       data.email = data.email.trim().toLowerCase();
       data.password = data.password.trim();
+      console.log(data);
       http
         .post("/user/login", data)
         .then((res) => {
@@ -54,7 +55,12 @@ function Login() {
 
   const handleClosePopup = () => {
     setShowPopup(false);
-    navigate("/"); // Or any other page after login
+    onClose(); // Close the login dialog
+    if (user.isAdmin) {
+      navigate("/admin");
+    } else {
+      navigate("/");
+    }
   };
 
   return (
@@ -64,6 +70,7 @@ function Login() {
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
+        padding: 2,
       }}
     >
       <Avatar
