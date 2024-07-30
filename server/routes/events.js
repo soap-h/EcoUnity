@@ -5,15 +5,24 @@ const { Op } = require("sequelize");
 const yup = require("yup");
 const { validateToken } = require('../middlewares/auth');
 
-router.post("/", async (req, res) => {
+router.post("/", validateToken, async (req, res) => {
     let data = req.body;
-    //data.userId = req.user.id;
+
+    // Check if req.user is correctly attached
+    if (!req.user) {
+        return res.status(500).json({ error: "User information is not attached to the request." });
+    }
+    
+    data.userId = req.user.id;
+    data.userName = `${req.user.firstName} ${req.user.lastName}`; // Add user name to data
+
     let validationSchema = yup.object({
         title: yup.string().trim().min(3).max(100).required(),
         date: yup.date().required(),
         timeStart: yup.string().required(),
         timeEnd: yup.string().required(),
         venue: yup.string().trim().min(3).max(100).required(),
+        participants: yup.number().required(),
         price: yup.number().required(),
         category: yup.string().trim().min(3).max(100).required(),
         type: yup.string().trim().min(3).max(100).required(),
@@ -43,7 +52,7 @@ router.get("/", async (req, res) => {
     let list = await Event.findAll({
         where: condition,
         order: [['createdAt', 'DESC']],
-        attributes: ['id', 'title', 'date']
+        attributes: ['id', 'title', 'date', 'timeStart', 'userId', 'userName']
         // include: { model: User, as: "user", attributes: ['firstName'] }
     });
 

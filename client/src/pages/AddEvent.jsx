@@ -18,14 +18,32 @@ const AddEvent = ({ onClose }) => {
     const [registerEndDate, setRegisterEndDate] = useState(null);
 
     const handleSubmit = async () => {
-        const newEvent = { title, details, date, timeStart, timeEnd, venue, price, participants, category, type, registerEndDate };
+        const newEvent = { 
+            title, 
+            details, 
+            date: date ? date.format('YYYY-MM-DD') : null, 
+            timeStart: timeStart ? timeStart.format('HH:mm:ss') : null, 
+            timeEnd: timeEnd ? timeEnd.format('HH:mm:ss') : null, 
+            venue, 
+            price, 
+            participants, 
+            category, 
+            type, 
+            registerEndDate: registerEndDate ? registerEndDate.format('YYYY-MM-DD') : null 
+        };
+
+        console.log('Submitting event:', newEvent);
+
         try {
-            
             const response = await http.post('/events', newEvent);
-            console.log('Event added:', response.data); // Add this line to debug
-            onClose(); // Ensure this line is called
+            console.log('Event added:', response.data);
+            onClose();
         } catch (error) {
-            console.error('Failed to add event:', error);
+            if (error.response) {
+                console.error('Failed to add event:', error.response.data);
+            } else {
+                console.error('Failed to add event:', error.message);
+            }
         }
     };
 
