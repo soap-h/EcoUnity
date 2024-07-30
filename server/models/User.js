@@ -15,17 +15,23 @@ module.exports = (sequelize, DataTypes) => {
         password: {
             type: DataTypes.STRING(100),
             allowNull: false
+        },
+        isAdmin: {
+            type: DataTypes.BOOLEAN,
+            defaultValue: false,
+            allowNull: false
         }
     }, {
         tableName: 'users'
     });
 
-    // User.associate = (models) => {
-    //     User.hasMany(models.Tutorial, {
-    //         foreignKey: "userId",
-    //         onDelete: "cascade"
-    //     });
-    // };
+    User.associate = (models) => {
+        User.hasMany(models.Event, {
+            foreignKey: "userId",
+            as: 'events',
+            onDelete: "cascade"
+        });
+    };
 
     return User;
 }
