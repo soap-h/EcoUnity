@@ -23,16 +23,6 @@ function EventsTable() {
     const [events, setEvents] = useState([]);
     const [open, setOpen] = useState(false);
 
-    // const fetchEvents = () => {
-    //     http.get('/events').then((res) => {
-    //         setEvents(res.data)
-    //         console.log(res.data);
-    //     }).catch((Error) => {
-    //         console.error(`Error :`, Error)
-    //         setEvents([])
-    //     });
-    // };
-
     const fetchEvents = async () => {
         try {
             const res = await http.get('/events');
@@ -77,6 +67,7 @@ function EventsTable() {
                             <TableCell>Title</TableCell>
                             <TableCell>Category</TableCell>
                             <TableCell>Type</TableCell>
+                            <TableCell>Time Start</TableCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>
@@ -88,6 +79,8 @@ function EventsTable() {
                                     <TableCell>{event.title}</TableCell>
                                     <TableCell>{event.category}</TableCell>
                                     <TableCell>{event.type}</TableCell>
+                                    <TableCell>{event.timeStart}</TableCell>
+                                    
                                 </TableRow>
                             ))
                         ) : (

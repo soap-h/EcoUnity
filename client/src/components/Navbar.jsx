@@ -11,10 +11,12 @@ import TrackerLogo from "../assets/images/tracker.png";
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import UserContext from '../contexts/UserContext';
 
-function Navbar() {
+
+function Navbar({ setOpenLogin, setOpenRegister }) {
     const navigate = useNavigate();
     const location = useLocation();
     const { user } = useContext(UserContext);
+
     const [anchorEl, setAnchorEl] = useState(null);
 
     const handleMenuOpen = (event) => {
@@ -25,24 +27,40 @@ function Navbar() {
         setAnchorEl(null);
     };
 
+
     const logout = () => {
         localStorage.clear();
         window.location = "/";
     };
 
     const navItems = [
-        { title: 'Home', path: '/' },
-        { title: 'Events', path: '/events' },
-        { title: 'Forums', path: '/forums' },
-        { title: 'Learning', path: '/learning' },
-        { title: 'Merchandise', path: '/merchandise' },
-        { title: 'Locations', path: '/locations' },
+        { title: "Home", path: "/" },
+        { title: "Events", path: "/events" },
+        { title: "Forums", path: "/forums" },
+        { title: "Learning", path: "/learning" },
+        { title: "Merchandise", path: "/merchandise" },
+        { title: "Locations", path: "/locations" },
     ];
 
+    if (location.pathname.startsWith('/admin')) {
+        return null; // Don't render navbar on admin pages
+      }
+
     return (
-        <Box sx={{ width: '100%' }}>
+        <Box sx={{ width: "100%" }}>
             {/* Top Banner */}
-            <Box sx={{ backgroundColor: '#5A9895', color: 'white', textAlign: 'center', py: 2, display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', }}>
+            <Box
+                sx={{
+                    backgroundColor: "#5A9895",
+                    color: "white",
+                    textAlign: "center",
+                    py: 2,
+                    display: "flex",
+                    flexDirection: "row",
+                    alignItems: "center",
+                    justifyContent: "center",
+                }}
+            >
                 <Typography variant="h6" sx={{ mr: 1 }}>
                     REGISTER TO BE A COMMUNITY VOLUNTEER!
                 </Typography>
@@ -50,11 +68,11 @@ function Navbar() {
             </Box>
 
             {/* Middle Row */}
-            <AppBar position="static" color="default" sx={{ background: '#F6F7F9', py: 0.25 }}>
+            <AppBar position="static" color="default" sx={{ background: "#F6F7F9", py: 0.25 }}>
                 <Toolbar>
                     <Grid container alignItems="center" justifyContent="space-between">
                         <Grid item sx={{ pl: { sm: 2, md: 6, lg: 10 } }}>
-                            <img src={EcoUnityLogo} alt="ECO UNITY Logo" style={{ height: '110px' }} />
+                            <img src={EcoUnityLogo} alt="ECO UNITY Logo" style={{ height: "110px" }} />
                         </Grid>
 
                         <Grid item xs={6}>
@@ -66,14 +84,16 @@ function Navbar() {
                                 InputProps={{
                                     endAdornment: (
                                         <InputAdornment position="end">
-                                            <IconButton sx={{
-                                                backgroundColor: '#075F6B', borderRadius: 0, color: "white",
-                                                '&:hover': { backgroundColor: '#0f707c !important' }
-                                            }}>
+                                            <IconButton
+                                                sx={{
+                                                    backgroundColor: "#075F6B",
+                                                    borderRadius: 0,
+                                                    color: "white",
+                                                    "&:hover": { backgroundColor: "#0f707c !important" },
+                                                }}
+                                            >
                                                 <SearchIcon />
-                                                <Typography sx={{ fontWeight: "bold" }}>
-                                                    Search
-                                                </Typography>
+                                                <Typography sx={{ fontWeight: "bold" }}>Search</Typography>
                                             </IconButton>
                                         </InputAdornment>
                                     ),
@@ -81,17 +101,18 @@ function Navbar() {
                                 }}
                                 sx={{
                                     outline: 3,
-                                    color: '#075F6B',
+                                    color: "#075F6B",
                                     borderRadius: 2,
                                     border: 0,
-                                    '& .MuiOutlinedInput-root': {
-                                        '& fieldset': { border: 0 },
-                                        '&:hover fieldset': { border: 0 },
-                                        '&.Mui-focused fieldset': { border: 0 },
-                                    }
+                                    "& .MuiOutlinedInput-root": {
+                                        "& fieldset": { border: 0 },
+                                        "&:hover fieldset": { border: 0 },
+                                        "&.Mui-focused fieldset": { border: 0 },
+                                    },
                                 }}
                             />
                         </Grid>
+
                         <Grid item sx={{ pr: { sm: 2, md: 6, lg: 10 }, display: 'flex', flexDirection: 'row' }}>
 
                             {
@@ -154,37 +175,38 @@ function Navbar() {
                                 </>
                             )}
 
+
                         </Grid>
                     </Grid>
                 </Toolbar>
             </AppBar>
 
             {/* Bottom Row */}
-            <AppBar position="static" color="inherit" sx={{ background: '#9FCCC9' }}>
+            <AppBar position="static" color="inherit" sx={{ background: "#9FCCC9" }}>
                 <Toolbar>
-
                     <Grid container justifyContent="center">
                         {navItems.map((item) => (
                             <Grid item key={item.title}>
-                                <Button color="inherit"
+                                <Button
+                                    color="inherit"
                                     sx={{
-                                        fontFamily: 'Inter',
+                                        fontFamily: "Inter",
                                         fontSize: 16,
                                         fontWeight: 600,
                                         mx: { sm: 1, md: 2.5, lg: 5.5 },
-                                        backgroundColor: location.pathname === item.path ? '#075F6B' : 'inherit',
-                                        color: location.pathname === item.path ? 'white' : 'inherit',
-                                        '&:hover': { backgroundColor: location.pathname === item.path ? '#064e5b' : '#cde0df' }
+                                        backgroundColor: location.pathname === item.path ? "#075F6B" : "inherit",
+                                        color: location.pathname === item.path ? "white" : "inherit",
+                                        "&:hover": { backgroundColor: location.pathname === item.path ? "#064e5b" : "#cde0df" },
                                     }}
-                                    onClick={() => navigate(item.path)}>{item.title}
+                                    onClick={() => navigate(item.path)}
+                                >
+                                    {item.title}
                                 </Button>
                             </Grid>
                         ))}
                     </Grid>
-
                 </Toolbar>
             </AppBar>
-
         </Box>
     );
 }

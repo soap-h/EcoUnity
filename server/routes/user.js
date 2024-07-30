@@ -81,7 +81,11 @@ router.post("/login", async (req, res) => {
             email: user.email,
             firstName: user.firstName,
             lastName: user.lastName,
+
+            isAdmin: user.isAdmin,
+=======
             imageFile: user.imageFile
+
         };
         let accessToken = sign(userInfo, process.env.APP_SECRET,
             { expiresIn: process.env.TOKEN_EXPIRES_IN });

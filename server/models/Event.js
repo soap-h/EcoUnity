@@ -20,8 +20,11 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.STRING(100),
             allowNull: false
         },
+        participants: {
+            type: DataTypes.INTEGER(100)
+        },
         price: {
-            type: DataTypes.DOUBLE,
+            type: DataTypes.DOUBLE(5,2),
             allowNull: false
         },
         category: {
@@ -40,16 +43,24 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.DATEONLY,
             allowNull: false
         },
+        userId: {
+            type: DataTypes.INTEGER,
+            allowNull: false
+        },
+        userName: {
+            type: DataTypes.STRING,
+            allowNull: false
+        }
     }, {
         tableName: 'events'
     });
 
-    // Event.associate = (models) => {
-    //     Event.belongsTo(models.User, {
-    //         foreignKey: "userId",
-    //         as: 'user'
-    //     });
-    // };
+    Event.associate = (models) => {
+        Event.belongsTo(models.User, {
+            foreignKey: "userId",
+            as: 'user'
+        });
+    };
 
     return Event;
 }
