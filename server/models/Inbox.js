@@ -1,26 +1,30 @@
 module.exports = (sequelize, DataTypes) => {
-    const Tracker = sequelize.define("Tracker", {
+    const Inbox = sequelize.define("Inbox", {
         title: {
             type: DataTypes.STRING(100),
             allowNull: false
         },
-        points: {
-            type: DataTypes.INTEGER,
+        content: {
+            type: DataTypes.TEXT,
             allowNull: false
         },
         date: {
             type: DataTypes.DATEONLY,
             allowNull: false
         },
+        recipient: {
+            type: DataTypes.STRING(50),
+            allowNull: false
+        }
     }, {
-        tableName: 'trackers'
+        tableName: 'inbox'
     });
 
-    Tracker.associate = (models) => {
-        Tracker.belongsTo(models.User, {
+    Inbox.associate = (models) => {
+        Inbox.belongsTo(models.User, {
             foreignKey: 'userId',
             onDelete: 'cascade'
         });
     };
-    return Tracker;
+    return Inbox;
 }

@@ -23,8 +23,9 @@ router.get("/", async (req, res) => {
 });
 
 const yup = require("yup");
-router.post("/", async (req, res) => {
+router.post("/", validateToken, async (req, res) => {
   let data = req.body;
+  data.userId = req.user.id;
   // Validate request body
   let validationSchema = yup.object({
     title: yup.string().trim().min(3).max(100).required(),
