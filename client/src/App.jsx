@@ -18,7 +18,8 @@ import CreateActivity from "./pages/CreateActivity";
 import EditActivity from "./pages/EditActivity";
 import Activities from "./pages/AllActivites";
 import AddActivity from "./pages/AddActivity";
-import Profile from "./pages/Profile.jsx"
+import Profile from "./pages/Profile.jsx";
+import Inbox from "./pages/Inbox.jsx"
 
 // context
 
@@ -32,13 +33,21 @@ import Navbar from "./components/Navbar";
 function App() {
   const [user, setUser] = useState(null);
   useEffect(() => {
-    if (localStorage.getItem("accessToken")) {
-      http.get("/user/auth").then((res) => {
+    const token = localStorage.getItem("accessToken");
+    if (token) {
+      http.get("/user/auth", {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+      .then((res) => {
         setUser(res.data.user);
+      })
+      .catch(() => {
+        // Handle error, possibly by clearing token or redirecting to login
+        localStorage.removeItem("accessToken");
       });
-      setUser({ name: "User" });
     }
   }, []);
+
   const logout = () => {
     localStorage.clear();
     window.location = "/";
@@ -64,8 +73,9 @@ function App() {
             <Route path={"/editactivity/:id"} element={<EditActivity />} />
             <Route path={"/activities"} element={<Activities />} />
             <Route path={"/createactivity"} element={<CreateActivity />} />
-            <Route path="/profile/:id" element={user ? <Profile /> : <Navigate to="/login" />}
-            />
+            <Route path={"/profile/:id"} element={user ? <Profile /> : <Navigate to="/login" />}/>
+            <Route path={"/inbox"} element={<Inbox />} />
+            
           </Routes>
         </Router>
         {/* Other components */}

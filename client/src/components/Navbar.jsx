@@ -148,7 +148,7 @@ function Navbar() {
                                         onClose={handleMenuClose}
                                     >
                                         <MenuItem onClick={() => { handleMenuClose(); navigate(`/profile/${user.id}`) }}>Profile</MenuItem>
-                                        <MenuItem onClick={() => { handleMenuClose(); navigate('/settings') }}>Inbox</MenuItem>
+                                        <MenuItem onClick={() => { handleMenuClose(); navigate('/inbox') }}>Inbox</MenuItem>
                                         <MenuItem onClick={() => { handleMenuClose(); logout(); }}>Logout</MenuItem>
                                     </Menu>
                                 </>

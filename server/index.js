@@ -30,6 +30,8 @@ const trackerRoute = require('./routes/tracker');
 app.use("/tracker", trackerRoute)
 const activityRoute = require('./routes/activity');
 app.use("/activities", activityRoute)
+const inboxRoute = require('./routes/inbox');
+app.use("/inbox", inboxRoute)
 
 const db = require('./models');
 db.sequelize.sync({ alter: true})

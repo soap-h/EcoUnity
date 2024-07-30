@@ -1,6 +1,7 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { Box, Typography, Grid, Avatar, Container, Paper, IconButton, Button } from '@mui/material';
 import { ToastContainer, toast } from 'react-toastify';
+import { useParams } from 'react-router-dom';
 import 'react-toastify/dist/ReactToastify.css';
 import EmailIcon from '@mui/icons-material/Email';
 import AddPhotoAlternateIcon from '@mui/icons-material/AddPhotoAlternate';
@@ -8,6 +9,7 @@ import UserContext from '../contexts/UserContext';
 import http from '../http';
 
 function Profile() {
+    const { id } = useParams();
     const { user, setUser } = useContext(UserContext);
     const [trackerList, setTrackerList] = useState([]);
     const getTrackers = () => {
@@ -26,7 +28,7 @@ function Profile() {
         (total, tracker) => total + tracker.points,
         0
       );
-
+      console.log(user.imageFile)
     const onFileChange = (e) => {
         let file = e.target.files[0];
         if (file) {
