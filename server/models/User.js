@@ -40,7 +40,6 @@ module.exports = (sequelize, DataTypes) => {
             as: 'events',
           onDelete: "cascade"
         });
-    };
 
         User.hasMany(models.Tracker, {
             foreignKey: "userId",

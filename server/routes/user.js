@@ -83,7 +83,6 @@ router.post("/login", async (req, res) => {
             lastName: user.lastName,
 
             isAdmin: user.isAdmin,
-=======
             imageFile: user.imageFile
 
         };
