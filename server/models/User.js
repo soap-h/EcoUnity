@@ -16,19 +16,35 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.STRING(100),
             allowNull: false
         },
+
         isAdmin: {
             type: DataTypes.BOOLEAN,
             defaultValue: false,
             allowNull: false
+    },
+
+        imageFile: {
+            type: DataTypes.STRING(20),
+            allowNull: true,
+            default: null
+
         }
     }, {
         tableName: 'users'
     });
 
     User.associate = (models) => {
+
         User.hasMany(models.Event, {
             foreignKey: "userId",
             as: 'events',
+          onDelete: "cascade"
+        });
+    };
+
+        User.hasMany(models.Tracker, {
+            foreignKey: "userId",
+
             onDelete: "cascade"
         });
     };

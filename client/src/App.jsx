@@ -1,6 +1,6 @@
 import React from "react";
 import { useState, useEffect } from "react";
-import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Link, Navigate  } from "react-router-dom";
 import { ThemeProvider } from "@mui/material/styles";
 import http from "./http";
 // import ProtectedRoute from "./ProtectedRoute";
@@ -12,17 +12,26 @@ import Learning from "./pages/Learning.jsx";
 import Merchandise from "./pages/Merchandise.jsx";
 import AdminPage from "./pages/AdminPage.jsx";
 import Reviews from "./pages/ReviewPage.jsx";
+
 import Navbar from "./components/Navbar";
+
 import Trackers from "./pages/Tracker";
 import CreateActivity from "./pages/CreateActivity";
 import EditActivity from "./pages/EditActivity";
 import Activities from "./pages/AllActivites";
 import AddActivity from "./pages/AddActivity";
+import Profile from "./pages/Profile.jsx";
+import Inbox from "./pages/Inbox.jsx"
+
+// context
+
 import UserContext from "./contexts/UserContext";
 import AdminDashboard from "./pages/AdminDashboard.jsx";
 import Login from "./pages/Login.jsx";
 import Register from "./pages/Register.jsx";
 import { Dialog } from "@mui/material";
+
+
 
 
 function App() {
@@ -31,14 +40,19 @@ function App() {
   const [openRegister, setOpenRegister] = useState(false);
 
   useEffect(() => {
-    if (localStorage.getItem("accessToken")) {
-      http.get("/user/auth").then((res) => {
+    const token = localStorage.getItem("accessToken");
+    if (token) {
+      http.get("/user/auth", {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+      .then((res) => {
         setUser(res.data.user);
+
         if (res.data.user.isAdmin) {
           window.location = "/admin";
         }
+
       });
-      setUser({ name: "User" });
     }
   }, []);
 
@@ -49,6 +63,7 @@ function App() {
 
   return (
     <UserContext.Provider value={{ user, setUser }}>
+
       <Router>
         <Navbar setOpenLogin={setOpenLogin} setOpenRegister={setOpenRegister} />
         <Routes>
@@ -67,6 +82,8 @@ function App() {
           <Route path={"/editactivity/:id"} element={<EditActivity />} />
           <Route path={"/activities"} element={<Activities />} />
           <Route path={"/createactivity"} element={<CreateActivity />} />
+                        <Route path={"/profile/:id"} element={user ? <Profile /> : <Navigate to="/login" />}/>
+            <Route path={"/inbox"} element={<Inbox />} />
           <Route path="/admin" element={<AdminDashboard />} />
         </Routes>
         <Dialog open={openLogin} onClose={() => setOpenLogin(false)}>
@@ -76,6 +93,7 @@ function App() {
         <Register onClose={() => setOpenRegister(false)} setOpenLogin={setOpenLogin} />
         </Dialog>
       </Router>
+
     </UserContext.Provider>
   );
 }

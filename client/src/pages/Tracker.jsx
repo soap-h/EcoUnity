@@ -83,7 +83,8 @@ function Trackers() {
     }
   };
 
-  const totalPoints = trackerList.reduce(
+  const userTrackers = trackerList.filter(tracker => user && user.id === tracker.userId);
+  const totalPoints = userTrackers.reduce(
     (total, tracker) => total + tracker.points,
     0
   );
@@ -190,51 +191,56 @@ function Trackers() {
               Points
             </Typography>
           </Box>
-          {trackerList.length === 0 ? (
-            <Typography sx={{ textAlign: "center", color: "gray" }}>
-              No Recorded activities
-            </Typography>
-          ) : (
-            trackerList.map((tracker) => (
-              <Box
-                key={tracker.id}
-                sx={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  py: 2,
-                  px: 1,
-                  bgcolor: "#fff",
-                  borderBottom: "1px solid #ddd",
-                  "&:hover": { backgroundColor: "#f5f5f5" },
-                }}
-                onMouseEnter={() => setHoveredId(tracker.id)}
-                onMouseLeave={() => setHoveredId(null)}
-              >
-                <Typography variant="body2" sx={{ width: "30%" }}>
-                  {formatDate(tracker.date)}
-                </Typography>
-                <Typography variant="body2" sx={{ width: "55%" }}>
-                  {tracker.title}
-                </Typography>
-                <Typography variant="body2" sx={{ width: "15%" }}>
-                  {tracker.points}
-                </Typography>
-                {hoveredId === tracker.id && (
-                  <IconButton
-                    size="small"
+          {
+            trackerList.length === 0 ? (
+              <Typography sx={{ textAlign: "center", color: "gray" }}>
+                No Recorded activities
+              </Typography>
+            ) : (
+              trackerList.map((tracker) => (
+                user && user.id === tracker.userId && (
+                  <Box
+                    key={tracker.id}
                     sx={{
-                      position: "absolute",
-                      right: 25,
-                      color: "red",
+                      display: "flex",
+                      justifyContent: "space-between",
+                      py: 2,
+                      px: 1,
+                      bgcolor: "#fff",
+                      borderBottom: "1px solid #ddd",
+                      "&:hover": { backgroundColor: "#f5f5f5" },
+                      position: "relative"
                     }}
-                    onClick={() => handleOpen(tracker.id)}
+                    onMouseEnter={() => setHoveredId(tracker.id)}
+                    onMouseLeave={() => setHoveredId(null)}
                   >
-                    <Delete />
-                  </IconButton>
-                )}
-              </Box>
-            ))
-          )}
+                    <Typography variant="body2" sx={{ width: "30%" }}>
+                      {formatDate(tracker.date)}
+                    </Typography>
+                    <Typography variant="body2" sx={{ width: "55%" }}>
+                      {tracker.title}
+                    </Typography>
+                    <Typography variant="body2" sx={{ width: "15%" }}>
+                      {tracker.points}
+                    </Typography>
+                    {hoveredId === tracker.id && (
+                      <IconButton
+                        size="small"
+                        sx={{
+                          position: "absolute",
+                          right: 25,
+                          color: "red",
+                        }}
+                        onClick={() => handleOpen(tracker.id)}
+                      >
+                        <Delete />
+                      </IconButton>
+                    )}
+                  </Box>
+                )
+              ))
+            )
+          }
           <Dialog open={open} onClose={handleClose}>
             <DialogTitle>Delete Activity</DialogTitle>
             <DialogContent>
