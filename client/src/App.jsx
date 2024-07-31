@@ -1,6 +1,6 @@
 import React from "react";
 import { useState, useEffect } from "react";
-import { BrowserRouter as Router, Routes, Route, Link, Navigate  } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Link, Navigate } from "react-router-dom";
 import { ThemeProvider } from "@mui/material/styles";
 import http from "./http";
 // import ProtectedRoute from "./ProtectedRoute";
@@ -21,7 +21,8 @@ import EditActivity from "./pages/EditActivity";
 import Activities from "./pages/AllActivites";
 import AddActivity from "./pages/AddActivity";
 import Profile from "./pages/Profile.jsx";
-import Inbox from "./pages/Inbox.jsx"
+import Inbox from "./pages/Inbox.jsx";
+import AddInboxMessage from "./pages/AddInboxMessage.jsx";
 
 // context
 
@@ -36,6 +37,7 @@ import { Dialog } from "@mui/material";
 
 function App() {
   const [user, setUser] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [openLogin, setOpenLogin] = useState(false);
   const [openRegister, setOpenRegister] = useState(false);
 
@@ -45,14 +47,20 @@ function App() {
       http.get("/user/auth", {
         headers: { Authorization: `Bearer ${token}` }
       })
-      .then((res) => {
-        setUser(res.data.user);
+        .then((res) => {
+          setUser(res.data.user);
 
-        if (res.data.user.isAdmin) {
-          window.location = "/admin";
-        }
+          if (res.data.user.isAdmin) {
+            window.location = "/admin";
+          }
 
-      });
+        }).catch(() => {
+          localStorage.clear();
+        }).finally(() => {
+          setIsLoading(false); // Set loading to false after the request completes
+        });
+    } else {
+      setIsLoading(false); // Set loading to false if no token is found
     }
   }, []);
 
@@ -60,6 +68,10 @@ function App() {
     localStorage.clear();
     window.location = "/";
   };
+
+  if (isLoading) {
+    return <div>Loading...</div>; // Display loading indicator while fetching user data
+  }
 
   return (
     <UserContext.Provider value={{ user, setUser }}>
@@ -82,15 +94,16 @@ function App() {
           <Route path={"/editactivity/:id"} element={<EditActivity />} />
           <Route path={"/activities"} element={<Activities />} />
           <Route path={"/createactivity"} element={<CreateActivity />} />
-                        <Route path={"/profile/:id"} element={user ? <Profile /> : <Navigate to="/login" />}/>
-            <Route path={"/inbox"} element={<Inbox />} />
+          <Route path={"/profile/:id"} element={user ? <Profile /> : <Navigate to="/login" />} />
+          <Route path={"/inbox"} element={<Inbox />} />
+          <Route path={"/addinbox"} element={<AddInboxMessage />} />
           <Route path="/admin" element={<AdminDashboard />} />
         </Routes>
         <Dialog open={openLogin} onClose={() => setOpenLogin(false)}>
           <Login onClose={() => setOpenLogin(false)} />
         </Dialog>
         <Dialog open={openRegister} onClose={() => setOpenRegister(false)}>
-        <Register onClose={() => setOpenRegister(false)} setOpenLogin={setOpenLogin} />
+          <Register onClose={() => setOpenRegister(false)} setOpenLogin={setOpenLogin} />
         </Dialog>
       </Router>
 

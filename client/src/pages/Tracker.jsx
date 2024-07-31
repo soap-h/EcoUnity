@@ -1,36 +1,61 @@
 import React, { useEffect, useState, useContext } from "react";
 import UserContext from "../contexts/UserContext";
 import { Link } from "react-router-dom";
-import { Box, Typography, IconButton, Button, TextField } from "@mui/material";
-import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogContentText,
-  DialogActions,
-} from "@mui/material";
+import { Box, Typography, IconButton, Button, TextField, Select, MenuItem, InputLabel, FormControl, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions } from "@mui/material";
 import { Add, Delete, Edit } from "@mui/icons-material";
 import dayjs from "dayjs";
 import global from "../global";
 import http from "../http";
 import { useNavigate } from "react-router-dom";
-import { Doughnut } from "react-chartjs-2";
-import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
+import { Bar, Doughnut } from "react-chartjs-2";
+
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import bannerImage from "../assets/images/Picture1.png";
+import AddActivity from './AddActivity';
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+  ArcElement,
+} from 'chart.js';
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+  ArcElement
+);
+
+
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
 function Trackers() {
   const navigate = useNavigate();
+  const { user } = useContext(UserContext);
   const [trackerList, setTrackerList] = useState([]);
   const [hoveredId, setHoveredId] = useState(null);
   const [selectedId, setSelectedId] = useState(null);
-  const { user } = useContext(UserContext);
 
   const [goal, setGoal] = useState(1000); // State for goal
+  const [goalType, setGoalType] = useState("monthly"); // State for goal type
+  const [tempGoal, setTempGoal] = useState(goal); // Temporary state for goal during editing
+  const [tempGoalType, setTempGoalType] = useState(goalType); // Temporary state for goal type during editing
   const [openEditDialog, setOpenEditDialog] = useState(false); // State for edit dialog
+  const [openAddDialog, setOpenAddDialog] = useState(false);
+  const [activities, setActivities] = useState([]);
+  const [activityPoints, setActivityPoints] = useState('');
+  const [co2Data, setCo2Data] = useState([]);
+
+
 
   const formatDate = (date) => {
     const [year, month, day] = date.split("-");
@@ -38,17 +63,70 @@ function Trackers() {
   };
 
   const getTrackers = () => {
-    http.get("/tracker").then((res) => {
-      console.log(res.data);
-      setTrackerList(res.data);
+    if (goalType == "monthly") {
+      http.get("/tracker/month").then((res) => {
+        console.log(res.data);
+        setTrackerList(res.data);
+      });
+    }
+    else if (goalType == "weekly") {
+      http.get("/tracker/w").then((res) => {
+        console.log(res.data);
+        setTrackerList(res.data);
+      });
+    }
+
+  };
+
+  const getUserGoal = () => {
+    http.get(`/user/trackergoal/${user.id}`).then((res) => {
+      setGoal(res.data.goals || 1000);
+      setGoalType(res.data.goaltype || "monthly");
+    }).catch(err => {
+      console.error("Failed to fetch user goal:", err);
     });
   };
 
   useEffect(() => {
     getTrackers();
+    getUserGoal();
+    http.get('/activities').then((res) => {
+      setActivities(res.data);
+    });
+    http.get("/tracker/monthly-co2").then((res) => {
+      setCo2Data(res.data);
+      console.log(res.data);
+    }).catch(err => {
+      console.error("Failed to fetch CO2 data:", err);
+    });
+
   }, []);
 
-  // delete activity
+  const co2ChartData = {
+    labels: co2Data.map(data => data.month),
+    datasets: [{
+      label: 'CO2 Saved (g)',
+      data: co2Data.map(data => data.co2Saved),
+      backgroundColor: 'rgba(90, 152, 149, 0.7)',
+      borderColor: 'rgba(90, 152, 149, 1)',
+      borderWidth: 1,
+    }],
+  };
+  const co2ChartOptions = {
+    scales: {
+      y: {
+        beginAtZero: true
+      }
+    },
+    plugins: {
+      legend: {
+        display: false // You can set this to true if you want a legend
+      }
+    },
+    maintainAspectRatio: false
+  };
+
+
   const [open, setOpen] = useState(false);
   const handleOpen = (id) => {
     setSelectedId(id);
@@ -58,8 +136,9 @@ function Trackers() {
     setOpen(false);
   };
 
-  // edit goal
   const handleOpenEditDialog = () => {
+    setTempGoal(goal);
+    setTempGoalType(goalType);
     setOpenEditDialog(true);
   };
 
@@ -67,8 +146,29 @@ function Trackers() {
     setOpenEditDialog(false);
   };
 
+  const handleOpenAddDialog = () => {
+    setOpenAddDialog(true);
+  };
+
+  const handleCloseAddDialog = () => {
+    setOpenAddDialog(false);
+  };
+
   const handleGoalChange = () => {
-    handleCloseEditDialog();
+    const updatedGoal = parseInt(tempGoal, 10);
+    if (!isNaN(updatedGoal) && (tempGoalType === "monthly" || tempGoalType === "weekly")) {
+      http.put(`user/settracker/${user.id}`, { goals: updatedGoal, goaltype: tempGoalType }).then(() => {
+        setGoal(updatedGoal);
+        setGoalType(tempGoalType);
+        handleCloseEditDialog();
+        toast.success("Goal updated successfully");
+      }).catch(err => {
+        toast.error("Failed to update goal");
+        console.error("Error updating goal:", err);
+      });
+    } else {
+      toast.error("Invalid goal or goal type");
+    }
   };
 
   const deleteActivity = () => {
@@ -90,17 +190,34 @@ function Trackers() {
   );
   const remainingPoints = Math.max(goal - totalPoints, 0);
   const data = {
-    labels: ["Total Points", "Remaining"],
-
+    labels: ["Co2 Saved", "Remaining"],
     datasets: [
       {
         data: [Math.min(totalPoints, goal), remainingPoints],
-        // limit
         backgroundColor: ["#5A9895", "#f5f5f5"],
         hoverBackgroundColor: ["#4A7B7A", "#e0e0e0"],
       },
     ],
   };
+
+  const getCurrentPeriod = () => {
+    if (goalType === "monthly") {
+      return `Month of ${dayjs().format("MMMM YYYY")}`;
+    } else {
+      const startOfWeek = dayjs().startOf('week');
+      const endOfWeek = dayjs().endOf('week');
+      return `Week of ${startOfWeek.format("DD MMM")} - ${endOfWeek.format("DD MMM YYYY")}`;
+    }
+  };
+
+  // To get the completion percentage
+  const getCompletionPercentage = () => {
+    const percentage = (totalPoints / goal) * 100;
+    return percentage.toFixed(0); // Rounded to whole number
+  };
+
+  // Text for CO2 saving
+  const co2SavingText = `Save 500g of CO2 every ${goalType.charAt(0).toUpperCase() + goalType.slice(1)}`;
 
   return (
     <Box sx={{ p: 2 }}>
@@ -135,7 +252,7 @@ function Trackers() {
           }}
         >
           <Typography variant="h6" sx={{ mb: 2 }}>
-            Total Points
+            Co2 Saved
           </Typography>
           <Typography
             variant="h4"
@@ -146,6 +263,12 @@ function Trackers() {
           <Box sx={{ display: "flex", justifyContent: "center", mt: 2 }}>
             <Doughnut data={data} />
           </Box>
+          <Typography variant="subtitle1" sx={{ mt: 2, textAlign: "center", color: "#5A9895" }}>
+            Save {goal}g of CO2 {goalType.charAt(0).toUpperCase() + goalType.slice(1)}
+          </Typography>
+          <Typography variant="subtitle2" sx={{ mt: 1, textAlign: "center", color: "textSecondary" }}>
+            {getCompletionPercentage()}% Completed - {getCurrentPeriod()}
+          </Typography>
           <Box sx={{ textAlign: "center", mt: 2 }}>
             <Button
               variant="contained"
@@ -174,7 +297,7 @@ function Trackers() {
             sx={{
               display: "flex",
               justifyContent: "space-between",
-              width: "96%",
+              width: "100%",
               mb: 2,
               bgcolor: "#f5f5f5",
               p: 1,
@@ -188,7 +311,7 @@ function Trackers() {
               Activity
             </Typography>
             <Typography variant="body1" sx={{ width: "20%" }}>
-              Points
+              Co2/g
             </Typography>
           </Box>
           {
@@ -221,7 +344,7 @@ function Trackers() {
                       {tracker.title}
                     </Typography>
                     <Typography variant="body2" sx={{ width: "15%" }}>
-                      {tracker.points}
+                      {tracker.points}g
                     </Typography>
                     {hoveredId === tracker.id && (
                       <IconButton
@@ -263,28 +386,20 @@ function Trackers() {
           </Dialog>
           {/* Add button */}
           <Box sx={{ position: "absolute", bottom: 16, right: 16 }}>
-            <Link to="/addactivity" style={{ textDecoration: "none" }}>
-              <IconButton
-                color="primary"
-                sx={{
-                  padding: "4px",
-                  backgroundColor: "#5A9895",
-                  "&:hover": { backgroundColor: "#4A7B7A" },
-                }}
-              >
-                <Add />
-              </IconButton>
-            </Link>
+            <Button onClick={handleOpenAddDialog} color="primary">Add Activity</Button>
+            <AddActivity open={openAddDialog} handleClose={handleCloseAddDialog} activities={activities} />
           </Box>
         </Box>
       </Box>
+      <Box sx={{ height: '500px' }}>
+        <Bar data={co2ChartData} options={co2ChartOptions} />
+      </Box>
 
-      {/* Edit Goal Dialog */}
       <Dialog open={openEditDialog} onClose={handleCloseEditDialog}>
         <DialogTitle>Edit Goal</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            Please enter a new value for the goal.
+            Please enter a new value for the goal and select the goal type.
           </DialogContentText>
           <TextField
             autoFocus
@@ -292,9 +407,22 @@ function Trackers() {
             label="Goal"
             type="number"
             fullWidth
-            value={goal}
-            onChange={(e) => setGoal(e.target.value)}
+            value={tempGoal}
+            onChange={(e) => setTempGoal(e.target.value)}
           />
+          <FormControl fullWidth margin="dense">
+            <InputLabel id="goal-type-label">Goal Type</InputLabel>
+            <Select
+              labelId="goal-type-label"
+              id="goal-type-select"
+              value={tempGoalType}
+              label="Goal Type"
+              onChange={(e) => setTempGoalType(e.target.value)}
+            >
+              <MenuItem value="monthly">Monthly</MenuItem>
+              <MenuItem value="weekly">Weekly</MenuItem>
+            </Select>
+          </FormControl>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCloseEditDialog} color="inherit">

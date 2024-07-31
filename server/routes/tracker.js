@@ -1,8 +1,25 @@
 const express = require("express");
 const router = express.Router();
 const { User, Tracker } = require("../models");
-const { Op } = require("sequelize");
+const { Op, sequelize, DataTypes } = require("sequelize");
+const db = require("../models");  
 const { validateToken } = require("../middlewares/auth");
+
+
+function getStartOfMonth() {
+  const date = new Date();
+  return new Date(date.getFullYear(), date.getMonth(), 1);
+}
+
+// Helper function to get the start of the current week (assuming week starts on Sunday)
+function getStartOfWeek() {
+  const date = new Date();
+  const day = date.getDay(); // Get current day number, from 0 (Sunday) to 6 (Saturday)
+  const diff = date.getDate() - day; // Adjust to the previous Sunday
+  return new Date(date.getFullYear(), date.getMonth(), diff);
+}
+
+
 
 router.get("/", async (req, res) => {
   let condition = {};
@@ -21,6 +38,66 @@ router.get("/", async (req, res) => {
   });
   res.json(list);
 });
+
+
+// Route to get tracker entries from the start of the current month
+router.get("/month", async (req, res) => {
+  const startOfMonth = getStartOfMonth();
+  console.log("Getting data for /month");
+
+  try {
+    const trackers = await Tracker.findAll({
+      where: {
+        createdAt: {
+          [Op.gte]: startOfMonth
+        }
+      },
+      order: [["createdAt", "DESC"]],
+    });
+    res.json(trackers);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Route to get tracker entries from the start of the current week
+router.get("/week", async (req, res) => {
+  const startOfWeek = getStartOfWeek();
+  try {
+    const trackers = await Tracker.findAll({
+      where: {
+        createdAt: {
+          [Op.gte]: startOfWeek
+        }
+      },
+      order: [["createdAt", "DESC"]],
+    });
+    res.json(trackers);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+router.get("/monthly-co2", validateToken, async (req, res) => {
+  const userId = req.user.id; 
+  try {
+    const monthlyCo2 = await db.Tracker.findAll({
+      attributes: [
+        [db.sequelize.fn('date_format', db.sequelize.col('date'), '%Y-%m'), 'month'],
+        [db.sequelize.fn('sum', db.sequelize.col('points')), 'co2Saved']
+      ],
+      where: {
+        userId: userId, // Filtering by user ID
+      },
+      group: [db.sequelize.fn('date_format', db.sequelize.col('date'), '%Y-%m')],
+      order: [[db.sequelize.fn('date_format', db.sequelize.col('date'), '%Y-%m'), 'ASC']]
+    });
+    res.json(monthlyCo2);
+  } catch (error) {
+    res.status(500).send({ error: error.message });
+  }
+});
+
 
 const yup = require("yup");
 router.post("/", validateToken, async (req, res) => {
