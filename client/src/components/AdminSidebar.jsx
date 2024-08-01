@@ -14,7 +14,7 @@ import { Link } from 'react-router-dom';
 
 const AdminSidebar = ({ username }) => {
     return (
-        <Box sx={{ width: 240, height: '95vh', backgroundColor: '#4CAF50', borderRadius: '20px', margin: 2, color: 'white', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', overflow: 'hidden' }}>
+        <Box sx={{ width: 240, height: '95vh', backgroundColor: '#5a9895', borderRadius: '20px', margin: 2, color: 'white', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', overflow: 'hidden' }}>
             <Box>
                 <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', padding: 2 }}>
                     <Avatar alt="Eco Unity Logo" src= {EcoUnityLogo} sx={{ width: 80, height: 80 }} />
