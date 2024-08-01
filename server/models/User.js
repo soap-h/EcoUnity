@@ -16,22 +16,87 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.STRING(100),
             allowNull: false
         },
+
         isAdmin: {
             type: DataTypes.BOOLEAN,
             defaultValue: false,
             allowNull: false
+        },
+
+        imageFile: {
+            type: DataTypes.STRING(20),
+            allowNull: true,
+            default: null
+
+        },
+
+        description: {
+            type: DataTypes.TEXT,
+            allowNull: true,
+            defaultValue: null
+        },
+
+        goals: {
+            type: DataTypes.INTEGER,
+            allowNull: true,
+            defaultValue: 1000
+        },
+
+        goaltype: {
+            type: DataTypes.STRING(10),
+            validate: {
+                isIn: {
+                    args: [['monthly', 'weekly']],
+                    msg: "Goal type must be either 'monthly' or 'weekly'"
+                }
+            },
+            defaultValue: "monthly"
         }
     }, {
         tableName: 'users'
     });
 
     User.associate = (models) => {
+
         User.hasMany(models.Event, {
             foreignKey: "userId",
             as: 'events',
             onDelete: "cascade"
         });
+
+        User.hasMany(models.Tracker, {
+            foreignKey: "userId",
+
+            onDelete: "cascade"
+        });
+
+        // One-to-Many Relationship with Threads Table
+        User.hasMany(models.Thread, {
+            foreignKey: "userId",
+            onDelete: "CASCADE"
+        });
+
+        // One-to-Many Relationship with Comments Table
+        User.hasMany(models.Comment, {
+            foreignKey: "userId",
+            as: 'comments',
+            onDelete: "CASCADE"
+        });
+    
+        User.hasMany(models.IncidentReporting, {
+            foreignKey: "userId",
+            as: 'incidentReports',
+            onDelete: 'cascade'
+        });
+
     };
+    // User.associate = (models) => {
+    //     User.hasMany(models.EventFeedback, {
+    //     foreignKey: "userId",
+    //     onDelete: "cascade"
+    //     });
+    //     };
+    
 
     return User;
 }

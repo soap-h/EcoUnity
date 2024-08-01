@@ -16,3 +16,11 @@ npm i @mui/material @mui/lab @emotion/react @emotion/styled
 npm i @mui/material @emotion/react @emotion/styled react-material-ui-carousel dayjs @mui/x-date-pickers
 
 npm install chart.js react-chartjs-2
+npm i recharts
+
+under server:
+npm i cors
+
+for file uploading 
+npm i multer
+npm i nanoid@3

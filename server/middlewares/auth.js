@@ -23,6 +23,7 @@
 const { verify } = require('jsonwebtoken');
 
 const validateToken = (req, res, next) => {
+
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1];
 
@@ -36,6 +37,7 @@ const validateToken = (req, res, next) => {
         next();
     } catch (err) {
         return res.status(403).json({ error: "Invalid token" });
+
     }
 };
 
