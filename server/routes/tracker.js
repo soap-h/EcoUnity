@@ -11,6 +11,11 @@ function getStartOfMonth() {
   return new Date(date.getFullYear(), date.getMonth(), 1);
 }
 
+function getStartOfPreviousMonth() {
+  const date = new Date();
+  return new Date(date.getFullYear(), date.getMonth() - 1, 1);
+}
+
 // Helper function to get the start of the current week (assuming week starts on Sunday)
 function getStartOfWeek() {
   const date = new Date();
@@ -67,6 +72,45 @@ router.get("/dashboard", async (req, res) => {
       co2SavedOverTime
     });
   } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+router.get("/improvement", validateToken, async (req, res) => {
+  const userId = req.user.id;
+
+  const startOfCurrentMonth = getStartOfMonth();
+  const startOfPreviousMonth = getStartOfPreviousMonth();
+
+  try {
+    const currentMonthSavings = await Tracker.findOne({
+      attributes: [[db.sequelize.fn("sum", db.sequelize.col("points")), "totalPoints"]],
+      where: {
+        userId: userId,
+        date: {
+          [Op.gte]: startOfCurrentMonth
+        }
+      }
+    });
+
+    const previousMonthSavings = await Tracker.findOne({
+      attributes: [[db.sequelize.fn("sum", db.sequelize.col("points")), "totalPoints"]],
+      where: {
+        userId: userId,
+        date: {
+          [Op.gte]: startOfPreviousMonth,
+          [Op.lt]: startOfCurrentMonth
+        }
+      }
+    });
+
+    const currentMonthPoints = currentMonthSavings.get("totalPoints") || 0;
+    const previousMonthPoints = previousMonthSavings.get("totalPoints") || 0;
+    const improvement = currentMonthPoints - previousMonthPoints;
+
+    res.json({ improvement });
+  } catch (error) {
+    console.error("Failed to fetch improvement data:", error);
     res.status(500).json({ error: error.message });
   }
 });

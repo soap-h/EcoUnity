@@ -34,10 +34,6 @@ ChartJS.register(
   ArcElement
 );
 
-
-
-ChartJS.register(ArcElement, Tooltip, Legend);
-
 function Trackers() {
   const navigate = useNavigate();
   const { user } = useContext(UserContext);
@@ -54,8 +50,7 @@ function Trackers() {
   const [activities, setActivities] = useState([]);
   const [activityPoints, setActivityPoints] = useState('');
   const [co2Data, setCo2Data] = useState([]);
-
-
+  const [improvement, setImprovement] = useState(0); // State for improvement from last month
 
   const formatDate = (date) => {
     const [year, month, day] = date.split("-");
@@ -75,7 +70,6 @@ function Trackers() {
         setTrackerList(res.data);
       });
     }
-
   };
 
   const getUserGoal = () => {
@@ -87,9 +81,18 @@ function Trackers() {
     });
   };
 
+  const getImprovementFromLastMonth = () => {
+    http.get("/tracker/improvement").then((res) => {
+      setImprovement(res.data.improvement);
+    }).catch(err => {
+      console.error("Failed to fetch improvement data:", err);
+    });
+  };
+
   useEffect(() => {
     getTrackers();
     getUserGoal();
+    getImprovementFromLastMonth();
     http.get('/activities').then((res) => {
       setActivities(res.data);
     });
@@ -99,7 +102,6 @@ function Trackers() {
     }).catch(err => {
       console.error("Failed to fetch CO2 data:", err);
     });
-
   }, []);
 
   const co2ChartData = {
@@ -125,7 +127,6 @@ function Trackers() {
     },
     maintainAspectRatio: false
   };
-
 
   const [open, setOpen] = useState(false);
   const handleOpen = (id) => {
@@ -391,9 +392,17 @@ function Trackers() {
           </Box>
         </Box>
       </Box>
-      <Box sx={{ display: "flex", justifyContent: "center", height: '500px', mt: 7, width: '100%' }}>
-        <Box sx={{ width: '60%' }}>
-          <Bar data={co2ChartData} options={co2ChartOptions} />
+      <Box sx={{ display: "flex", justifyContent: "center", mt: 7, width: '80%' }}>
+        <Box sx={{ width: '100%', p: 3, border: '1px solid #ccc', borderRadius: '8px', position: 'relative', display: "column" }}>
+          <Typography variant="h6" sx={{ position: 'absolute', top: 16, right: 16 }}>
+            Total CO2 Saved: {totalPoints}g
+          </Typography>
+          <Box sx={{ height: '500px', width: '60%'}}>
+            <Bar data={co2ChartData} options={co2ChartOptions} />
+          </Box>
+          <Typography variant="body2" sx={{ mt: 2, textAlign: 'center', color: 'textSecondary' }}>
+            You have saved {improvement}g more CO2 compared to last month
+          </Typography>
         </Box>
       </Box>
 
