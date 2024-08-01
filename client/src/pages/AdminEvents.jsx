@@ -1,3 +1,4 @@
+// AdminEvents.jsx
 import React, { useState, useEffect } from 'react';
 import { Box, Tab, Tabs, Typography, IconButton, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Menu, MenuItem, Button, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
@@ -12,6 +13,15 @@ import dayjs from 'dayjs';
 const AdminEvents = () => {
     const { user } = React.useContext(UserContext);
     const [events, setEvents] = useState([]);
+    const [proposals, setProposals] = useState([
+        {
+            id: 1,
+            date: new Date().toLocaleDateString(),
+            document: 'proposal_template.docx',
+            userId: 1,
+            status: 'Pending'
+        }
+    ]);
     const [tabValue, setTabValue] = useState(0);
     const [anchorEl, setAnchorEl] = useState(null);
     const [selectedEvent, setSelectedEvent] = useState(null);
@@ -29,8 +39,18 @@ const AdminEvents = () => {
         }
     };
 
+    const fetchProposals = async () => {
+        try {
+            const res = await http.get('/proposals');
+            setProposals([...res.data, ...proposals]); // Adding hardcoded proposal to fetched proposals
+        } catch (error) {
+            console.error('Failed to fetch proposals:', error);
+        }
+    };
+
     useEffect(() => {
         fetchEvents();
+        fetchProposals();
     }, []);
 
     const handleTabChange = (event, newValue) => {
@@ -99,6 +119,24 @@ const AdminEvents = () => {
         }
     };
 
+    const handleApproveProposal = async (proposalId) => {
+        try {
+            await http.put(`/proposals/${proposalId}/approve`);
+            fetchProposals();
+        } catch (error) {
+            console.error('Failed to approve proposal:', error);
+        }
+    };
+
+    const handleRejectProposal = async (proposalId) => {
+        try {
+            await http.put(`/proposals/${proposalId}/reject`);
+            fetchProposals();
+        } catch (error) {
+            console.error('Failed to reject proposal:', error);
+        }
+    };
+
     const renderEventsTable = () => (
         <TableContainer component={Paper}>
             <Table>
@@ -147,7 +185,51 @@ const AdminEvents = () => {
                         ))
                     ) : (
                         <TableRow>
-                            <TableCell colSpan={7}>No events available</TableCell>
+                            <TableCell colSpan={10}>No events available</TableCell>
+                        </TableRow>
+                    )}
+                </TableBody>
+            </Table>
+        </TableContainer>
+    );
+
+    const renderProposalsTable = () => (
+        <TableContainer component={Paper}>
+            <Table>
+                <TableHead>
+                    <TableRow>
+                        <TableCell>ID</TableCell>
+                        <TableCell>Date</TableCell>
+                        <TableCell>Document</TableCell>
+                        <TableCell>User ID</TableCell>
+                        <TableCell>Approve</TableCell>
+                    </TableRow>
+                </TableHead>
+                <TableBody>
+                    {proposals.length > 0 ? (
+                        proposals.map((proposal) => (
+                            <TableRow key={proposal.id} style={{ backgroundColor: proposal.status === 'Approved' ? 'lightgreen' : proposal.status === 'Rejected' ? 'lightcoral' : 'inherit' }}>
+                                <TableCell>{proposal.id}</TableCell>
+                                <TableCell>{new Date(proposal.date).toLocaleDateString()}</TableCell>
+                                <TableCell>
+                                    <a variant="contained" color="primary" href="/assets/proposal_template.docx" download>
+                                        proposal_template.docx
+                                    </a>
+                                </TableCell>
+                                <TableCell>{proposal.userId}</TableCell>
+                                <TableCell>
+                                    <Button variant="contained" color="primary" onClick={() => handleApproveProposal(proposal.id)} disabled={proposal.status !== 'Pending'}>
+                                        Approve
+                                    </Button>
+                                    <Button variant="contained" color="secondary" onClick={() => handleRejectProposal(proposal.id)} disabled={proposal.status !== 'Pending'} sx={{ ml: 2 }}>
+                                        Reject
+                                    </Button>
+                                </TableCell>
+                            </TableRow>
+                        ))
+                    ) : (
+                        <TableRow>
+                            <TableCell colSpan={6}>No proposals available</TableCell>
                         </TableRow>
                     )}
                 </TableBody>
@@ -172,7 +254,7 @@ const AdminEvents = () => {
                 </Tabs>
                 <Box sx={{ paddingTop: 3 }}>
                     {tabValue === 0 && renderEventsTable()}
-                    {tabValue === 1 && <Typography>Pending Events</Typography>}
+                    {tabValue === 1 && renderProposalsTable()}
                     {tabValue === 2 && <Typography>Past Events</Typography>}
                 </Box>
                 <Dialog open={openAdd} onClose={handleCloseAddDialog}>

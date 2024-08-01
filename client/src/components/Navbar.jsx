@@ -5,19 +5,19 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import MenuIcon from '@mui/icons-material/Menu';
 import SearchIcon from '@mui/icons-material/Search';
 import PersonAddAlt1Icon from '@mui/icons-material/PersonAddAlt1';
-import LoginIcon from '@mui/icons-material/Login'
+import LoginIcon from '@mui/icons-material/Login';
 import EcoUnityLogo from '../assets/Eco Unity.png';
 import TrackerLogo from "../assets/images/tracker.png";
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
+import MicIcon from '@mui/icons-material/Mic';
 import UserContext from '../contexts/UserContext';
-
 
 function Navbar({ setOpenLogin, setOpenRegister }) {
     const navigate = useNavigate();
     const location = useLocation();
     const { user } = useContext(UserContext);
-
     const [anchorEl, setAnchorEl] = useState(null);
+    const [searchText, setSearchText] = useState('');
 
     const handleMenuOpen = (event) => {
         setAnchorEl(event.currentTarget);
@@ -26,7 +26,6 @@ function Navbar({ setOpenLogin, setOpenRegister }) {
     const handleMenuClose = () => {
         setAnchorEl(null);
     };
-
 
     const logout = () => {
         localStorage.clear();
@@ -42,9 +41,29 @@ function Navbar({ setOpenLogin, setOpenRegister }) {
         { title: "Locations", path: "/locations" },
     ];
 
+    const handleVoiceSearch = () => {
+        const recognition = new window.webkitSpeechRecognition();
+        recognition.lang = 'en-US';
+        recognition.start();
+
+        recognition.onresult = (event) => {
+            const spokenText = event.results[0][0].transcript.toLowerCase();
+            setSearchText(spokenText);
+
+            const matchedItem = navItems.find(item => item.title.toLowerCase() === spokenText);
+            if (matchedItem) {
+                navigate(matchedItem.path);
+            }
+        };
+
+        recognition.onerror = (event) => {
+            console.error('Speech recognition error', event.error);
+        };
+    };
+
     if (location.pathname.startsWith('/admin')) {
         return null; // Don't render navbar on admin pages
-      }
+    }
 
     return (
         <Box sx={{ width: "100%" }}>
@@ -81,9 +100,22 @@ function Navbar({ setOpenLogin, setOpenRegister }) {
                                 variant="outlined"
                                 placeholder="What are you looking for?"
                                 size="small"
+                                value={searchText}
+                                onChange={(e) => setSearchText(e.target.value)}
                                 InputProps={{
                                     endAdornment: (
                                         <InputAdornment position="end">
+                                            <IconButton
+                                                sx={{
+                                                    backgroundColor: "#075F6B",
+                                                    borderRadius: 0,
+                                                    color: "white",
+                                                    "&:hover": { backgroundColor: "#0f707c !important" },
+                                                }}
+                                                onClick={handleVoiceSearch}
+                                            >
+                                                <MicIcon />
+                                            </IconButton>
                                             <IconButton
                                                 sx={{
                                                     backgroundColor: "#075F6B",
@@ -115,41 +147,32 @@ function Navbar({ setOpenLogin, setOpenRegister }) {
 
                         <Grid item sx={{ pr: { sm: 2, md: 6, lg: 10 }, display: 'flex', flexDirection: 'row' }}>
 
-                            {
-                                !user && (
-                                    <IconButton color="inherit" sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', mr: 3 }}
-                                        onClick={() => setOpenRegister(true)}>
-                                        <PersonAddAlt1Icon sx={{ height: 40, width: 40 }} />
-                                        <Typography>Sign Up</Typography>
-                                    </IconButton>
+                            {!user && (
+                                <IconButton color="inherit" sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', mr: 3 }}
+                                    onClick={() => setOpenRegister(true)}>
+                                    <PersonAddAlt1Icon sx={{ height: 40, width: 40 }} />
+                                    <Typography>Sign Up</Typography>
+                                </IconButton>
+                            )}
+                            {!user && (
+                                <IconButton color="inherit" sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', ml: 3 }}
+                                    onClick={() => setOpenLogin(true)}>
+                                    <LoginIcon sx={{ height: 40, width: 40 }} />
+                                    <Typography>Login</Typography>
+                                </IconButton>
+                            )}
 
-
-                                )
-                            }
-                            {
-
-                                !user && (
-                                    <IconButton color="inherit" sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', ml: 3 }}
-                                        onClick={() => setOpenLogin(true)}>
-                                        <LoginIcon sx={{ height: 40, width: 40 }} />
-                                        <Typography>Login</Typography>
-                                    </IconButton>
-                                )
-                            }
-
-                            {
-                                user && (
-                                    <IconButton color="inherit" sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', mr: 3 }}
-                                        onClick={() => navigate("/Tracker")}>
-                                        <Avatar
-                                            alt={`${user.firstName} ${user.lastName}`}
-                                            src={TrackerLogo}
-                                            sx={{ width: 50, height: 50 }}
-                                        />
-                                        <Typography>EcoTracker</Typography>
-                                    </IconButton>
-                                )
-                            }
+                            {user && (
+                                <IconButton color="inherit" sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', mr: 3 }}
+                                    onClick={() => navigate("/Tracker")}>
+                                    <Avatar
+                                        alt={`${user.firstName} ${user.lastName}`}
+                                        src={TrackerLogo}
+                                        sx={{ width: 50, height: 50 }}
+                                    />
+                                    <Typography>EcoTracker</Typography>
+                                </IconButton>
+                            )}
 
                             {user && (
                                 <>
@@ -174,8 +197,6 @@ function Navbar({ setOpenLogin, setOpenRegister }) {
                                     </Menu>
                                 </>
                             )}
-
-
                         </Grid>
                     </Grid>
                 </Toolbar>

@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { User, Event } = require('../models');
+const { User, Event, Registration } = require('../models');
 const { Op } = require("sequelize");
 const yup = require("yup");
 const { validateToken } = require('../middlewares/auth');
@@ -76,21 +76,29 @@ router.get("/:id", async (req, res) => {
 });
 
 router.put("/:id/register", validateToken, async (req, res) => {
+    let eventId = req.params.id;
+    let userId = req.user.id;
+
     try {
-        const event = await Event.findByPk(req.params.id);
+        let event = await Event.findByPk(eventId);
         if (!event) {
             return res.status(404).json({ error: "Event not found" });
         }
+
         if (event.registered >= event.participants) {
             return res.status(400).json({ error: "Event is fully booked" });
         }
-        event.registered += 1;
-        await event.save();
-        res.json({ message: "Registered successfully", registered: event.registered });
+
+        let registration = await Registration.create({ eventId, userId });
+        await event.increment('registered', { by: 1 });
+
+        res.json({ message: "Successfully registered for the event" });
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        res.status(400).json({ errors: err.message });
     }
 });
+
+module.exports = router;
 
 router.put("/:id", validateToken, upload, async (req, res) => {
     let data = req.body;
