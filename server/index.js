@@ -59,6 +59,9 @@ const commentRoute =  require('./routes/comment');
 app.use("/comment", commentRoute);
 const bookmarkRoute = require('./routes/bookmark');
 app.use("/bookmarks", bookmarkRoute);
+const reportthreadRoute = require('./routes/reportthread');
+app.use("/reportthread", reportthreadRoute);
+
 
 
 const db = require('./models');

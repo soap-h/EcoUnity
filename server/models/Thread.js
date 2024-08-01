@@ -37,13 +37,21 @@ module.exports = (sequelize, DataTypes) => {
         // One Thread has many Comments
         Thread.hasMany(models.Comment, {
             foreignKey: "threadId",
-            as: 'comments'
+            as: 'comments',
+            onDelete: 'CASCADE'
         });
 
         // Thread.hasMany(models.UserVote, {
         //     foreignKey: "threadId",
         //     as: 'votes'
         // });
+
+        // One Thread has many ReportThreads (reports)
+        Thread.hasMany(models.ReportThread, {
+            foreignKey: 'threadId',
+            as: 'reports',
+            onDelete: 'CASCADE'
+        })
     };
 
     return Thread;

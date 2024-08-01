@@ -34,7 +34,7 @@ function EditThread() {
             }
             let formData = new FormData();
             formData.append('file', file);
-            http.post('/file/upload', formData, {
+            http.post('/file/upload/threadPictures', formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data'
                 }
@@ -152,7 +152,7 @@ function EditThread() {
                                         imageFile && (
                                             <Box className="aspect-ratio-container" sx={{ mt: 2 }}>
                                                 <img alt="thread"
-                                                    src={`${import.meta.env.VITE_FILE_BASE_URL}${imageFile}`}>
+                                                    src={`${import.meta.env.VITE_FILE_THREAD_URL}${imageFile}`}>
                                                 </img>
                                             </Box>
                                         )

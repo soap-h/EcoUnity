@@ -138,7 +138,7 @@ function AddThread() {
                                 imageFile && (
                                     <Box className="aspect-ratio-container" sx={{ mt: 2}}>
                                         <img alt="thread" 
-                                             src={`${import.meta.env.VITE_FILE_BASE_URL}${imageFile}`}>
+                                             src={`${import.meta.env.VITE_FILE_THREAD_URL}${imageFile}`}>
                                         </img>
                                     </Box>
                                 )
