@@ -8,6 +8,7 @@ import http from "./http";
 // pages
 import Home from "./pages/Home.jsx";
 import Events from "./pages/Events.jsx";
+import ProposeEvent from './pages/ProposeEvent';
 import Learning from "./pages/Learning.jsx";
 import Merchandise from "./pages/Merchandise.jsx";
 import AdminPage from "./pages/AdminPage.jsx";
@@ -55,6 +56,7 @@ function App() {
         <Routes>
           <Route path={"/"} element={<Home />} />
           <Route path={"/events"} element={<Events />} />
+          <Route path="/propose-event" element={<ProposeEvent />} />
           {/* <Route path={"/forums"} element={<Forums />} /> */}
           <Route path={"/learning"} element={<Learning />} />
           <Route path={"/adminpage"} element={<AdminPage />} />
