@@ -14,7 +14,6 @@ module.exports = (sequelize, DataTypes) => {
         },
         ActionTaken: {
             type: DataTypes.STRING(100),
-            allowNull: false
         },
         imageFile: {
             type: DataTypes.STRING(20)

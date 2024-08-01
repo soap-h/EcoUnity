@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { Box, Typography } from '@mui/material';
+import {InputLabel, FormControl,  Box, Typography, Select, MenuItem, Link} from '@mui/material';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
@@ -40,7 +40,7 @@ function IncidentReportingUsers() {
   const handleStatusChange = (id, newStatus) => {
     setActionStatusMap(prevMap => ({ ...prevMap, [id]: newStatus }));
 
-    http.put(`/${id}/status`, { status: newStatus })
+    http.put(`/IncidentReporting/${id}/status`, { status: newStatus })
       .then(response => {
         console.log('Status updated successfully:', response.data);
       })
@@ -74,9 +74,9 @@ function IncidentReportingUsers() {
                   <TableCell component="th" scope="row">
                     {dayjs(IncidentReportSubmits.createdAt).format('YYYY-MM-DD')} {/* Format date as needed */}
                   </TableCell>
-                  <TableCell align="center">{IncidentReportSubmits.user?.name}</TableCell>
-                  <TableCell align="center">{IncidentReportSubmits.user?.emailAddress}</TableCell>
-                  <TableCell align="center">Some report</TableCell>
+                  <TableCell align="center">{IncidentReportSubmits.id}</TableCell>
+                  <TableCell align="center">{IncidentReportSubmits.user?.email}</TableCell>
+                   <TableCell align="center"><a href={`/IncidentReportAdmin/${IncidentReportSubmits.id}`}>hi</a></TableCell>
                   <TableCell align="center">
                     <FormControl fullWidth>
                       <InputLabel>Action Status</InputLabel>

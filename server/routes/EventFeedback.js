@@ -38,7 +38,7 @@ router.get("/", async (req, res) => {
     let list = await EventFeedback.findAll({
         where: condition,
         order: [['EventName', 'DESC']],
-        include: { model: User, as: "user", attributes: ['name'] }
+        include: { model: User, as: "user", attributes: ['firstName', 'email'] }
     });
     res.json(list);
 });
@@ -46,7 +46,7 @@ router.get("/", async (req, res) => {
 router.get("/:id", async (req, res) => {
     let id = req.params.id;
     let eventFeedback = await EventFeedback.findByPk(id, {
-        include: { model: User, as: "user", attributes: ['name'] }
+        include: { model: User, as: "user", attributes: ['firstName', 'email'] }
     });
     if (!eventFeedback) {
         res.sendStatus(404);

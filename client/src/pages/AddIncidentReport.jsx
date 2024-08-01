@@ -17,6 +17,8 @@ function AddIncidentReport() {
     const [submissionStatus, setSubmissionStatus] = useState('');
 
 
+
+
     const formik = useFormik({
         initialValues: {
             ReportType: "",
@@ -25,38 +27,38 @@ function AddIncidentReport() {
         },
         validationSchema: yup.object({
             ReportType: yup.string().trim()
-                .min(3, 'Name must be at least 3 characters').required('Report Type is required'),
+                .min(3, 'Report Type must be at least 3 characters').required('Report Type is required'),
             ReportDetails: yup.string().trim()
-                .max(50, 'Email must be at most 50 characters'),
+                .max(50, 'Report Details must be at most 50 characters').required('Report Details is required'),
             Location: yup.string().trim()
-                .min(3, 'Title must be at least 3 characters')
-                .max(100, 'Title must be at most 100 characters')
-                .required('Title is required'),
+                .min(3, 'Location must be at least 3 characters')
+                .max(100, 'Location must be at most 100 characters')
+                .required('Location is required'),
         }),
         onSubmit: (data) => {
+     
+
             if (imageFile) {
                 data.imageFile = imageFile;
-                }
+            }
             data.ReportType = data.ReportType.trim();
             data.ReportDetails = data.ReportDetails.trim();
             data.Location = data.Location.trim();
             http.post("/IncidentReporting", data)
                 .then((res) => {
                     setSubmissionStatus('success');
-                    toast.success(`Form has been sent successfully!`);
-                    console.log(res.data);
-
+                    toast.success('yes');
                     formik.resetForm();
-                    setImageFile(null)
-                    navigate('/AddincidentReporting');
+                    setImageFile(null);
                 })
                 .catch((error) => {
                     setSubmissionStatus('error');
-                    toast.error(`error in submitting form`);
+                    toast.error('errorr');
                     console.log(error);
                 });
         }
     });
+
 
     const onFileChange = (e) => {
         let file = e.target.files[0];

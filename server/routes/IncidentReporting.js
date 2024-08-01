@@ -21,7 +21,12 @@ router.post("/", validateToken, async (req, res) => {
         res.json(result);
     }
     catch (err) {
-        res.status(400).json({ errors: err.errors });
+        if (err instanceof yup.ValidationError) {
+            return res.status(400).json({ error: err.errors });
+        }
+        res.status(500).json({ error: err.message });
+
+        
     }
 });
 
@@ -37,7 +42,7 @@ router.get("/", async (req, res) => {
     let list = await IncidentReporting.findAll({
         where: condition,
         order: [['ReportType', 'DESC']],
-        include: { model: User, as: "user", attributes: ['name','emailAddress'] }
+        include: { model: User, as: "user", attributes: ['firstName','email'] }
     });
     res.json(list);
 });
@@ -45,7 +50,7 @@ router.get("/", async (req, res) => {
 router.get("/:id", async (req, res) => {
     let id = req.params.id;
     let incidentReporting = await IncidentReporting.findByPk(id, {
-        include: { model: User, as: "user", attributes: ['name','emailAddress']}
+        include: { model: User, as: "user", attributes: ['firstName','email']}
     });
     if (!incidentReporting) {
         res.sendStatus(404);

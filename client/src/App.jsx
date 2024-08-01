@@ -22,6 +22,7 @@ import Activities from "./pages/AllActivites";
 import AddActivity from "./pages/AddActivity";
 import Profile from "./pages/Profile.jsx";
 import Inbox from "./pages/Inbox.jsx"
+import FixedButton from "./components/IncidentReportLink.jsx";
 
 // Forum/Thread Pages
 import Forum from './pages/Forum/Forum';
@@ -48,6 +49,9 @@ import { Dialog } from "@mui/material";
 import AddFeedback from './pages/AddFeedbackPage';
 import AddIncidentReport from './pages/AddIncidentReport';
 import IncidentReportingUsers from './pages/IncidentReportingAdmin';
+import IndividualReport from "./pages/IndividualReport";
+import FeedbackAdmin from "./pages/FeedbackAdmin";
+import IndividualFeedback from "./pages/IndividualFeedback";
 function App() {
   const [user, setUser] = useState(null);
   const [openLogin, setOpenLogin] = useState(false);
@@ -101,6 +105,9 @@ function App() {
             <Route path={"/AddincidentReporting"} element={<AddIncidentReport />} />
             <Route path={"/addfeedback"} element={<AddFeedback />} />
             <Route path={"/IncidentReportAdmin"} element={<IncidentReportingUsers />} />
+            <Route path={"/IncidentReportAdmin/:id"} element={<IndividualReport/>} />
+            <Route path={"/FeedbackAdmin"} element={<FeedbackAdmin />} />
+            <Route path={"/FeedbackAdmin/:id"} element={<IndividualFeedback />} />
 
 
           {/* Forum/Thread Routes */}
@@ -119,7 +126,9 @@ function App() {
         <Dialog open={openRegister} onClose={() => setOpenRegister(false)}>
           <Register onClose={() => setOpenRegister(false)} setOpenLogin={setOpenLogin} />
         </Dialog>
+        <FixedButton/>
       </Router>
+
 
     </UserContext.Provider>
   );
