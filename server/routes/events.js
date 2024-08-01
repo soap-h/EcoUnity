@@ -4,17 +4,22 @@ const { User, Event } = require('../models');
 const { Op } = require("sequelize");
 const yup = require("yup");
 const { validateToken } = require('../middlewares/auth');
+const { upload } = require('../middlewares/upload'); // Import the upload middleware
 
-router.post("/", validateToken, async (req, res) => {
+router.post("/", validateToken, upload, async (req, res) => {
     let data = req.body;
 
     // Check if req.user is correctly attached
     if (!req.user) {
         return res.status(500).json({ error: "User information is not attached to the request." });
     }
-    
+
     data.userId = req.user.id;
     data.userName = `${req.user.firstName} ${req.user.lastName}`; // Add user name to data
+
+    if (req.file) {
+        data.imageFile = req.file.filename; // Save the file name to the imageFile field
+    }
 
     let validationSchema = yup.object({
         title: yup.string().trim().min(3).max(100).required(),
@@ -52,10 +57,9 @@ router.get("/", async (req, res) => {
     let list = await Event.findAll({
         where: condition,
         order: [['createdAt', 'DESC']],
-        attributes: ['id', 'title', 'date', 'timeStart', 'userId', 'userName']
+        attributes: ['id', 'title', 'date', 'participants', 'price', 'category', 'type', 'registerEndDate', 'timeStart', 'timeEnd', 'venue', 'details', 'userId', 'userName', 'imageFile', "registered"]
         // include: { model: User, as: "user", attributes: ['firstName'] }
     });
-
     res.json(list);
 });
 
@@ -71,40 +75,55 @@ router.get("/:id", async (req, res) => {
     res.json(event);
 });
 
-router.put("/:id", async (req, res) => {
-    let id = req.params.id;
-    let event = await Event.findByPk(id);
-    if (!event) {
-        res.sendStatus(404);
-        return;
+router.put("/:id/register", validateToken, async (req, res) => {
+    try {
+        const event = await Event.findByPk(req.params.id);
+        if (!event) {
+            return res.status(404).json({ error: "Event not found" });
+        }
+        if (event.registered >= event.participants) {
+            return res.status(400).json({ error: "Event is fully booked" });
+        }
+        event.registered += 1;
+        await event.save();
+        res.json({ message: "Registered successfully", registered: event.registered });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
     }
+});
 
-    let userId = req.user.id;
-    if (event.userId != userId) {
-        res.sendStatus(403);
-        return;
-    }
-
+router.put("/:id", validateToken, upload, async (req, res) => {
     let data = req.body;
+    let userId = req.user.id;  // Ensure the user is authenticated
+    let eventId = req.params.id;
+
     let validationSchema = yup.object({
-        title: yup.string().trim().min(3).max(100),
-        description: yup.string().trim().min(3).max(500)
+        title: yup.string().trim().min(3).max(100).required(),
+        date: yup.date().required(),
+        timeStart: yup.string().required(),
+        timeEnd: yup.string().required(),
+        venue: yup.string().trim().min(3).max(100).required(),
+        price: yup.number().required(),
+        category: yup.string().trim().min(3).max(100).required(),
+        type: yup.string().trim().min(3).max(100).required(),
+        details: yup.string().trim().required(),
+        registerEndDate: yup.date().required()
     });
+
     try {
         data = await validationSchema.validate(data, { abortEarly: false });
 
-        let num = await Event.update(data, {
-            where: { id: id }
-        });
-        if (num == 1) {
-            res.json({
-                message: "Event was updated successfully."
-            });
-        } else {
-            res.status(400).json({
-                message: `Cannot update event with id ${id}.`
-            });
+        let event = await Event.findByPk(eventId);
+        if (!event) {
+            return res.status(404).json({ error: "Event not found" });
         }
+
+        if (req.file) {
+            data.imageFile = req.file.filename; // Update the file name of the uploaded image
+        }
+
+        await Event.update(data, { where: { id: eventId, userId } });
+        res.json({ message: "Event updated successfully" });
     } catch (err) {
         res.status(400).json({ errors: err.errors });
     }

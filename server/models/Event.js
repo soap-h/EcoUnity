@@ -50,6 +50,15 @@ module.exports = (sequelize, DataTypes) => {
         userName: {
             type: DataTypes.STRING,
             allowNull: false
+        },
+        imageFile: {
+            type: DataTypes.STRING(100),
+            allowNull: true
+        },
+        registered: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            defaultValue: 0
         }
     }, {
         tableName: 'events'

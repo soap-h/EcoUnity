@@ -2,53 +2,44 @@ import React, { useState } from 'react';
 import { Box, TextField, Button, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
 import { LocalizationProvider, DatePicker, TimePicker } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import dayjs from 'dayjs';
 import http from '../http';
 
-const AddEvent = ({ onClose }) => {
-    const [title, setTitle] = useState('');
-    const [details, setDetails] = useState('');
-    const [date, setDate] = useState(null);
-    const [timeStart, setTimeStart] = useState(null);
-    const [timeEnd, setTimeEnd] = useState(null);
-    const [venue, setVenue] = useState('');
-    const [price, setPrice] = useState(0);
-    const [participants, setParticipants] = useState(1);
-    const [category, setCategory] = useState('');
-    const [type, setType] = useState('');
-    const [registerEndDate, setRegisterEndDate] = useState(null);
-    const [imageFile, setImageFile] = useState(null);
+const EditEvent = ({ event, onClose }) => {
+    const [title, setTitle] = useState(event.title);
+    const [details, setDetails] = useState(event.details);
+    const [date, setDate] = useState(dayjs(event.date));
+    const [timeStart, setTimeStart] = useState(dayjs(event.timeStart, 'HH:mm:ss'));
+    const [timeEnd, setTimeEnd] = useState(dayjs(event.timeEnd, 'HH:mm:ss'));
+    const [venue, setVenue] = useState(event.venue);
+    const [price, setPrice] = useState(event.price);
+    const [participants, setParticipants] = useState(event.participants);
+    const [category, setCategory] = useState(event.category);
+    const [type, setType] = useState(event.type);
+    const [registerEndDate, setRegisterEndDate] = useState(dayjs(event.registerEndDate));
 
     const handleSubmit = async () => {
-        const formData = new FormData();
-        formData.append('title', title);
-        formData.append('details', details);
-        formData.append('date', date ? date.format('YYYY-MM-DD') : null);
-        formData.append('timeStart', timeStart ? timeStart.format('HH:mm:ss') : null);
-        formData.append('timeEnd', timeEnd ? timeEnd.format('HH:mm:ss') : null);
-        formData.append('venue', venue);
-        formData.append('price', price);
-        formData.append('participants', participants);
-        formData.append('category', category);
-        formData.append('type', type);
-        formData.append('registerEndDate', registerEndDate ? registerEndDate.format('YYYY-MM-DD') : null);
-        if (imageFile) {
-            formData.append('file', imageFile);
-        }
+        const updatedEvent = { 
+            title, 
+            details, 
+            date: date ? date.format('YYYY-MM-DD') : null, 
+            timeStart: timeStart ? timeStart.format('HH:mm:ss') : null, 
+            timeEnd: timeEnd ? timeEnd.format('HH:mm:ss') : null, 
+            venue, 
+            price, 
+            participants, 
+            category, 
+            type, 
+            registerEndDate: registerEndDate ? registerEndDate.format('YYYY-MM-DD') : null 
+        };
+
+        console.log('Updating event:', updatedEvent);
 
         try {
-            const response = await http.post('/events', formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data'
-                }
-            });
-            console.log('Event added:', response.data);
+            await http.put(`/events/${event.id}`, updatedEvent);
             onClose();
         } catch (error) {
-            if (error.response) {
-                console.error('Failed to add event:', error.response.data);
-            } else {
-                console.error('Failed to add event:', error.message);
-            }
+            console.error('Failed to update event:', error);
         }
     };
 
@@ -76,19 +67,19 @@ const AddEvent = ({ onClose }) => {
                         label="Date"
                         value={date}
                         onChange={(newValue) => setDate(newValue)}
-                        renderInput={(params) => <TextField {...params} fullWidth margin="normal" />}
+                        slots={{ textField: TextField }}
                     />
                     <TimePicker
                         label="Start Time"
                         value={timeStart}
                         onChange={(newValue) => setTimeStart(newValue)}
-                        renderInput={(params) => <TextField {...params} fullWidth margin="normal" />}
+                        slots={{ textField: TextField }}
                     />
                     <TimePicker
                         label="End Time"
                         value={timeEnd}
                         onChange={(newValue) => setTimeEnd(newValue)}
-                        renderInput={(params) => <TextField {...params} fullWidth margin="normal" />}
+                        slots={{ textField: TextField }}
                     />
                     <TextField
                         label="Venue"
@@ -144,13 +135,7 @@ const AddEvent = ({ onClose }) => {
                         label="Register End Date"
                         value={registerEndDate}
                         onChange={(newValue) => setRegisterEndDate(newValue)}
-                        renderInput={(params) => <TextField {...params} fullWidth margin="normal" />}
-                    />
-                    <input
-                        type="file"
-                        accept="image/*"
-                        onChange={(e) => setImageFile(e.target.files[0])}
-                        style={{ marginTop: '10px' }}
+                        slots={{ textField: TextField }}
                     />
                 </Box>
                 <Box display="flex" justifyContent="flex-end">
@@ -158,7 +143,7 @@ const AddEvent = ({ onClose }) => {
                         Cancel
                     </Button>
                     <Button onClick={handleSubmit} color="primary" variant="contained">
-                        Add Event
+                        Save Changes
                     </Button>
                 </Box>
             </Box>
@@ -166,4 +151,4 @@ const AddEvent = ({ onClose }) => {
     );
 };
 
-export default AddEvent;
+export default EditEvent;
