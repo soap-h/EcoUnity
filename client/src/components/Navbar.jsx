@@ -36,7 +36,7 @@ function Navbar({ setOpenLogin, setOpenRegister }) {
     const navItems = [
         { title: "Home", path: "/" },
         { title: "Events", path: "/events" },
-        { title: "Forums", path: "/forums" },
+        { title: "Forums", path: "/forum" },
         { title: "Learning", path: "/learning" },
         { title: "Merchandise", path: "/merchandise" },
         { title: "Locations", path: "/locations" },
@@ -118,7 +118,7 @@ function Navbar({ setOpenLogin, setOpenRegister }) {
                             {
                                 !user && (
                                     <IconButton color="inherit" sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', mr: 3 }}
-                                        onClick={() => navigate("/Register")}>
+                                        onClick={() => setOpenRegister(true)}>
                                         <PersonAddAlt1Icon sx={{ height: 40, width: 40 }} />
                                         <Typography>Sign Up</Typography>
                                     </IconButton>
@@ -130,7 +130,7 @@ function Navbar({ setOpenLogin, setOpenRegister }) {
 
                                 !user && (
                                     <IconButton color="inherit" sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', ml: 3 }}
-                                        onClick={() => navigate("/Login")}>
+                                        onClick={() => setOpenLogin(true)}>
                                         <LoginIcon sx={{ height: 40, width: 40 }} />
                                         <Typography>Login</Typography>
                                     </IconButton>

@@ -1,6 +1,6 @@
 import React from "react";
 import { useState, useEffect } from "react";
-import { BrowserRouter as Router, Routes, Route, Link, Navigate  } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Link, Navigate } from "react-router-dom";
 import { ThemeProvider } from "@mui/material/styles";
 import http from "./http";
 // import ProtectedRoute from "./ProtectedRoute";
@@ -22,6 +22,16 @@ import Activities from "./pages/AllActivites";
 import AddActivity from "./pages/AddActivity";
 import Profile from "./pages/Profile.jsx";
 import Inbox from "./pages/Inbox.jsx"
+
+// Forum/Thread Pages
+import Forum from './pages/Forum/Forum';
+import AddThread from './pages/Forum/AddThread';
+import ForumByCategory from './pages/Forum/ForumByCategory';
+import EditThread from './pages/Forum/EditThread';
+import SavedThreads from './pages/Forum/SavedThreads';
+import UserThreads from './pages/Forum/UserThreads';
+import ForumTrending from './pages/Forum/ForumTrending';
+// End of Forum/Thread Pages
 
 
 // context
@@ -49,14 +59,14 @@ function App() {
       http.get("/user/auth", {
         headers: { Authorization: `Bearer ${token}` }
       })
-      .then((res) => {
-        setUser(res.data.user);
+        .then((res) => {
+          setUser(res.data.user);
 
-        if (res.data.user.isAdmin) {
-          window.location = "/admin";
-        }
+          if (res.data.user.isAdmin) {
+            window.location = "/admin";
+          }
 
-      });
+        });
     }
   }, []);
 
@@ -73,7 +83,6 @@ function App() {
         <Routes>
           <Route path={"/"} element={<Home />} />
           <Route path={"/events"} element={<Events />} />
-          {/* <Route path={"/forums"} element={<Forums />} /> */}
           <Route path={"/learning"} element={<Learning />} />
           <Route path={"/adminpage"} element={<AdminPage />} />
           <Route path={"/merchandise"} element={<Merchandise />} />
@@ -86,19 +95,29 @@ function App() {
           <Route path={"/editactivity/:id"} element={<EditActivity />} />
           <Route path={"/activities"} element={<Activities />} />
           <Route path={"/createactivity"} element={<CreateActivity />} />
-                        <Route path={"/profile/:id"} element={user ? <Profile /> : <Navigate to="/login" />}/>
-            <Route path={"/inbox"} element={<Inbox />} />
+          <Route path={"/profile/:id"} element={user ? <Profile /> : <Navigate to="/login" />} />
+          <Route path={"/inbox"} element={<Inbox />} />
           <Route path="/admin" element={<AdminDashboard />} />
             <Route path={"/AddincidentReporting"} element={<AddIncidentReport />} />
             <Route path={"/addfeedback"} element={<AddFeedback />} />
             <Route path={"/IncidentReportAdmin"} element={<IncidentReportingUsers />} />
+
+
+          {/* Forum/Thread Routes */}
+          <Route path={"/forum"} element={<Forum />} />
+          <Route path={"/addthread"} element={<AddThread />} />
+          <Route path={"/thread/:category"} element={<ForumByCategory />} />
+          <Route path={"/editthread/:id"} element={<EditThread />} />
+          <Route path={"/bookmarks"} element={<SavedThreads />} />
+          <Route path={"/thread/user/:userId"} element={<UserThreads />} />
+          <Route path={"/trending"} element={<ForumTrending />} />
 
         </Routes>
         <Dialog open={openLogin} onClose={() => setOpenLogin(false)}>
           <Login onClose={() => setOpenLogin(false)} />
         </Dialog>
         <Dialog open={openRegister} onClose={() => setOpenRegister(false)}>
-        <Register onClose={() => setOpenRegister(false)} setOpenLogin={setOpenLogin} />
+          <Register onClose={() => setOpenRegister(false)} setOpenLogin={setOpenLogin} />
         </Dialog>
       </Router>
 

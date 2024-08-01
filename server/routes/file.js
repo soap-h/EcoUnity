@@ -3,6 +3,7 @@ const router = express.Router();
 // const { validateToken } = require('../middlewares/auth');
 const { upload } = require('../middlewares/upload');
 const { User } = require('../models');
+const { threadUpload } = require('../middlewares/upload');
 
 
 router.post('/upload', (req, res) => {
@@ -42,6 +43,22 @@ router.post('/upload', (req, res) => {
 //         }
 //     });
 // });
+
+router.post('/upload/threadPictures', (req, res) => {
+    threadUpload(req, res, (err) => {
+        if (err) {
+            res.status(500).json({ error: err.message });
+        }
+        else if (req.file == undefined) {
+            res.status(400).json({ message: "No file uploaded "});
+        }
+        else {
+            res.json({
+                filename: req.file.filename
+            });
+        }
+    })
+});
 
 
 module.exports = router;
