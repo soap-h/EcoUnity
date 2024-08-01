@@ -17,6 +17,7 @@ npm i @mui/material @mui/lab @emotion/react @emotion/styled
 npm install chart.js react-chartjs-2
 
 under server:
+npm i cors
 
 for file uploading 
 npm i multer
