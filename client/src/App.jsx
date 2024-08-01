@@ -20,6 +20,7 @@ import Activities from "./pages/AllActivites";
 import AddActivity from "./pages/AddActivity";
 import UserContext from "./contexts/UserContext";
 import AdminDashboard from "./pages/AdminDashboard.jsx";
+import AdminEvents from "./pages/AdminEvents.jsx";
 import Login from "./pages/Login.jsx";
 import Register from "./pages/Register.jsx";
 import { Dialog } from "@mui/material";
@@ -67,7 +68,8 @@ function App() {
           <Route path={"/editactivity/:id"} element={<EditActivity />} />
           <Route path={"/activities"} element={<Activities />} />
           <Route path={"/createactivity"} element={<CreateActivity />} />
-          <Route path="/admin" element={<AdminDashboard />} />
+          <Route path={"/admin"} element={<AdminDashboard />} />
+          <Route path={"/admin/events"} element={<AdminEvents />} />
         </Routes>
         <Dialog open={openLogin} onClose={() => setOpenLogin(false)}>
           <Login onClose={() => setOpenLogin(false)} />

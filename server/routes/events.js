@@ -52,10 +52,9 @@ router.get("/", async (req, res) => {
     let list = await Event.findAll({
         where: condition,
         order: [['createdAt', 'DESC']],
-        attributes: ['id', 'title', 'date', 'timeStart', 'userId', 'userName']
+        attributes: ['id', 'title', 'date', 'participants', 'price', 'category', 'type', 'registerEndDate', 'timeStart', 'timeEnd', 'venue', 'details', 'userId', 'userName']
         // include: { model: User, as: "user", attributes: ['firstName'] }
     });
-
     res.json(list);
 });
 
@@ -71,40 +70,34 @@ router.get("/:id", async (req, res) => {
     res.json(event);
 });
 
-router.put("/:id", async (req, res) => {
-    let id = req.params.id;
-    let event = await Event.findByPk(id);
-    if (!event) {
-        res.sendStatus(404);
-        return;
-    }
-
-    let userId = req.user.id;
-    if (event.userId != userId) {
-        res.sendStatus(403);
-        return;
-    }
-
+router.put("/:id", validateToken, async (req, res) => {
     let data = req.body;
+    let userId = req.user.id;  // Ensure the user is authenticated
+    let eventId = req.params.id;
+
     let validationSchema = yup.object({
-        title: yup.string().trim().min(3).max(100),
-        description: yup.string().trim().min(3).max(500)
+        title: yup.string().trim().min(3).max(100).required(),
+        date: yup.date().required(),
+        timeStart: yup.string().required(),
+        timeEnd: yup.string().required(),
+        venue: yup.string().trim().min(3).max(100).required(),
+        price: yup.number().required(),
+        category: yup.string().trim().min(3).max(100).required(),
+        type: yup.string().trim().min(3).max(100).required(),
+        details: yup.string().trim().required(),
+        registerEndDate: yup.date().required()
     });
+
     try {
         data = await validationSchema.validate(data, { abortEarly: false });
 
-        let num = await Event.update(data, {
-            where: { id: id }
-        });
-        if (num == 1) {
-            res.json({
-                message: "Event was updated successfully."
-            });
-        } else {
-            res.status(400).json({
-                message: `Cannot update event with id ${id}.`
-            });
+        let event = await Event.findByPk(eventId);
+        if (!event) {
+            return res.status(404).json({ error: "Event not found" });
         }
+
+        await Event.update(data, { where: { id: eventId, userId } });
+        res.json({ message: "Event updated successfully" });
     } catch (err) {
         res.status(400).json({ errors: err.errors });
     }
