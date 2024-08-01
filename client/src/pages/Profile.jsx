@@ -24,12 +24,11 @@ function Profile() {
 
     useEffect(() => {
         getTrackers();
-        setDescription(user.description);
-    }, []);
+        setDescription(user?.description || '');
+    }, [user]);
 
     const userTrackers = trackerList.filter(tracker => user && user.id === tracker.userId);
     const totalPoints = userTrackers.reduce((total, tracker) => total + tracker.points, 0);
-
 
     const handleDescriptionChange = (event) => {
         setDescription(event.target.value);
@@ -40,7 +39,9 @@ function Profile() {
             .then((res) => {
                 toast.success('Description updated successfully');
                 setIsEditing(false);
-                setUser({ ...user, description });
+                const updatedUser = { ...user, description };
+                setUser(updatedUser);
+                localStorage.setItem('user', JSON.stringify(updatedUser));
             })
             .catch((error) => {
                 console.error("Error updating description: ", error);
@@ -73,7 +74,9 @@ function Profile() {
                 }
             })
                 .then((res) => {
-                    setUser({ ...user, imageFile: res.data.imageFile });
+                    const updatedUser = { ...user, imageFile: res.data.imageFile };
+                    setUser(updatedUser);
+                    localStorage.setItem('user', JSON.stringify(updatedUser));
                     toast.success('Profile picture uploaded successfully');
                 })
                 .catch((err) => {

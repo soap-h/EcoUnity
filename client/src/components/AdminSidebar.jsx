@@ -58,7 +58,7 @@ const AdminSidebar = ({ username }) => {
                             </ListItemIcon>
                             <ListItemText primary="Forum Moderation" />
                         </ListItem>
-                        <ListItem button component={Link} to="/admin/account-management">
+                        <ListItem button component={Link} to="/admin/manageusers">
                             <ListItemIcon sx={{ color: 'white' }}>
                                 <AccountBoxIcon />
                             </ListItemIcon>
