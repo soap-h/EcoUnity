@@ -52,8 +52,7 @@ module.exports = (sequelize, DataTypes) => {
             allowNull: false
         },
         imageFile: {
-            type: DataTypes.STRING(100),
-            allowNull: true
+            type: DataTypes.STRING(20)
         }
     }, {
         tableName: 'events'
