@@ -123,10 +123,10 @@ function App() {
           <Route path="/admin/trackerdashboard" element={<TrackerDashboard />} />
           <Route path={"/AddincidentReporting"} element={<AddIncidentReport />} />
           <Route path={"/addfeedback"} element={<AddFeedback />} />
-          <Route path={"/IncidentReportAdmin"} element={<IncidentReportingUsers />} />
-          <Route path={"/IncidentReportAdmin/:id"} element={<IndividualReport />} />
-          <Route path={"/FeedbackAdmin"} element={<FeedbackAdmin />} />
-          <Route path={"/FeedbackAdmin/:id"} element={<IndividualFeedback />} />
+          <Route path={"/admin/IncidentReportAdmin"} element={<IncidentReportingUsers />} />
+          <Route path={"/admin/IncidentReportAdmin/:id"} element={<IndividualReport />} />
+          <Route path={"/admin/FeedbackAdmin"} element={<FeedbackAdmin />} />
+          <Route path={"/admin/FeedbackAdmin/:id"} element={<IndividualFeedback />} />
 
 
           {/* Forum/Thread Routes */}
