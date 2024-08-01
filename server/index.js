@@ -7,6 +7,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(express.static('public'));
 
+
+
 // Enable CORS
 app.use(cors({
     origin: process.env.CLIENT_URL
@@ -34,6 +36,22 @@ const activityRoute = require('./routes/activity');
 app.use("/activities", activityRoute)
 const inboxRoute = require('./routes/inbox');
 app.use("/inbox", inboxRoute)
+const EventFeedbackRoute = require('./routes/EventFeedback');
+app.use("/EventFeedback", EventFeedbackRoute);
+const EventParticipantRoute = require('./routes/EventParticipants');
+app.use("/EventParticipants", EventParticipantRoute);
+const IncidentReportingRoute = require('./routes/IncidentReporting');
+app.use("/IncidentReporting", IncidentReportingRoute);
+
+// Forum Routes
+// Route for Threads
+const threadRoute = require('./routes/thread');
+app.use("/thread", threadRoute);
+const commentRoute =  require('./routes/comment');
+app.use("/comment", commentRoute);
+const bookmarkRoute = require('./routes/bookmark');
+app.use("/bookmarks", bookmarkRoute);
+
 
 const db = require('./models');
 db.sequelize.sync({ alter: true})

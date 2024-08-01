@@ -36,7 +36,7 @@ function Navbar({ setOpenLogin, setOpenRegister }) {
     const navItems = [
         { title: "Home", path: "/" },
         { title: "Events", path: "/events" },
-        { title: "Forums", path: "/forums" },
+        { title: "Forums", path: "/forum" },
         { title: "Learning", path: "/learning" },
         { title: "Merchandise", path: "/merchandise" },
         { title: "Locations", path: "/locations" },

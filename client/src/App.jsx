@@ -23,8 +23,22 @@ import EditActivity from "./pages/EditActivity";
 import Activities from "./pages/AllActivites";
 import AddActivity from "./pages/AddActivity";
 import Profile from "./pages/Profile.jsx";
-import Inbox from "./pages/Inbox.jsx";
+
+
 import AddInboxMessage from "./pages/AddInboxMessage.jsx";
+import Inbox from "./pages/Inbox.jsx"
+import FixedButton from "./components/IncidentReportLink.jsx";
+
+// Forum/Thread Pages
+import Forum from './pages/Forum/Forum';
+import AddThread from './pages/Forum/AddThread';
+import ForumByCategory from './pages/Forum/ForumByCategory';
+import EditThread from './pages/Forum/EditThread';
+import SavedThreads from './pages/Forum/SavedThreads';
+import UserThreads from './pages/Forum/UserThreads';
+import ForumTrending from './pages/Forum/ForumTrending';
+// End of Forum/Thread Pages
+
 
 // context
 
@@ -37,6 +51,12 @@ import { Dialog } from "@mui/material";
 
 
 
+import AddFeedback from './pages/AddFeedbackPage';
+import AddIncidentReport from './pages/AddIncidentReport';
+import IncidentReportingUsers from './pages/IncidentReportingAdmin';
+import IndividualReport from "./pages/IndividualReport";
+import FeedbackAdmin from "./pages/FeedbackAdmin";
+import IndividualFeedback from "./pages/IndividualFeedback";
 function App() {
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -83,7 +103,6 @@ function App() {
         <Routes>
           <Route path={"/"} element={<Home />} />
           <Route path={"/events"} element={<Events />} />
-          {/* <Route path={"/forums"} element={<Forums />} /> */}
           <Route path={"/learning"} element={<Learning />} />
           <Route path={"/adminpage"} element={<AdminPage />} />
           <Route path={"/merchandise"} element={<Merchandise />} />
@@ -102,6 +121,23 @@ function App() {
           <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/admin/manageusers" element={<ManageUsers />} />
           <Route path="/admin/trackerdashboard" element={<TrackerDashboard />} />
+          <Route path={"/AddincidentReporting"} element={<AddIncidentReport />} />
+          <Route path={"/addfeedback"} element={<AddFeedback />} />
+          <Route path={"/IncidentReportAdmin"} element={<IncidentReportingUsers />} />
+          <Route path={"/IncidentReportAdmin/:id"} element={<IndividualReport />} />
+          <Route path={"/FeedbackAdmin"} element={<FeedbackAdmin />} />
+          <Route path={"/FeedbackAdmin/:id"} element={<IndividualFeedback />} />
+
+
+          {/* Forum/Thread Routes */}
+          <Route path={"/forum"} element={<Forum />} />
+          <Route path={"/addthread"} element={<AddThread />} />
+          <Route path={"/thread/:category"} element={<ForumByCategory />} />
+          <Route path={"/editthread/:id"} element={<EditThread />} />
+          <Route path={"/bookmarks"} element={<SavedThreads />} />
+          <Route path={"/thread/user/:userId"} element={<UserThreads />} />
+          <Route path={"/trending"} element={<ForumTrending />} />
+
         </Routes>
         <Dialog open={openLogin} onClose={() => setOpenLogin(false)}>
           <Login onClose={() => setOpenLogin(false)} />
@@ -109,7 +145,9 @@ function App() {
         <Dialog open={openRegister} onClose={() => setOpenRegister(false)}>
           <Register onClose={() => setOpenRegister(false)} setOpenLogin={setOpenLogin} />
         </Dialog>
+        <FixedButton />
       </Router>
+
 
     </UserContext.Provider>
   );

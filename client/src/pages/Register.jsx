@@ -24,7 +24,7 @@ function Register({ onClose, setOpenLogin }) {
           .trim()
           .min(3, "Name must be at least 3 characters")
           .max(50, "Name must be at most 50 characters")
-          .required("Name is required")
+          .required("Name is required") 
           .matches(
             /^[a-zA-Z '-,.]+$/,
             "Name only allows letters, spaces and characters: ' - , ."
@@ -66,14 +66,19 @@ function Register({ onClose, setOpenLogin }) {
         data.lastName = data.lastName.trim();
         data.email = data.email.trim().toLowerCase();
         data.password = data.password.trim();
-        http
-          .post("/user/register", data)
+        http.post("/user/register", data)
           .then((res) => {
-            console.log(res.data);
-            setOpenLogin(true); // Open login popup after successful registration
-            onClose(); // Close the registration dialog
+            if (res.data) {
+              console.log(res.data); // Check if res.data is defined
+              setOpenLogin(true); // Open login dialog
+              onClose(); // Close the registration dialog
+            } else {
+              throw new Error('Empty response from server');
+            }
           })
           .catch((err) => {
+            const errorMessage = err.response?.data?.message || 'An error occurred';
+            toast.error(errorMessage);
             toast.error(`${err.response.data.message}`);
           });
       },

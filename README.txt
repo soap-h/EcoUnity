@@ -18,6 +18,7 @@ npm install chart.js react-chartjs-2
 npm i recharts
 
 under server:
+npm i cors
 
 for file uploading 
 npm i multer

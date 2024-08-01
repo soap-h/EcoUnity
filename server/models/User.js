@@ -69,7 +69,34 @@ module.exports = (sequelize, DataTypes) => {
 
             onDelete: "cascade"
         });
+
+        // One-to-Many Relationship with Threads Table
+        User.hasMany(models.Thread, {
+            foreignKey: "userId",
+            onDelete: "CASCADE"
+        });
+
+        // One-to-Many Relationship with Comments Table
+        User.hasMany(models.Comment, {
+            foreignKey: "userId",
+            as: 'comments',
+            onDelete: "CASCADE"
+        });
+    
+        User.hasMany(models.IncidentReporting, {
+            foreignKey: "userId",
+            as: 'incidentReports',
+            onDelete: 'cascade'
+        });
+
     };
+    // User.associate = (models) => {
+    //     User.hasMany(models.EventFeedback, {
+    //     foreignKey: "userId",
+    //     onDelete: "cascade"
+    //     });
+    //     };
+    
 
     return User;
 }
