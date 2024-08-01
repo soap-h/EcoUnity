@@ -22,7 +22,7 @@
 
 const { verify } = require('jsonwebtoken');
 
-const validateToken = async (req, res, next) => {
+const validateToken = (req, res, next) => {
 
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1];
@@ -31,20 +31,14 @@ const validateToken = async (req, res, next) => {
         return res.status(401).json({ error: "Unauthorized access" });
     }
 
-    const decoded = verifyToken(token);
-
-    if (!decoded) {
+    try {
+        const validToken = verify(token, process.env.APP_SECRET);
+        req.user = validToken;
+        next();
+    } catch (err) {
         return res.status(403).json({ error: "Invalid token" });
+
     }
-
-    const userExists = await checkTokenInDatabase(decoded.userId);
-
-    if (!userExists) {
-        return res.status(401).json({ error: "Unauthorized access" });
-    }
-
-    req.user = decoded; // Attach user info to the request
-    next();
 };
 
 // const checkAdmin = (req, res, next) => {
