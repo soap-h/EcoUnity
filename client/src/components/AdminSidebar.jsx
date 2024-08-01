@@ -52,7 +52,7 @@ const AdminSidebar = ({ username }) => {
                             </ListItemIcon>
                             <ListItemText primary="Incident Reports" />
                         </ListItem>
-                        <ListItem button component={Link} to="/admin/forum-moderation">
+                        <ListItem button component={Link} to="/admin/reportthread">
                             <ListItemIcon sx={{ color: 'white' }}>
                                 <ForumIcon />
                             </ListItemIcon>
