@@ -34,6 +34,12 @@ const activityRoute = require('./routes/activity');
 app.use("/activities", activityRoute)
 const inboxRoute = require('./routes/inbox');
 app.use("/inbox", inboxRoute)
+const EventFeedbackRoute = require('./routes/EventFeedback');
+app.use("/EventFeedback", EventFeedbackRoute);
+const EventParticipantRoute = require('./routes/EventParticipants');
+app.use("/EventParticipants", EventParticipantRoute);
+const IncidentReportingRoute = require('./routes/IncidentReporting');
+app.use("/IncidentReporting", IncidentReportingRoute);
 
 const db = require('./models');
 db.sequelize.sync({ alter: true})

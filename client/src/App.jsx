@@ -23,6 +23,7 @@ import AddActivity from "./pages/AddActivity";
 import Profile from "./pages/Profile.jsx";
 import Inbox from "./pages/Inbox.jsx"
 
+
 // context
 
 import UserContext from "./contexts/UserContext";
@@ -34,6 +35,9 @@ import { Dialog } from "@mui/material";
 
 
 
+import AddFeedback from './pages/AddFeedbackPage';
+import AddIncidentReport from './pages/AddIncidentReport';
+import IncidentReportingUsers from './pages/IncidentReportingAdmin';
 function App() {
   const [user, setUser] = useState(null);
   const [openLogin, setOpenLogin] = useState(false);
@@ -85,6 +89,10 @@ function App() {
                         <Route path={"/profile/:id"} element={user ? <Profile /> : <Navigate to="/login" />}/>
             <Route path={"/inbox"} element={<Inbox />} />
           <Route path="/admin" element={<AdminDashboard />} />
+            <Route path={"/AddincidentReporting"} element={<AddIncidentReport />} />
+            <Route path={"/addfeedback"} element={<AddFeedback />} />
+            <Route path={"/IncidentReportAdmin"} element={<IncidentReportingUsers />} />
+
         </Routes>
         <Dialog open={openLogin} onClose={() => setOpenLogin(false)}>
           <Login onClose={() => setOpenLogin(false)} />

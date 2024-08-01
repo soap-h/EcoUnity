@@ -46,7 +46,21 @@ module.exports = (sequelize, DataTypes) => {
 
             onDelete: "cascade"
         });
+    
+        User.hasMany(models.IncidentReporting, {
+            foreignKey: "userId",
+            as: 'incidentReports',
+            onDelete: 'cascade'
+        });
+
     };
+    // User.associate = (models) => {
+    //     User.hasMany(models.EventFeedback, {
+    //     foreignKey: "userId",
+    //     onDelete: "cascade"
+    //     });
+    //     };
+    
 
     return User;
 }
