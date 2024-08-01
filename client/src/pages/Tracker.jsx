@@ -391,8 +391,10 @@ function Trackers() {
           </Box>
         </Box>
       </Box>
-      <Box sx={{ height: '500px' }}>
-        <Bar data={co2ChartData} options={co2ChartOptions} />
+      <Box sx={{ display: "flex", justifyContent: "center", height: '500px', mt: 7, width: '100%' }}>
+        <Box sx={{ width: '60%' }}>
+          <Bar data={co2ChartData} options={co2ChartOptions} />
+        </Box>
       </Box>
 
       <Dialog open={openEditDialog} onClose={handleCloseEditDialog}>

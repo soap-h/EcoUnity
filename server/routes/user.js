@@ -171,11 +171,12 @@ router.put("/description/:id", async (req, res) => {
     }
 });
 
+
 // Get user info for all users
 router.get("/userinfo", validateToken, async (req, res) => {
     try {
         const users = await User.findAll({
-            attributes: ['id', 'email']  // Only fetch id and email attributes
+            attributes: ['id', 'firstName', 'lastName', 'email', 'isAdmin', 'imageFile']  // Only fetch id and email attributes
         });
         res.json(users);
     } catch (error) {

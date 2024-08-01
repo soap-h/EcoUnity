@@ -15,6 +15,7 @@ npm i react-slick slick-carousel
 npm i @mui/material @mui/lab @emotion/react @emotion/styled
 
 npm install chart.js react-chartjs-2
+npm i recharts
 
 under server:
 

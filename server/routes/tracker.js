@@ -19,6 +19,57 @@ function getStartOfWeek() {
   return new Date(date.getFullYear(), date.getMonth(), diff);
 }
 
+function getStartOfYear() {
+  const date = new Date();
+  return new Date(date.getFullYear(), 0, 1);
+}
+
+// Route to get aggregated dashboard data
+router.get("/dashboard", async (req, res) => {
+  try {
+    // Total CO2 saved
+    const totalCo2Saved = await Tracker.sum('points');
+
+    // Average CO2 saved
+    const averageCo2Saved = await Tracker.findAll({
+      attributes: [[db.sequelize.fn('AVG', db.sequelize.col('points')), 'averageCo2Saved']]
+    });
+
+    // Active users (assuming users with at least one tracker entry are active)
+    const activeUsers = await Tracker.count({
+      distinct: true,
+      col: 'userId'
+    });
+
+    // Top activities contributing to CO2 savings
+    const topActivities = await Tracker.findAll({
+      attributes: ['title', [db.sequelize.fn('SUM', db.sequelize.col('points')), 'totalPoints']],
+      group: ['title'],
+      order: [[db.sequelize.fn('SUM', db.sequelize.col('points')), 'DESC']],
+      limit: 5
+    });
+
+    // CO2 saved over time (monthly)
+    const co2SavedOverTime = await Tracker.findAll({
+      attributes: [
+        [db.sequelize.fn('date_format', db.sequelize.col('date'), '%Y-%m'), 'month'],
+        [db.sequelize.fn('sum', db.sequelize.col('points')), 'co2Saved']
+      ],
+      group: [db.sequelize.fn('date_format', db.sequelize.col('date'), '%Y-%m')],
+      order: [db.sequelize.fn('date_format', db.sequelize.col('date'), '%Y-%m')]
+    });
+
+    res.json({
+      totalCo2Saved,
+      averageCo2Saved: averageCo2Saved[0].dataValues.averageCo2Saved,
+      activeUsers,
+      topActivities,
+      co2SavedOverTime
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
 
 
 router.get("/", async (req, res) => {
@@ -88,7 +139,7 @@ router.get("/monthly-co2", validateToken, async (req, res) => {
       ],
       where: {
         userId: userId, // Filtering by user ID
-      },
+      },  
       group: [db.sequelize.fn('date_format', db.sequelize.col('date'), '%Y-%m')],
       order: [[db.sequelize.fn('date_format', db.sequelize.col('date'), '%Y-%m'), 'ASC']]
     });

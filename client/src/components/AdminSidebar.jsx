@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, List, ListItem, ListItemIcon, ListItemText, Avatar, Typography } from '@mui/material';
+import { Box, List, ListItem, ListItemIcon, ListItemText, Avatar } from '@mui/material';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import DataSaverOffIcon from '@mui/icons-material/DataSaverOff';
 import EventIcon from '@mui/icons-material/Event';
@@ -14,7 +14,7 @@ import { Link } from 'react-router-dom';
 
 const AdminSidebar = ({ username }) => {
     return (
-        <Box sx={{ width: 200, height: '90vh', backgroundColor: '#5a9895', borderRadius: '20px', margin: 2, color: 'white', padding: 2 }}>
+        <Box sx={{ width: 200, height: '90vh', backgroundColor: '#5a9895', borderRadius: '20px', margin: 2, color: 'white', padding: 2, overflow: 'auto' }}>
             <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', padding: 2 }}>
                 <Avatar alt="Eco Unity Logo" src={EcoUnityLogo} sx={{ width: 80, height: 80 }} />
             </Box>
@@ -55,7 +55,7 @@ const AdminSidebar = ({ username }) => {
                     </ListItemIcon>
                     <ListItemText primary="Forum Moderation" />
                 </ListItem>
-                <ListItem button component={Link} to="/admin/account-management">
+                <ListItem button component={Link} to="/admin/manageusers">
                     <ListItemIcon sx={{ color: 'white' }}>
                         <AccountBoxIcon />
                     </ListItemIcon>

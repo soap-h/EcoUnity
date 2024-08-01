@@ -11,6 +11,8 @@ import Events from "./pages/Events.jsx";
 import Learning from "./pages/Learning.jsx";
 import Merchandise from "./pages/Merchandise.jsx";
 import AdminPage from "./pages/AdminPage.jsx";
+import ManageUsers from "./pages/ManageUsers.jsx";
+import TrackerDashboard from "./pages/TrackerDashboard.jsx";
 import Reviews from "./pages/ReviewPage.jsx";
 
 import Navbar from "./components/Navbar";
@@ -98,6 +100,8 @@ function App() {
           <Route path={"/inbox"} element={<Inbox />} />
           <Route path={"/addinbox"} element={<AddInboxMessage />} />
           <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="/admin/manageusers" element={<ManageUsers />} />
+          <Route path="/admin/trackerdashboard" element={<TrackerDashboard />} />
         </Routes>
         <Dialog open={openLogin} onClose={() => setOpenLogin(false)}>
           <Login onClose={() => setOpenLogin(false)} />
