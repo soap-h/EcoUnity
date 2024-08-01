@@ -46,6 +46,19 @@ module.exports = (sequelize, DataTypes) => {
 
             onDelete: "cascade"
         });
+
+        // One-to-Many Relationship with Threads Table
+        User.hasMany(models.Thread, {
+            foreignKey: "userId",
+            onDelete: "CASCADE"
+        });
+
+        // One-to-Many Relationship with Comments Table
+        User.hasMany(models.Comment, {
+            foreignKey: "userId",
+            as: 'comments',
+            onDelete: "CASCADE"
+        });
     };
 
     return User;

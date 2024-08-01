@@ -26,11 +26,30 @@ const ppstorage = multer.diskStorage({
     }
 });
 
-const ppupload = multer({ 
+const ppupload = multer({
     storage: ppstorage,
     limits: { fileSize: 1024 * 1024 } // 1MB limit
 }).single('profilePic');
 
-module.exports = { upload };
+// Storage configuration for thread picture uploads
+const threadStorage = multer.diskStorage({
+    destination: (req, file, callback) => {
+        callback(null, path.join(__dirname, '../public/uploads/threadPictures'));
+    },
+    filename: (req, file, callback) => {
+        callback(null, nanoid(10) + path.extname(file.originalname));
+    }
+});
 
-module.exports = { ppupload };
+// Middleware for thread picture uploads
+const threadUpload = multer({
+    storage: threadStorage,
+    limits: { fileSize: 1024 * 1024 } // 1MB limit
+}).single('file'); // 'file' is the input field name
+
+// Exporting all the upload middlewares
+module.exports = { 
+    upload,
+    ppupload,
+    threadUpload
+};
