@@ -1,4 +1,5 @@
 const express = require('express');
+const path = require('path');
 const cors = require('cors');
 require('dotenv').config();
 
@@ -13,6 +14,13 @@ app.use(express.static('public'));
 app.use(cors({
     origin: process.env.CLIENT_URL
 }));
+
+// Middleware
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// Static files
+app.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));
 
 // Simple Route
 app.get("/", (req, res) => {
