@@ -11,7 +11,7 @@ router.post('/upload', (req, res) => {
         if (err) {
             res.status(400).json(err);
         }
-        else if (req.file == undefined) {
+        else if (req.file == undefined) {d
             res.status(400).json({ message: "No file uploaded" });
         }
         else {
