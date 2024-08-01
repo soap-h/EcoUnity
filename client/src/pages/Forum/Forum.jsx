@@ -41,6 +41,18 @@ function Forum() {
         }
     };
 
+    const getUserEmailById = async (userId) => {
+        try {
+            const response = await http.get(`/user/userinfo`);
+            const user = response.data.find(u => u.id === userId);
+        return user ? user.email : "Unknown sender";
+
+        } catch (error) {
+            console.error('Error fetching user email:', error);
+            return null;
+        }
+    };
+
     useEffect(() => {
         fetchData();
     }, [user]);
@@ -87,23 +99,23 @@ function Forum() {
         }
     };
 
-        // biodiversity, energy, conservation, agriculture, recycling, climate change
-        const getCategoryChipColor = (categoryName) => {
-            switch (categoryName.toLowerCase()) {
-                case 'biodiversity':
-                    return 'error';
-                case 'energy':
-                    return 'warning';
-                case 'conservation':
-                    return 'success';
-                case 'agriculture':
-                    return 'primary';
-                case 'recycling':
-                    return 'secondary';
-                case 'climate change':
-                    return 'info';
-            }
+    // biodiversity, energy, conservation, agriculture, recycling, climate change
+    const getCategoryChipColor = (categoryName) => {
+        switch (categoryName.toLowerCase()) {
+            case 'biodiversity':
+                return 'error';
+            case 'energy':
+                return 'warning';
+            case 'conservation':
+                return 'success';
+            case 'agriculture':
+                return 'primary';
+            case 'recycling':
+                return 'secondary';
+            case 'climate change':
+                return 'info';
         }
+    }
 
     const handleCommentClick = (threadId) => {
         setNewComment(prevState => ({
@@ -136,6 +148,22 @@ function Forum() {
                 ...prevState,
                 [threadId]: { text: '', expanded: false }
             }));
+            const thread = threadList.find(t => t.id === threadId);
+            const recipientEmail = await getUserEmailById(thread.userId);
+
+            const message = {
+                'title': `${user.firstName} ${user.lastName} Commented on your post`,
+                'content': `${user.firstName} ${user.lastName} Commented ${newComment[threadId]?.text}`,
+                'recipient': `${recipientEmail}`,
+                'date': `${new Date()}`,
+                'category': "forum",
+            }
+            http.post("/inbox", message)
+                .catch((error) => {
+                    toast.error('error');
+                    console.log(error);
+                });
+
         } catch (error) {
             console.error('Error posting comment:', error);
         }

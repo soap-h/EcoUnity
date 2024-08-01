@@ -28,7 +28,7 @@ const AdminSidebar = ({ username }) => {
                             </ListItemIcon>
                             <ListItemText primary="Dashboard" />
                         </ListItem>
-                        <ListItem button component={Link} to="/admin/eco-tracker">
+                        <ListItem button component={Link} to="/admin/trackerdashboard">
                             <ListItemIcon sx={{ color: 'white' }}>
                                 <DataSaverOffIcon />
                             </ListItemIcon>
