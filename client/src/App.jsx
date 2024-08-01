@@ -11,6 +11,8 @@ import Events from "./pages/Events.jsx";
 import Learning from "./pages/Learning.jsx";
 import Merchandise from "./pages/Merchandise.jsx";
 import AdminPage from "./pages/AdminPage.jsx";
+import ManageUsers from "./pages/ManageUsers.jsx";
+import TrackerDashboard from "./pages/TrackerDashboard.jsx";
 import Reviews from "./pages/ReviewPage.jsx";
 
 import Navbar from "./components/Navbar";
@@ -21,6 +23,9 @@ import EditActivity from "./pages/EditActivity";
 import Activities from "./pages/AllActivites";
 import AddActivity from "./pages/AddActivity";
 import Profile from "./pages/Profile.jsx";
+
+
+import AddInboxMessage from "./pages/AddInboxMessage.jsx";
 import Inbox from "./pages/Inbox.jsx"
 import FixedButton from "./components/IncidentReportLink.jsx";
 
@@ -54,6 +59,7 @@ import FeedbackAdmin from "./pages/FeedbackAdmin";
 import IndividualFeedback from "./pages/IndividualFeedback";
 function App() {
   const [user, setUser] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [openLogin, setOpenLogin] = useState(false);
   const [openRegister, setOpenRegister] = useState(false);
 
@@ -70,7 +76,13 @@ function App() {
             window.location = "/admin";
           }
 
+        }).catch(() => {
+          localStorage.clear();
+        }).finally(() => {
+          setIsLoading(false); // Set loading to false after the request completes
         });
+    } else {
+      setIsLoading(false); // Set loading to false if no token is found
     }
   }, []);
 
@@ -78,6 +90,10 @@ function App() {
     localStorage.clear();
     window.location = "/";
   };
+
+  if (isLoading) {
+    return <div>Loading...</div>; // Display loading indicator while fetching user data
+  }
 
   return (
     <UserContext.Provider value={{ user, setUser }}>
@@ -101,13 +117,16 @@ function App() {
           <Route path={"/createactivity"} element={<CreateActivity />} />
           <Route path={"/profile/:id"} element={user ? <Profile /> : <Navigate to="/login" />} />
           <Route path={"/inbox"} element={<Inbox />} />
+          <Route path={"/addinbox"} element={<AddInboxMessage />} />
           <Route path="/admin" element={<AdminDashboard />} />
-            <Route path={"/AddincidentReporting"} element={<AddIncidentReport />} />
-            <Route path={"/addfeedback"} element={<AddFeedback />} />
-            <Route path={"/IncidentReportAdmin"} element={<IncidentReportingUsers />} />
-            <Route path={"/IncidentReportAdmin/:id"} element={<IndividualReport/>} />
-            <Route path={"/FeedbackAdmin"} element={<FeedbackAdmin />} />
-            <Route path={"/FeedbackAdmin/:id"} element={<IndividualFeedback />} />
+          <Route path="/admin/manageusers" element={<ManageUsers />} />
+          <Route path="/admin/trackerdashboard" element={<TrackerDashboard />} />
+          <Route path={"/AddincidentReporting"} element={<AddIncidentReport />} />
+          <Route path={"/addfeedback"} element={<AddFeedback />} />
+          <Route path={"/IncidentReportAdmin"} element={<IncidentReportingUsers />} />
+          <Route path={"/IncidentReportAdmin/:id"} element={<IndividualReport />} />
+          <Route path={"/FeedbackAdmin"} element={<FeedbackAdmin />} />
+          <Route path={"/FeedbackAdmin/:id"} element={<IndividualFeedback />} />
 
 
           {/* Forum/Thread Routes */}
@@ -126,7 +145,7 @@ function App() {
         <Dialog open={openRegister} onClose={() => setOpenRegister(false)}>
           <Register onClose={() => setOpenRegister(false)} setOpenLogin={setOpenLogin} />
         </Dialog>
-        <FixedButton/>
+        <FixedButton />
       </Router>
 
 

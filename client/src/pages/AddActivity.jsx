@@ -1,31 +1,20 @@
-import React, { useEffect, useState } from 'react';
-import { Box, Typography, TextField, Button, MenuItem, Select, FormControl, InputLabel } from '@mui/material';
+import React,{ useEffect, useState } from 'react';
+import { Dialog, DialogTitle, DialogContent, DialogActions, Button, Typography, TextField, MenuItem, Select, FormControl, InputLabel } from '@mui/material';
 import { useFormik } from 'formik';
 import * as yup from 'yup';
+import { toast } from 'react-toastify';  // Import toast
+import 'react-toastify/dist/ReactToastify.css'; // Import toast styles
+
 
 import http from '../http';
 import { useNavigate } from 'react-router-dom';
 
 
-function AddActivity() {
-    const [activities, setActivities] = useState([]);
+
+function AddActivity({ open, handleClose, activities }) {
     const [selectedActivity, setSelectedActivity] = useState('');
     const [activityPoints, setActivityPoints] = useState('');
     const navigate = useNavigate();
-
-    useEffect(() => {
-        http.get('/activities').then((res) => {
-            setActivities(res.data);
-        });
-    }, []);
-    
-    function getMaxDate() {
-        return new Date()
-    }
-
-    function getMinDate() {
-        return new Date(6, 28, 2023)
-    }
 
     const formik = useFormik({
         initialValues: {
@@ -35,20 +24,23 @@ function AddActivity() {
         },
         validationSchema: yup.object({
             activity: yup.string().required('Activity is required'),
-            date: yup.date().required('Date is required').max(getMaxDate(), "Date cannot be greater than Today")
-            .min(getMinDate(), "Date cannot be greater than a year")
+            date: yup.date().required('Date is required').max(new Date(), "Date cannot be in the future")
         }),
-        onSubmit: (data) => {
-            const selected = activities.find(act => act.id === data.activity);
+        onSubmit: (values) => {
+            const selected = activities.find(act => act.id === values.activity);
             const trackerData = {
                 title: selected.title,
                 points: selected.points,
-                date: data.date
+                date: values.date
             };
             http.post("/tracker", trackerData)
-                .then((res) => {
-                    console.log(res.data);
+                .then(() => {
+                    toast.success('Activity added successfully');
+                    handleClose(); 
                     navigate("/tracker");
+                }).catch(error => {
+                    toast.error('Failed to add activity');
+                    console.error('Error adding activity:', error);
                 });
         }
     });
@@ -60,20 +52,13 @@ function AddActivity() {
     };
 
     return (
-        <Box sx={{
-            marginTop: 8,
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            height: '80vh',
-        }}>
-            <Typography variant="h5" sx={{ my: 2 }}>
-                Add Activity to Tracker
-            </Typography>
-            <Box component="form" onSubmit={formik.handleSubmit} sx={{}}>
+        <Dialog open={open} onClose={handleClose}>
+            <DialogTitle>Add Activity to Tracker</DialogTitle>
+            <DialogContent>
                 <FormControl fullWidth margin="dense">
-                    <InputLabel>Activity</InputLabel>
+                    <InputLabel id="activity-label">Activity</InputLabel>
                     <Select
+                        labelId="activity-label"
                         label="Activity"
                         name="activity"
                         value={formik.values.activity}
@@ -92,7 +77,8 @@ function AddActivity() {
                     </Select>
                 </FormControl>
                 <TextField
-                    fullWidth margin="dense" autoComplete="off"
+                    fullWidth
+                    margin="dense"
                     label="Points"
                     name="points"
                     value={activityPoints}
@@ -101,10 +87,11 @@ function AddActivity() {
                     }}
                 />
                 <TextField
-                    fullWidth margin="dense" autoComplete="off"
+                    fullWidth
+                    margin="dense"
                     label="Date"
-                    name="date"
                     type="date"
+                    name="date"
                     value={formik.values.date}
                     onChange={formik.handleChange}
                     onBlur={formik.handleBlur}
@@ -114,13 +101,12 @@ function AddActivity() {
                         shrink: true,
                     }}
                 />
-                <Box sx={{ mt: 2 }}>
-                    <Button variant="contained" type="submit">
-                        Add to Tracker
-                    </Button>
-                </Box>
-            </Box>
-        </Box>
+            </DialogContent>
+            <DialogActions>
+                <Button onClick={handleClose} color="inherit">Cancel</Button>
+                <Button onClick={formik.handleSubmit} color="primary">Add</Button>
+            </DialogActions>
+        </Dialog>
     );
 }
 

@@ -157,7 +157,7 @@ function Navbar({ setOpenLogin, setOpenRegister }) {
                                         onClick={handleMenuOpen}>
                                         <Avatar
                                             alt={`${user.firstName} ${user.lastName}`}
-                                            src={`${import.meta.env.VITE_FILE_BASE_URL}${user.imageFile}`}
+                                            src={`${import.meta.env.VITE_FILE_PROFILE_URL}${user.imageFile}`}
                                             sx={{ width: 50, height: 50 }}
                                         />
                                         <Typography>{user.firstName}</Typography>

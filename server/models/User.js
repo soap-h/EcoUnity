@@ -21,13 +21,36 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.BOOLEAN,
             defaultValue: false,
             allowNull: false
-    },
+        },
 
         imageFile: {
             type: DataTypes.STRING(20),
             allowNull: true,
             default: null
 
+        },
+
+        description: {
+            type: DataTypes.TEXT,
+            allowNull: true,
+            defaultValue: null
+        },
+
+        goals: {
+            type: DataTypes.INTEGER,
+            allowNull: true,
+            defaultValue: 1000
+        },
+
+        goaltype: {
+            type: DataTypes.STRING(10),
+            validate: {
+                isIn: {
+                    args: [['monthly', 'weekly']],
+                    msg: "Goal type must be either 'monthly' or 'weekly'"
+                }
+            },
+            defaultValue: "monthly"
         }
     }, {
         tableName: 'users'
@@ -38,7 +61,7 @@ module.exports = (sequelize, DataTypes) => {
         User.hasMany(models.Event, {
             foreignKey: "userId",
             as: 'events',
-          onDelete: "cascade"
+            onDelete: "cascade"
         });
 
         User.hasMany(models.Tracker, {
