@@ -59,7 +59,21 @@ module.exports = (sequelize, DataTypes) => {
             as: 'comments',
             onDelete: "CASCADE"
         });
+    
+        User.hasMany(models.IncidentReporting, {
+            foreignKey: "userId",
+            as: 'incidentReports',
+            onDelete: 'cascade'
+        });
+
     };
+    // User.associate = (models) => {
+    //     User.hasMany(models.EventFeedback, {
+    //     foreignKey: "userId",
+    //     onDelete: "cascade"
+    //     });
+    //     };
+    
 
     return User;
 }

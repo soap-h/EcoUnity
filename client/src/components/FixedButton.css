@@ -1,0 +1,45 @@
+.fixed-button-container {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center; /* Center the text and button */
+  }
+  
+  .fixed-button {
+    position: relative;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%; /* Ensure the button is initially circular */
+    background-color: #f44336; /* Red color */
+    color: white;
+    border: none;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    cursor: pointer;
+    transition: width 0.3s ease, border-radius 0.3s ease;
+  }
+  
+  .button-text {
+    position: absolute;
+    left: 70px; /* Space between button and text */
+    opacity: 0;
+    white-space: nowrap;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    transform: translateX(-10px);
+  }
+  
+  .fixed-button-container:hover .fixed-button {
+    width: 150px; /* Expanded width */
+    height: 60px; /* Keep height constant */
+    border-radius: 30px; /* Adjust radius to maintain circular appearance */
+  }
+  
+  .fixed-button-container:hover .button-text {
+    opacity: 1;
+    transform: translateX(0);
+  }
