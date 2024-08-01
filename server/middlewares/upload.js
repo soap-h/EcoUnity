@@ -17,4 +17,20 @@ const upload = multer({
 }).single('file'); // file input name
 
 
+const ppstorage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, path.join(__dirname, '../public/uploads/profilePics'));
+    },
+    filename: function (req, file, cb) {
+        cb(null, nanoid(10) + path.extname(file.originalname));
+    }
+});
+
+const ppupload = multer({ 
+    storage: ppstorage,
+    limits: { fileSize: 1024 * 1024 } // 1MB limit
+}).single('profilePic');
+
 module.exports = { upload };
+
+module.exports = { ppupload };

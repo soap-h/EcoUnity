@@ -40,3 +40,26 @@
 .read-the-docs {
   color: #888;
 }
+
+
+/* Custom Admin Scrollbar Styles */
+.sidebar-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: #6B8E23 #2F4F4F;
+}
+
+.sidebar-scrollbar::-webkit-scrollbar {
+  width: 8px;
+}
+
+.sidebar-scrollbar::-webkit-scrollbar-track {
+  background: #2F4F4F;
+  border-radius: 10px;
+}
+
+.sidebar-scrollbar::-webkit-scrollbar-thumb {
+  background-color: #6B8E23;
+  border-radius: 10px;
+  border: 2px solid #2F4F4F;
+}
+
