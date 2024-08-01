@@ -8,6 +8,8 @@ import http from "./http";
 // pages
 import Home from "./pages/Home.jsx";
 import Events from "./pages/Events.jsx";
+import EventRegistration from './pages/EventRegistration';
+import ProposeEvent from './pages/ProposeEvent';
 import Learning from "./pages/Learning.jsx";
 import Merchandise from "./pages/Merchandise.jsx";
 import AdminPage from "./pages/AdminPage.jsx";
@@ -44,6 +46,7 @@ import ForumTrending from './pages/Forum/ForumTrending';
 
 import UserContext from "./contexts/UserContext";
 import AdminDashboard from "./pages/AdminDashboard.jsx";
+import AdminEvents from "./pages/AdminEvents.jsx";
 import Login from "./pages/Login.jsx";
 import Register from "./pages/Register.jsx";
 import { Dialog } from "@mui/material";
@@ -103,6 +106,9 @@ function App() {
         <Routes>
           <Route path={"/"} element={<Home />} />
           <Route path={"/events"} element={<Events />} />
+          <Route path="/event/:id" element={<EventRegistration />} />
+          <Route path="/propose-event" element={<ProposeEvent />} />
+          {/* <Route path={"/forums"} element={<Forums />} /> */}
           <Route path={"/learning"} element={<Learning />} />
           <Route path={"/adminpage"} element={<AdminPage />} />
           <Route path={"/merchandise"} element={<Merchandise />} />
@@ -115,10 +121,11 @@ function App() {
           <Route path={"/editactivity/:id"} element={<EditActivity />} />
           <Route path={"/activities"} element={<Activities />} />
           <Route path={"/createactivity"} element={<CreateActivity />} />
+          <Route path={"/admin"} element={<AdminDashboard />} />
+          <Route path={"/admin/events"} element={<AdminEvents />} />
           <Route path={"/profile/:id"} element={user ? <Profile /> : <Navigate to="/login" />} />
           <Route path={"/inbox"} element={<Inbox />} />
           <Route path={"/addinbox"} element={<AddInboxMessage />} />
-          <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/admin/manageusers" element={<ManageUsers />} />
           <Route path="/admin/trackerdashboard" element={<TrackerDashboard />} />
           <Route path={"/AddincidentReporting"} element={<AddIncidentReport />} />
