@@ -1,50 +1,28 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Box, Button, FormControl, InputLabel, Select, MenuItem, Typography } from '@mui/material';
 import Carousel from 'react-material-ui-carousel';
 import { Link } from 'react-router-dom';
 import './Events.css';
 import bannerImage from '../assets/images/events-banner.png';
-import event1Image from '../assets/images/composting-workshop.png'; 
-import event2Image from '../assets/images/beach-clean-up.png'; 
-import event3Image from '../assets/images/sustainability-seminar.png'; 
-
-const events = [
-    {
-        id: 1,
-        title: "Beginner Composting workshop (Transform food waste into nutrient compost!)",
-        date: "May 24",
-        venue: "Bishan CC",
-        time: "05:00 PM - 07:00 PM",
-        price: "$5",
-        category: "Education",
-        type: "Workshop",
-        imgSrc: event1Image
-    },
-    {
-        id: 2,
-        title: "East Coast Beach Park Clean-up (Equipment is provided)",
-        date: "May 25",
-        venue: "Siglap CC",
-        time: "09:00 AM - 04:00 PM",
-        price: "FREE",
-        category: "Community",
-        type: "Clean-up",
-        imgSrc: event2Image
-    },
-    {
-        id: 3,
-        title: "Sustainable practices seminar (waste reduction, energy and water management)",
-        date: "Jun 01",
-        venue: "Kampong Kembangan CC",
-        time: "02:00 PM - 04:00 PM",
-        price: "FREE",
-        category: "Education",
-        type: "Seminar",
-        imgSrc: event3Image
-    },
-];
+import http from '../http';
 
 function Events() {
+    const [events, setEvents] = useState([]);
+
+    useEffect(() => {
+        const fetchEvents = async () => {
+            try {
+                const response = await http.get('/events');
+                console.log('Fetched events:', response.data);
+                setEvents(response.data);
+            } catch (error) {
+                console.error('Failed to fetch events:', error);
+            }
+        };
+
+        fetchEvents();
+    }, []);
+
     return (
         <Box>
             <Box
@@ -120,7 +98,7 @@ function Events() {
                                     <Box
                                         sx={{
                                             height: '200px',
-                                            backgroundImage: `url(${ev.imgSrc})`,
+                                            backgroundImage: `url(${ev.imageFile ? '/uploads/' + ev.imageFile : bannerImage})`,
                                             backgroundSize: 'cover',
                                             backgroundPosition: 'center',
                                             borderRadius: '8px'
@@ -132,9 +110,9 @@ function Events() {
                                             <Typography variant="caption" sx={{ backgroundColor: '#03a9f4', padding: '5px', borderRadius: '4px' }}>{ev.type}</Typography>
                                         </Box>
                                         <Typography variant="h6">{ev.title}</Typography>
-                                        <Typography variant="body2" color="textSecondary">{ev.date}</Typography>
+                                        <Typography variant="body2" color="textSecondary">{new Date(ev.date).toDateString()}</Typography>
                                         <Typography variant="body2" color="textSecondary">{ev.venue}</Typography>
-                                        <Typography variant="body2" color="textSecondary">{ev.time}</Typography>
+                                        <Typography variant="body2" color="textSecondary">{`${ev.timeStart} - ${ev.timeEnd}`}</Typography>
                                         <Typography variant="body2" color="textSecondary">{ev.price}</Typography>
                                     </Box>
                                 </Box>
