@@ -13,8 +13,8 @@ app.use(cors({
     origin: process.env.CLIENT_URL
 }));
 
-// Serve static files from the public directory
-app.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));
+// Serve static files from the "public" directory
+app.use(express.static('public'));
 
 // Simple Route
 app.get("/", (req, res) => {

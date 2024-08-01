@@ -11,7 +11,8 @@ const ViewEvent = ({ event, onClose }) => (
             <Typography>End Time: {event.timeEnd}</Typography>
             <Typography>Venue: {event.venue}</Typography>
             <Typography>Price: {event.price}</Typography>
-            <Typography>Participants: {event.participants}</Typography>
+            <Typography>Max Participants: {event.participants}</Typography>
+            <Typography>Registered Participants: {event.registered}</Typography>
             <Typography>Category: {event.category}</Typography>
             <Typography>Type: {event.type}</Typography>
             <Typography>Register End Date: {new Date(event.registerEndDate).toLocaleDateString()}</Typography>

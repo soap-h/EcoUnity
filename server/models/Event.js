@@ -52,7 +52,13 @@ module.exports = (sequelize, DataTypes) => {
             allowNull: false
         },
         imageFile: {
-            type: DataTypes.STRING(20)
+            type: DataTypes.STRING(100),
+            allowNull: true
+        },
+        registered: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            defaultValue: 0
         }
     }, {
         tableName: 'events'

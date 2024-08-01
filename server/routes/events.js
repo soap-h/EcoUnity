@@ -57,7 +57,7 @@ router.get("/", async (req, res) => {
     let list = await Event.findAll({
         where: condition,
         order: [['createdAt', 'DESC']],
-        attributes: ['id', 'title', 'date', 'participants', 'price', 'category', 'type', 'registerEndDate', 'timeStart', 'timeEnd', 'venue', 'details', 'userId', 'userName', 'imageFile']
+        attributes: ['id', 'title', 'date', 'participants', 'price', 'category', 'type', 'registerEndDate', 'timeStart', 'timeEnd', 'venue', 'details', 'userId', 'userName', 'imageFile', "registered"]
         // include: { model: User, as: "user", attributes: ['firstName'] }
     });
     res.json(list);
@@ -73,6 +73,23 @@ router.get("/:id", async (req, res) => {
         return;
     }
     res.json(event);
+});
+
+router.put("/:id/register", validateToken, async (req, res) => {
+    try {
+        const event = await Event.findByPk(req.params.id);
+        if (!event) {
+            return res.status(404).json({ error: "Event not found" });
+        }
+        if (event.registered >= event.participants) {
+            return res.status(400).json({ error: "Event is fully booked" });
+        }
+        event.registered += 1;
+        await event.save();
+        res.json({ message: "Registered successfully", registered: event.registered });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
 });
 
 router.put("/:id", validateToken, upload, async (req, res) => {

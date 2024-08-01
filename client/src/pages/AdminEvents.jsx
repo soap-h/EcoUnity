@@ -107,7 +107,7 @@ const AdminEvents = () => {
                         <TableCell>ID</TableCell>
                         <TableCell>Date</TableCell>
                         <TableCell>Title</TableCell>
-                        <TableCell>Max Participants</TableCell>
+                        <TableCell>Participants</TableCell>
                         <TableCell>Price</TableCell>
                         <TableCell>Category</TableCell>
                         <TableCell>Type</TableCell>
@@ -123,7 +123,7 @@ const AdminEvents = () => {
                                 <TableCell>{event.id}</TableCell>
                                 <TableCell>{new Date(event.date).toLocaleDateString()}</TableCell>
                                 <TableCell>{event.title}</TableCell>
-                                <TableCell>{event.participants}</TableCell>
+                                <TableCell>{event.registered}/{event.participants}</TableCell>
                                 <TableCell>{event.price}</TableCell>
                                 <TableCell>{event.category}</TableCell>
                                 <TableCell>{event.type}</TableCell>
