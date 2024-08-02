@@ -4,16 +4,16 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import ArchiveIcon from '@mui/icons-material/Archive';
 import UserContext from "../contexts/UserContext";
 import http from "../http";
+import { toast } from 'react-toastify';
 
 function Inbox() {
     const { user } = useContext(UserContext);
     const [mails, setMails] = useState([]);
     const [selectedMail, setSelectedMail] = useState(null);
-    const [filter, setFilter] = useState('All');
+    const [filter, setFilter] = useState('all');
     const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
     const [deleteMailId, setDeleteMailId] = useState(null);
     const [users, setUsers] = useState([]);
-
 
     useEffect(() => {
         fetchMails();
@@ -22,8 +22,8 @@ function Inbox() {
 
     const fetchMails = () => {
         http.get("/inbox").then((res) => {
-            console.log(res.data); 
-            setMails(res.data);
+            const sortedMails = res.data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+            setMails(sortedMails);
         }).catch(err => console.error("Failed to fetch mails:", err));
     };
 
@@ -37,7 +37,6 @@ function Inbox() {
         const user = users.find(u => u.id === userId);
         return user ? user.email : "Unknown sender";
     };
-
 
     const handleSelectMail = (mail) => {
         setSelectedMail(mail);
@@ -67,33 +66,32 @@ function Inbox() {
         setOpenDeleteDialog(false);
     };
 
-    const filteredMails = filter === 'All' ? mails : mails.filter(mail => mail.category === filter);
+    const filteredMails = filter === 'all' ? mails : mails.filter(mail => mail.category.toLowerCase() === filter.toLowerCase());
 
     const getCategoryButton = (category, key) => (
         <Button
-            key={key}  // Add key here
-            variant={filter === category ? "contained" : "outlined"}
-            onClick={() => filterMails(category)}
+            key={key}
+            variant={filter.toLowerCase() === category.toLowerCase() ? "contained" : "outlined"}
+            onClick={() => filterMails(category.toLowerCase())}
             fullWidth
             sx={{ mb: 1 }}
         >
-            {category}
+            {category.charAt(0).toUpperCase() + category.slice(1)}
         </Button>
     );
-
 
     return (
         <Box sx={{ display: 'flex', minHeight: '100vh', bgcolor: 'background.default', p: 3 }}>
             <Box sx={{ width: 200, mr: 2 }}>
                 <Typography variant="h6" sx={{ textAlign: 'center', mb: 2 }}>Categories</Typography>
-                {['All', 'Events', 'Forum', 'Misc'].map((category) =>
-                    getCategoryButton(category, category)  // Pass category as a key
+                {['all', 'events', 'forum', 'misc'].map((category) =>
+                    getCategoryButton(category, category)
                 )}
             </Box>
 
             <List sx={{ width: '100%', maxWidth: 360, bgcolor: 'background.paper', overflow: 'auto', mr: 2 }}>
                 <Typography variant="h6" sx={{ p: 2, textAlign: 'center' }}>Your Inbox</Typography>
-                {mails.map(mail => (
+                {filteredMails.map(mail => (
                     <React.Fragment key={mail.id}>
                         <ListItem
                             button
@@ -106,7 +104,7 @@ function Inbox() {
                             </ListItemAvatar>
                             <ListItemText
                                 primary={mail.title}
-                                secondary={`From: ${getUserEmailById(mail.userId)}`}  // Display sender email instead of ID
+                                secondary={`From: ${getUserEmailById(mail.userId)}`}
                             />
                         </ListItem>
                         <Divider variant="inset" component="li" />

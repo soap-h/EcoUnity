@@ -1,4 +1,4 @@
-import React, { useState} from 'react';
+import React, { useContext, useState} from 'react';
 import {useNavigate} from 'react-router-dom';
 import { Box, Typography, TextField, Button, Grid } from '@mui/material';
 import { useFormik } from 'formik';
@@ -7,7 +7,7 @@ import http from '../http';
 import PageBanner from '../assets/FeedbackBanner.jpg';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-
+import UserContext from '../contexts/UserContext';
 
 
 
@@ -15,7 +15,7 @@ function AddIncidentReport() {
     const navigate = useNavigate();
     const [imageFile, setImageFile] = useState(null);
     const [submissionStatus, setSubmissionStatus] = useState('');
-
+    const { user } = useContext(UserContext);
 
 
 
@@ -56,6 +56,19 @@ function AddIncidentReport() {
                     toast.error('errorr');
                     console.log(error);
                 });
+            
+            const message = {
+                'title': "Successfully sent a Incident report",
+                'content': `You have submitted ${data.ReportType}, ${data.ReportDetails} and ${data.Location}`,
+                'recipient': `${user.email}`,
+                'date': `${new Date()}`,
+                'category': "misc",
+            }
+            http.post("/inbox", message)
+            .catch((error) => {
+                toast.error('error');
+                console.log(error);
+            });
         }
     });
 
