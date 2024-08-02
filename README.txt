@@ -17,6 +17,7 @@ npm i @mui/material @emotion/react @emotion/styled react-material-ui-carousel da
 npm install @stripe/react-stripe-js @stripe/stripe-js   
 npm install chart.js react-chartjs-2
 npm i recharts
+npm i nodemailer
 
 under server:
 npm i cors
