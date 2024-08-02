@@ -19,7 +19,7 @@ app.get("/", (req, res) => {
 
 // STRIPE Payments
 const Stripe = require('stripe');
-const stripe = Stripe(`${process.env.STRIPE_SECRET_KEY}`);
+const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
 const sendEmail = require('../client/src/contexts/sendEmail.cjs');
 
 const calculateOrderAmount = (items) => {
@@ -30,23 +30,31 @@ const calculateOrderAmount = (items) => {
 
 app.post('/create-payment-intent', async (req, res) => {
     const { items, email } = req.body;
-    // Function to calculate the total amount
+    const amount = calculateOrderAmount(items);
 
     try {
         const paymentIntent = await stripe.paymentIntents.create({
-            amount: calculateOrderAmount(items),
+            amount: amount,
             currency: 'sgd', // or your preferred currency
         });
 
-        await sendEmail({ 
-            orderNumber: paymentIntent.id, 
-            items: items 
-        }, email);
-        
+        // Send the response immediately
         res.send({
             clientSecret: paymentIntent.client_secret,
         });
 
+        // Handle email sending separately
+        (async () => {
+            try {
+                await sendEmail({
+                    orderNumber: paymentIntent.id,
+                    items: items
+                }, email);
+                console.log('Email sent successfully');
+            } catch (err) {
+                console.error('Error sending email:', err.message);
+            }
+        })();
 
     } catch (err) {
         res.status(500).send({
@@ -73,14 +81,12 @@ app.use("/activities", activityRoute)
 const inboxRoute = require('./routes/inbox');
 app.use("/inbox", inboxRoute)
 
-
-
 const db = require('./models');
-db.sequelize.sync({ alter: true})
+db.sequelize.sync({ alter: true })
     .then(() => {
         let port = process.env.APP_PORT;
         app.listen(port, () => {
-            console.log(`⚡ Sever running on http://localhost:${port}`);
+            console.log(`⚡ Server running on http://localhost:${port}`);
         });
     })
     .catch((err) => {

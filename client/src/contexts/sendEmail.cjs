@@ -2,12 +2,10 @@ const nodemailer = require('nodemailer');
 
 const sendEmail = async (orderDetails, userEmail) => {
     let transporter = nodemailer.createTransport({
-        host: 'smtp://live.smtp.mailtrap.io', // Replace with your SMTP server
-        port: 587,
-        secure: false, // true for 465, false for other ports
+        service: 'gmail',
         auth: {
-            user: 'mailtrap@demomailtrap.com', // Replace with your email
-            pass: '66e0de37967140fbd41287a1d3d89272', // Replace with your email password
+            user: 'masatotahir@gmail.com', // Replace with your email
+            pass: 'tcvlbsuyyhvmkvvc', // Replace with your email password
         },
     });
 
@@ -31,7 +29,7 @@ const sendEmail = async (orderDetails, userEmail) => {
     `;
 
     let info = await transporter.sendMail({
-        from: '"Your Store" <mailtrap@demomailtrap.com>', // sender address
+        from: '"Eco Unity" <masatotahir@gmail.com>', // sender address
         to: userEmail, // list of receivers
         subject: "Order Confirmation", // Subject line
         html: emailContent, // html body

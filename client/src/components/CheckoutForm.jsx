@@ -41,6 +41,7 @@ const CheckoutForm = ({ formik, totalAmount, handleCheckout }) => {
             });
 
             const { clientSecret } = await response.json();
+            console.log('Received clientSecret:', clientSecret); // Add this line
 
             const payload = await stripe.confirmCardPayment(clientSecret, {
                 payment_method: {
