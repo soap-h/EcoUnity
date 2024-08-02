@@ -16,26 +16,31 @@ const AddEvent = ({ onClose }) => {
     const [category, setCategory] = useState('');
     const [type, setType] = useState('');
     const [registerEndDate, setRegisterEndDate] = useState(null);
+    const [imageFile, setImageFile] = useState(null);
 
     const handleSubmit = async () => {
-        const newEvent = { 
-            title, 
-            details, 
-            date: date ? date.format('YYYY-MM-DD') : null, 
-            timeStart: timeStart ? timeStart.format('HH:mm:ss') : null, 
-            timeEnd: timeEnd ? timeEnd.format('HH:mm:ss') : null, 
-            venue, 
-            price, 
-            participants, 
-            category, 
-            type, 
-            registerEndDate: registerEndDate ? registerEndDate.format('YYYY-MM-DD') : null 
-        };
-
-        console.log('Submitting event:', newEvent);
+        const formData = new FormData();
+        formData.append('title', title);
+        formData.append('details', details);
+        formData.append('date', date ? date.format('YYYY-MM-DD') : null);
+        formData.append('timeStart', timeStart ? timeStart.format('HH:mm:ss') : null);
+        formData.append('timeEnd', timeEnd ? timeEnd.format('HH:mm:ss') : null);
+        formData.append('venue', venue);
+        formData.append('price', price);
+        formData.append('participants', participants);
+        formData.append('category', category);
+        formData.append('type', type);
+        formData.append('registerEndDate', registerEndDate ? registerEndDate.format('YYYY-MM-DD') : null);
+        if (imageFile) {
+            formData.append('file', imageFile);
+        }
 
         try {
-            const response = await http.post('/events', newEvent);
+            const response = await http.post('/events', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                }
+            });
             console.log('Event added:', response.data);
             onClose();
         } catch (error) {
@@ -140,6 +145,12 @@ const AddEvent = ({ onClose }) => {
                         value={registerEndDate}
                         onChange={(newValue) => setRegisterEndDate(newValue)}
                         renderInput={(params) => <TextField {...params} fullWidth margin="normal" />}
+                    />
+                    <input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => setImageFile(e.target.files[0])}
+                        style={{ marginTop: '10px' }}
                     />
                 </Box>
                 <Box display="flex" justifyContent="flex-end">

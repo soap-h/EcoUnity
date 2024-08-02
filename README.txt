@@ -13,10 +13,13 @@ npm i formik yup
 npm i react-toastify
 npm i react-slick slick-carousel
 npm i @mui/material @mui/lab @emotion/react @emotion/styled
+npm i @mui/material @emotion/react @emotion/styled react-material-ui-carousel dayjs @mui/x-date-pickers
 npm install @stripe/react-stripe-js @stripe/stripe-js   
 npm install chart.js react-chartjs-2
+npm i recharts
 
 under server:
+npm i cors
 
 for file uploading 
 npm i multer

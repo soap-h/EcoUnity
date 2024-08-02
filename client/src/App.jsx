@@ -1,6 +1,6 @@
 import React from "react";
 import { useState, useEffect } from "react";
-import { BrowserRouter as Router, Routes, Route, Link, Navigate  } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Link, Navigate } from "react-router-dom";
 import { ThemeProvider } from "@mui/material/styles";
 import http from "./http";
 // import ProtectedRoute from "./ProtectedRoute";
@@ -8,9 +8,13 @@ import http from "./http";
 // pages
 import Home from "./pages/Home.jsx";
 import Events from "./pages/Events.jsx";
+import EventRegistration from './pages/EventRegistration';
+import ProposeEvent from './pages/ProposeEvent';
 import Learning from "./pages/Learning.jsx";
 import Merchandise from "./pages/Merchandise.jsx";
 import AdminPage from "./pages/AdminPage.jsx";
+import ManageUsers from "./pages/ManageUsers.jsx";
+import TrackerDashboard from "./pages/TrackerDashboard.jsx";
 import Reviews from "./pages/ReviewPage.jsx";
 
 import Navbar from "./components/Navbar";
@@ -31,12 +35,28 @@ import EditActivity from "./pages/EditActivity";
 import Activities from "./pages/AllActivites";
 import AddActivity from "./pages/AddActivity";
 import Profile from "./pages/Profile.jsx";
+
+
+import AddInboxMessage from "./pages/AddInboxMessage.jsx";
 import Inbox from "./pages/Inbox.jsx"
+import FixedButton from "./components/IncidentReportLink.jsx";
+
+// Forum/Thread Pages
+import Forum from './pages/Forum/Forum';
+import AddThread from './pages/Forum/AddThread';
+import ForumByCategory from './pages/Forum/ForumByCategory';
+import EditThread from './pages/Forum/EditThread';
+import SavedThreads from './pages/Forum/SavedThreads';
+import UserThreads from './pages/Forum/UserThreads';
+import ForumTrending from './pages/Forum/ForumTrending';
+// End of Forum/Thread Pages
+
 
 // context
 
 import UserContext from "./contexts/UserContext";
 import AdminDashboard from "./pages/AdminDashboard.jsx";
+import AdminEvents from "./pages/AdminEvents.jsx";
 import Login from "./pages/Login.jsx";
 import Register from "./pages/Register.jsx";
 import { Dialog } from "@mui/material";
@@ -45,8 +65,16 @@ import { Dialog } from "@mui/material";
 const stripePromise = loadStripe('pk_test_51PibywRwqbBNo0bk0Y04vn93VZZoeNxfBZzlbLy8KVwfvEAi0OnxZPtCfhbbjCG2rjVuJ0Wcg4cznTAE22QPP4Zo00WRmChZjd');
 
 
+import AddFeedback from './pages/AddFeedbackPage';
+import AddIncidentReport from './pages/AddIncidentReport';
+import IncidentReportingUsers from './pages/IncidentReportingAdmin';
+import IndividualReport from "./pages/IndividualReport";
+import FeedbackAdmin from "./pages/FeedbackAdmin";
+import IndividualFeedback from "./pages/IndividualFeedback";
+import ReportThreadAdmin from "./pages/ReportThreadAdmin.jsx";
 function App() {
   const [user, setUser] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [openLogin, setOpenLogin] = useState(false);
   const [openRegister, setOpenRegister] = useState(false);
 
@@ -56,14 +84,20 @@ function App() {
       http.get("/user/auth", {
         headers: { Authorization: `Bearer ${token}` }
       })
-      .then((res) => {
-        setUser(res.data.user);
+        .then((res) => {
+          setUser(res.data.user);
 
-        if (res.data.user.isAdmin) {
-          window.location = "/admin";
-        }
+          if (res.data.user.isAdmin) {
+            window.location = "/admin";
+          }
 
-      });
+        }).catch(() => {
+          localStorage.clear();
+        }).finally(() => {
+          setIsLoading(false); // Set loading to false after the request completes
+        });
+    } else {
+      setIsLoading(false); // Set loading to false if no token is found
     }
   }, []);
 
@@ -71,6 +105,10 @@ function App() {
     localStorage.clear();
     window.location = "/";
   };
+
+  if (isLoading) {
+    return <div>Loading...</div>; // Display loading indicator while fetching user data
+  }
 
   return (
     <UserContext.Provider value={{ user, setUser }}>
@@ -80,6 +118,8 @@ function App() {
         <Routes>
           <Route path={"/"} element={<Home />} />
           <Route path={"/events"} element={<Events />} />
+          <Route path="/event/:id" element={<EventRegistration />} />
+          <Route path="/propose-event" element={<ProposeEvent />} />
           {/* <Route path={"/forums"} element={<Forums />} /> */}
           <Route path={"/learning"} element={<Learning />} />
           <Route path={"/adminpage"} element={<AdminPage />} />
@@ -103,17 +143,41 @@ function App() {
           <Route path={"/editactivity/:id"} element={<EditActivity />} />
           <Route path={"/activities"} element={<Activities />} />
           <Route path={"/createactivity"} element={<CreateActivity />} />
-                        <Route path={"/profile/:id"} element={user ? <Profile /> : <Navigate to="/login" />}/>
-            <Route path={"/inbox"} element={<Inbox />} />
-          <Route path="/admin" element={<AdminDashboard />} />
+          <Route path={"/admin"} element={<AdminDashboard />} />
+          <Route path={"/admin/events"} element={<AdminEvents />} />
+          <Route path={"/profile/:id"} element={user ? <Profile /> : <Navigate to="/login" />} />
+          <Route path={"/inbox"} element={<Inbox />} />
+          <Route path={"/addinbox"} element={<AddInboxMessage />} />
+          <Route path="/admin/manageusers" element={<ManageUsers />} />
+          <Route path="/admin/trackerdashboard" element={<TrackerDashboard />} />
+          <Route path={"/AddincidentReporting"} element={<AddIncidentReport />} />
+          <Route path={"/addfeedback"} element={<AddFeedback />} />
+          <Route path={"/IncidentReportAdmin"} element={<IncidentReportingUsers />} />
+          <Route path={"/IncidentReportAdmin/:id"} element={<IndividualReport />} />
+          <Route path={"/FeedbackAdmin"} element={<FeedbackAdmin />} />
+          <Route path={"/FeedbackAdmin/:id"} element={<IndividualFeedback />} />
+
+
+          {/* Forum/Thread Routes */}
+          <Route path={"/forum"} element={<Forum />} />
+          <Route path={"/addthread"} element={<AddThread />} />
+          <Route path={"/thread/:category"} element={<ForumByCategory />} />
+          <Route path={"/editthread/:id"} element={<EditThread />} />
+          <Route path={"/bookmarks"} element={<SavedThreads />} />
+          <Route path={"/thread/user/:userId"} element={<UserThreads />} />
+          <Route path={"/trending"} element={<ForumTrending />} />
+          <Route path={"/admin/reportthread"} element={<ReportThreadAdmin/>}/>
+
         </Routes>
         <Dialog open={openLogin} onClose={() => setOpenLogin(false)}>
           <Login onClose={() => setOpenLogin(false)} />
         </Dialog>
         <Dialog open={openRegister} onClose={() => setOpenRegister(false)}>
-        <Register onClose={() => setOpenRegister(false)} setOpenLogin={setOpenLogin} />
+          <Register onClose={() => setOpenRegister(false)} setOpenLogin={setOpenLogin} />
         </Dialog>
+        <FixedButton />
       </Router>
+
 
     </UserContext.Provider>
   );

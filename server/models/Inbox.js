@@ -15,7 +15,11 @@ module.exports = (sequelize, DataTypes) => {
         recipient: {
             type: DataTypes.STRING(50),
             allowNull: false
-        }
+        },
+        category: {
+            type: DataTypes.STRING(50),
+            allowNull: false
+        },
     }, {
         tableName: 'inbox'
     });

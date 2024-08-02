@@ -7,10 +7,12 @@ const { validateToken } = require('../middlewares/auth');
 
 router.post("/", validateToken, async (req, res) => {
     let data = req.body;
+    data.userId = req.user.id;
     let validationSchema = yup.object({
         title: yup.string().trim().min(3).max(100).required(),
-        description: yup.string().trim().min(3).max(500).required(),
+        content: yup.string().trim().min(3).max(500).required(),
         date: yup.date().required(),
+        category: yup.string().trim().max(500).required(),
         recipient: yup.string().trim().lowercase().email().max(50).required()
     });
     try {
@@ -22,25 +24,22 @@ router.post("/", validateToken, async (req, res) => {
     }
 })
 
-router.get("/", async (req, res) => {
-    let condition = {};
-    let search = req.query.search;
-    if (search) {
-        condition[Op.or] = [
-            { title: { [Op.like]: `%${search}%` } },
-            { description: { [Op.like]: `%${search}%` } },
-            { date: { [Op.like]: `%${search}%` } },
-            { recipient: { [Op.like]: `%${search}%` } },
-        ];
+router.get("/", validateToken, async (req, res) => {
+    try {
+        // Assuming req.user.id contains the ID of the logged-in user
+        const messages = await Inbox.findAll({
+            where: {
+                recipient: req.user.email  // Assuming 'recipientId' is the field that stores the user ID
+            },
+            order: [["date", "DESC"]],
+        });
+        res.json(messages);
+    } catch (error) {
+        console.error("Failed to fetch messages:", error);
+        res.status(500).json({ message: error.message });
     }
+});
 
-    let list = await Inbox.findAll({
-        where: condition,
-        order: [["createdAt", "DESC"]]
-    });
-
-    res.json(list)
-})
 
 router.delete("/:id", async (req, res) => {
     let id = req.params.id;

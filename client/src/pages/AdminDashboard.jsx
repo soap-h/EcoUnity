@@ -20,7 +20,7 @@ const AdminDashboard = () => {
                                 Pending Proposals
                             </Typography>
                             <Typography variant="h4" sx={{ color: '#4CAF50' }}>
-                                6
+                                0
                             </Typography>
                         </Paper>
                     </Grid>
