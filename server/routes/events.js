@@ -98,8 +98,6 @@ router.put("/:id/register", validateToken, async (req, res) => {
     }
 });
 
-module.exports = router;
-
 router.put("/:id", validateToken, upload, async (req, res) => {
     let data = req.body;
     let userId = req.user.id;  // Ensure the user is authenticated
