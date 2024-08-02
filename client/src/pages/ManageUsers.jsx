@@ -60,7 +60,7 @@ function AdminPage() {
 
     const handleSave = () => {
         if (selectedUser) {
-            http.put(`/user/${selectedUser.id}`, { isAdmin: adminStatus === '1' })
+            http.put(`/user/admin/${selectedUser.id}`, { isAdmin: adminStatus === '1' })
                 .then((res) => {
                     console.log(res.data);
                     toast.success('Admin status updated successfully!');

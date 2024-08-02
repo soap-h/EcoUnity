@@ -185,22 +185,52 @@ router.get("/userinfo", validateToken, async (req, res) => {
     }
 });
 
-router.get("/trackergoal/:id", validateToken, async (req, res) => {
-    let id = req.params.id;
-    let user = await User.findByPk(id);
-    if (!user) {
-        res.sendStatus(404);
-        return;
-    }
+router.get("/:id", validateToken, async (req, res) => {
+    const userId = req.params.id;  // Get the user ID from the request parameters
+
     try {
-        res.json(
-            user
-        );
+        const user = await User.findOne({
+            where: { id: userId },  // Fetch the user with the specified ID
+            attributes: ['id', 'firstName', 'lastName', 'email', 'isAdmin', 'imageFile']  // Only fetch specified attributes
+        });
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        res.json(user);
     } catch (error) {
         console.error("Database Error: ", error);
         res.status(500).json({ message: error.message });
     }
-})
+});
+
+router.put("/admin/:id", validateToken, async (req, res) => {
+    const userId = req.params.id;
+    const { isAdmin } = req.body;
+
+    // Check if the requesting user is an admin
+    const requestingUser = await User.findByPk(req.user.id);
+    if (!requestingUser || !requestingUser.isAdmin) {
+        return res.status(403).json({ message: "You do not have permission to perform this action." });
+    }
+
+    try {
+        const user = await User.findByPk(userId);
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        user.isAdmin = isAdmin;
+        await user.save();
+
+        res.json({ message: "Admin status updated successfully." });
+    } catch (error) {
+        console.error("Database Error: ", error);
+        res.status(500).json({ message: error.message });
+    }
+});
+
 
 router.put("/settracker/:id", validateToken, async (req, res) => {
     let id = req.params.id;
@@ -240,33 +270,31 @@ router.put("/settracker/:id", validateToken, async (req, res) => {
 
 router.delete("/:id", validateToken, async (req, res) => {
     let id = req.params.id;
-    // Check id not found
-    let user = await User.findByPk(id);
-    console.log(user);
-    if (!user) {
-        res.sendStatus(404);
-        return;
+
+    // Find the user to be deleted
+    let userToDelete = await User.findByPk(id);
+    if (!userToDelete) {
+        return res.status(404).json({ message: "User not found" });
     }
 
-    // Check request user id
-    let userId = req.user.id;
-    if (user.id != userId) {
-        res.sendStatus(403);
-        return;
+    // Check if the requesting user is an admin or if they are deleting their own account
+    let requestingUser = await User.findByPk(req.user.id);
+    if (!requestingUser) {
+        return res.status(404).json({ message: "Requesting user not found" });
     }
 
-    let num = await User.destroy({
-        where: { id: id }
-    })
-    if (num == 1) {
-        res.json({
-            message: "User was deleted successfully."
-        });
+    if (requestingUser.id !== userToDelete.id && !requestingUser.isAdmin) {
+        return res.status(403).json({ message: "You do not have permission to delete this user" });
     }
-    else {
-        res.status(400).json({
-            message: `Cannot delete User with id ${id}.`
-        });
+
+    // Delete the user
+    try {
+        await User.destroy({ where: { id: id } });
+        res.json({ message: "User was deleted successfully." });
+    } catch (error) {
+        console.error("Delete Error: ", error);
+        res.status(500).json({ message: "Failed to delete user" });
     }
 });
+
 module.exports = router;

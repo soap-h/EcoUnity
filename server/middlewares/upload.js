@@ -26,6 +26,7 @@ const threadStorage = multer.diskStorage({
     }
 });
 
+
 // Middleware for thread picture uploads
 const threadUpload = multer({
     storage: threadStorage,
