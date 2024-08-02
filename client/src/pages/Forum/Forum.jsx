@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useContext } from 'react';
-import { Box, Grid, Button, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions } from '@mui/material';
+import { Box, Grid, Button, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, Typography, Paper } from '@mui/material';
 import http from '../../http';
 import {
     Add as AddIcon, Delete as DeleteIcon, Edit as EditIcon, Comment as CommentIcon, BookmarkBorder as BookmarkBorderIcon,
@@ -214,16 +214,26 @@ function Forum() {
     };
 
     return (
-        <Box sx={{p:4}}>
-            <ForumBigPicture />
-            <Grid container spacing={2} sx={{ my: 2 }}>
+        <Box sx={{ p: 4 }}>
+
+            {/* Header Section */}
+            <Paper elevation={3} sx={{ p: 4, mb: 4, backgroundColor: '#ffffff', borderRadius: 2 }}>
+                <Typography variant="h4" component="h1" gutterBottom sx={{ color: '#1976d2' }}>
+                    Welcome to the Forum
+                </Typography>
+                <Typography variant="body1" color="text.secondary" sx={{ mb: 2 }}>
+                    Join the discussion and share your thoughts on various topics. Engage with others, post new threads, and contribute to ongoing conversations. Your opinions matter!
+                </Typography>
+                <Link to="/addthread">
+                    <Button variant='contained' startIcon={<AddIcon />} sx={{ bgcolor: '#1976d2', '&:hover': { bgcolor: '#1565c0' } }}>
+                        Add a New Thread
+                    </Button>
+                </Link>
+            </Paper>
+
+            <Grid container spacing={2}>
                 <ForumNavigation />
                 <Grid item xs={9}>
-                    <Link to="/addthread">
-                        <Button variant='contained' startIcon={<AddIcon />} fullWidth sx={{ mb: 2 }}>
-                            Add a new thread
-                        </Button>
-                    </Link>
                     {threadList.map((thread) => (
                         <ThreadCard
                             key={thread.id}

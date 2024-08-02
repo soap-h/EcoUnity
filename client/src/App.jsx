@@ -49,6 +49,7 @@ import EditThread from './pages/Forum/EditThread';
 import SavedThreads from './pages/Forum/SavedThreads';
 import UserThreads from './pages/Forum/UserThreads';
 import ForumTrending from './pages/Forum/ForumTrending';
+import ReportThreadAdmin from "./pages/Forum/ReportThreadAdmin.jsx";
 // End of Forum/Thread Pages
 
 
@@ -71,7 +72,6 @@ import IncidentReportingUsers from './pages/IncidentReportingAdmin';
 import IndividualReport from "./pages/IndividualReport";
 import FeedbackAdmin from "./pages/FeedbackAdmin";
 import IndividualFeedback from "./pages/IndividualFeedback";
-import ReportThreadAdmin from "./pages/ReportThreadAdmin.jsx";
 function App() {
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
