@@ -14,6 +14,16 @@ import AdminPage from "./pages/AdminPage.jsx";
 import Reviews from "./pages/ReviewPage.jsx";
 
 import Navbar from "./components/Navbar";
+import { CartProvider } from './contexts/CartContext'; // Ensure correct import path
+import Cart from './pages/Cart.jsx'
+import Payment from './pages/Payment.jsx'
+import CartLayout from './components/CartLayout.jsx'; // Import the CartLayout component
+import ProductPage from './pages/ProductPage.jsx';
+import OrderConfirm from './pages/OrderConfirm.jsx'
+
+import { loadStripe } from '@stripe/stripe-js';
+import { Elements } from '@stripe/react-stripe-js';
+
 
 import Trackers from "./pages/Tracker";
 import CreateActivity from "./pages/CreateActivity";
@@ -32,6 +42,7 @@ import Register from "./pages/Register.jsx";
 import { Dialog } from "@mui/material";
 
 
+const stripePromise = loadStripe('pk_test_51PibywRwqbBNo0bk0Y04vn93VZZoeNxfBZzlbLy8KVwfvEAi0OnxZPtCfhbbjCG2rjVuJ0Wcg4cznTAE22QPP4Zo00WRmChZjd');
 
 
 function App() {
@@ -72,10 +83,20 @@ function App() {
           {/* <Route path={"/forums"} element={<Forums />} /> */}
           <Route path={"/learning"} element={<Learning />} />
           <Route path={"/adminpage"} element={<AdminPage />} />
-          <Route path={"/merchandise"} element={<Merchandise />} />
-          <Route path={"/reviews"} element={<Reviews />} />
+          <Route path={"/reviews/:id"} element={<Reviews />} />
+          
+          <Route element={<CartLayout />}>
+              <Route path={"/merchandise"} element={<Merchandise />} />
+              <Route path={"/products/:id"} element={<ProductPage />} />
+              <Route path={"/cart"} element={<Cart />} />
+              <Route path={"/payment"} element={<Payment />} /> 
+              <Route path={"/orderconfirm"} element={<OrderConfirm />} />
+          </Route>
+
+
           <Route path={"/login"} element={<Login />} />
           <Route path={"/register"} element={<Register />} />
+          
           {/* <Route path={"/locations"} element={<Locations />} /> */}
           <Route path={"/tracker"} element={<Trackers />} />
           <Route path={"/addactivity"} element={<AddActivity />} />

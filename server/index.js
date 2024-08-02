@@ -17,6 +17,44 @@ app.get("/", (req, res) => {
     res.send("Welcome to Eco Unity");
 });
 
+// STRIPE Payments
+const Stripe = require('stripe');
+const stripe = Stripe(`${process.env.STRIPE_SECRET_KEY}`);
+const sendEmail = require('../client/src/contexts/sendEmail.cjs');
+
+const calculateOrderAmount = (items) => {
+    return items.reduce((total, item) => {
+        return total + item.price * item.quantity;
+    }, 0);
+};
+
+app.post('/create-payment-intent', async (req, res) => {
+    const { items, email } = req.body;
+    // Function to calculate the total amount
+
+    try {
+        const paymentIntent = await stripe.paymentIntents.create({
+            amount: calculateOrderAmount(items),
+            currency: 'sgd', // or your preferred currency
+        });
+
+        await sendEmail({ 
+            orderNumber: paymentIntent.id, 
+            items: items 
+        }, email);
+        
+        res.send({
+            clientSecret: paymentIntent.client_secret,
+        });
+
+
+    } catch (err) {
+        res.status(500).send({
+            error: err.message,
+        });
+    }
+});
+
 // Routes
 const productRoute = require('./routes/products');
 app.use("/products", productRoute);
@@ -34,6 +72,8 @@ const activityRoute = require('./routes/activity');
 app.use("/activities", activityRoute)
 const inboxRoute = require('./routes/inbox');
 app.use("/inbox", inboxRoute)
+
+
 
 const db = require('./models');
 db.sequelize.sync({ alter: true})
