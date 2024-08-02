@@ -40,6 +40,7 @@ import UserContext from '../../contexts/UserContext';
 import dayjs from 'dayjs';
 import global from '../../global';
 import ThreadCard from '../../components/Forum/ThreadCard';
+import ForumHeader from '../../components/Forum/ForumHeader';
 
 function SavedThreads() {
     const [threadList, setThreadList] = useState([]);
@@ -234,43 +235,41 @@ function SavedThreads() {
     };
 
     return (
-        <Box sx={{p:4}}>
-            <ForumBigPicture />
+        <Box sx={{ p: 4 }}>
+            <ForumHeader />
             <Grid container spacing={2} sx={{ my: 2 }}>
                 <ForumNavigation />
 
                 <Grid item xs={9}>
-                    <Link to="/addthread">
-                        <Button variant='contained' startIcon={<AddIcon />} fullWidth sx={{ mb: 2 }}>
-                            Add a new thread
-                        </Button>
-                    </Link>
-
-                    {threadList.map((thread) => (
-                        <ThreadCard
-                            key={thread.id}
-                            thread={thread}
-                            onDeleteClick={handleDeleteClick}
-                            onBookmarkToggle={handleBookmarkToggle}
-                            onCommentClick={handleCommentClick}
-                            onCommentChange={handleCommentChange}
-                            onCommentSubmit={handleCommentSubmit}
-                            onViewCommentsToggle={handleViewCommentsToggle}
-                            bookmarkedThreads={bookmarkedThreads}
-                            truncateContent={truncateContent}
-                            getCategoryChipColor={getCategoryChipColor}
-                            showComments={showComments}
-                            newComment={newComment}
-                            comments={comments}
-                            userVotes={userVotes}
-                            handleVote={handleVote}
-                            showFullContent={showFullContent}
-                            handleToggleContent={handleToggleContent}
-                            user={user}
-                        />
-                    ))}
-
-
+                    {threadList.length === 0 ? (
+                        <Grid>
+                            <Typography variant="h6" sx={{mt:2}}>
+                                You did not save any threads, save some on Home now!!
+                            </Typography>
+                        </Grid>
+                    ): (threadList.map((thread) => (
+                    <ThreadCard
+                        key={thread.id}
+                        thread={thread}
+                        onDeleteClick={handleDeleteClick}
+                        onBookmarkToggle={handleBookmarkToggle}
+                        onCommentClick={handleCommentClick}
+                        onCommentChange={handleCommentChange}
+                        onCommentSubmit={handleCommentSubmit}
+                        onViewCommentsToggle={handleViewCommentsToggle}
+                        bookmarkedThreads={bookmarkedThreads}
+                        truncateContent={truncateContent}
+                        getCategoryChipColor={getCategoryChipColor}
+                        showComments={showComments}
+                        newComment={newComment}
+                        comments={comments}
+                        userVotes={userVotes}
+                        handleVote={handleVote}
+                        showFullContent={showFullContent}
+                        handleToggleContent={handleToggleContent}
+                        user={user}
+                    />
+                    )))}
 
                     <Dialog
                         open={openDeleteDialog}
