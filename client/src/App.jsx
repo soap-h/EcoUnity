@@ -60,7 +60,7 @@ import AdminEvents from "./pages/AdminEvents.jsx";
 import Login from "./pages/Login.jsx";
 import Register from "./pages/Register.jsx";
 import { Dialog } from "@mui/material";
-
+import GuestProfile from "./pages/GuestProfile.jsx"
 
 const stripePromise = loadStripe('pk_test_51PibywRwqbBNo0bk0Y04vn93VZZoeNxfBZzlbLy8KVwfvEAi0OnxZPtCfhbbjCG2rjVuJ0Wcg4cznTAE22QPP4Zo00WRmChZjd');
 
@@ -146,6 +146,7 @@ function App() {
           <Route path={"/admin"} element={<AdminDashboard />} />
           <Route path={"/admin/events"} element={<AdminEvents />} />
           <Route path={"/profile/:id"} element={user ? <Profile /> : <Navigate to="/login" />} />
+          <Route path={"/guestprofile/:id"} element={<GuestProfile />} />
           <Route path={"/inbox"} element={<Inbox />} />
           <Route path={"/addinbox"} element={<AddInboxMessage />} />
           <Route path="/admin/manageusers" element={<ManageUsers />} />

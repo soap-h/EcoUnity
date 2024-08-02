@@ -32,8 +32,12 @@ const ThreadCard = ({
         <>
             <Card key={thread.id} sx={{ margin: 'auto', marginTop: 2, maxWidth: '100%', width: '100%' }}>
                 <CardHeader
-                    avatar={<Avatar alt={thread.user?.firstName} src={`${import.meta.env.VITE_FILE_PROFILE_URL}${thread.user?.imageFile}`} />}
-                    title={thread.user?.firstName}
+                    avatar={<Link to={`/guestprofile/${thread.userId}`}>
+                        <Avatar alt={thread.user?.firstName} src={thread.user?.imageFile ? `${import.meta.env.VITE_FILE_PROFILE_URL}${thread.user?.imageFile}` : undefined} />
+                    </Link>}
+                    title={<Link to={`/guestprofile/${thread.userId}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                        {thread.user?.firstName}
+                    </Link>}
                     subheader={dayjs(thread.createdAt).format(global.datetimeFormat)}
                 />
                 <CardContent>

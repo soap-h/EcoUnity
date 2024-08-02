@@ -28,16 +28,22 @@ function Forum() {
             const [threadsRes, bookmarksRes] = await Promise.all([
                 http.get('/thread'),
                 http.get('/bookmarks'),
-                // user ? http.get(`/userVotes/${user.id}`) : Promise.resolve({ data: [] })
             ]);
             setThreadList(threadsRes.data);
             setBookmarkedThreads(bookmarksRes.data.map(b => b.threadId));
-            // setUserVotes(votesRes.data.reduce((acc, vote) => {
-            //     acc[vote.threadId] = vote.voteType;
-            //     return acc;
-            // }, {}));
         } catch (error) {
             console.error('Error fetching data:', error);
+        }
+    };
+
+    const getUserEmailById = async (userId) => {
+        try {
+            const response = await http.get(`/user/userinfo`);
+            const user = response.data.find(u => u.id === userId);
+            return user ? user.email : "Unknown sender";
+        } catch (error) {
+            console.error('Error fetching user email:', error);
+            return null;
         }
     };
 
@@ -87,23 +93,22 @@ function Forum() {
         }
     };
 
-        // biodiversity, energy, conservation, agriculture, recycling, climate change
-        const getCategoryChipColor = (categoryName) => {
-            switch (categoryName.toLowerCase()) {
-                case 'biodiversity':
-                    return 'error';
-                case 'energy':
-                    return 'warning';
-                case 'conservation':
-                    return 'success';
-                case 'agriculture':
-                    return 'primary';
-                case 'recycling':
-                    return 'secondary';
-                case 'climate change':
-                    return 'info';
-            }
+    const getCategoryChipColor = (categoryName) => {
+        switch (categoryName.toLowerCase()) {
+            case 'biodiversity':
+                return 'error';
+            case 'energy':
+                return 'warning';
+            case 'conservation':
+                return 'success';
+            case 'agriculture':
+                return 'primary';
+            case 'recycling':
+                return 'secondary';
+            case 'climate change':
+                return 'info';
         }
+    }
 
     const handleCommentClick = (threadId) => {
         setNewComment(prevState => ({
@@ -136,6 +141,22 @@ function Forum() {
                 ...prevState,
                 [threadId]: { text: '', expanded: false }
             }));
+            const thread = threadList.find(t => t.id === threadId);
+            const recipientEmail = await getUserEmailById(thread.userId);
+
+            const message = {
+                'title': `${user.firstName} ${user.lastName} Commented on your post`,
+                'content': `${user.firstName} ${user.lastName} Commented ${newComment[threadId]?.text}`,
+                'recipient': `${recipientEmail}`,
+                'date': `${new Date()}`,
+                'category': "forum",
+            }
+            http.post("/inbox", message)
+                .catch((error) => {
+                    toast.error('error');
+                    console.log(error);
+                });
+
         } catch (error) {
             console.error('Error posting comment:', error);
         }
@@ -192,21 +213,17 @@ function Forum() {
         }
     };
 
-
-
     return (
         <Box sx={{p:4}}>
             <ForumBigPicture />
             <Grid container spacing={2} sx={{ my: 2 }}>
                 <ForumNavigation />
-
                 <Grid item xs={9}>
                     <Link to="/addthread">
                         <Button variant='contained' startIcon={<AddIcon />} fullWidth sx={{ mb: 2 }}>
                             Add a new thread
                         </Button>
                     </Link>
-
                     {threadList.map((thread) => (
                         <ThreadCard
                             key={thread.id}
