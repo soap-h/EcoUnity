@@ -10,6 +10,7 @@ function GuestProfile() {
 
     const getUser = () => {
         http.get(`/user/${id}`).then((res) => {
+            console.log(res.data)
             setUser(res.data);
         }).catch((error) => {
             console.error("Error fetching user: ", error);

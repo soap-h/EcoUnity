@@ -50,7 +50,7 @@ import AdminEvents from "./pages/AdminEvents.jsx";
 import Login from "./pages/Login.jsx";
 import Register from "./pages/Register.jsx";
 import { Dialog } from "@mui/material";
-
+import GuestProfile from "./pages/GuestProfile.jsx"
 
 
 
@@ -124,6 +124,7 @@ function App() {
           <Route path={"/admin"} element={<AdminDashboard />} />
           <Route path={"/admin/events"} element={<AdminEvents />} />
           <Route path={"/profile/:id"} element={user ? <Profile /> : <Navigate to="/login" />} />
+          <Route path={"/guestprofile/:id"} element={<GuestProfile />} />
           <Route path={"/inbox"} element={<Inbox />} />
           <Route path={"/addinbox"} element={<AddInboxMessage />} />
           <Route path="/admin/manageusers" element={<ManageUsers />} />

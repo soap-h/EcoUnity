@@ -9,17 +9,24 @@ import {
 import dayjs from 'dayjs';
 import { Link } from 'react-router-dom';
 import global from '../../global';
-                        
 
 const ThreadCard = ({
     thread, onDeleteClick, onBookmarkToggle, onCommentClick, onCommentChange, onCommentSubmit, newComment, bookmarkedThreads, onViewCommentsToggle, truncateContent, getCategoryChipColor,
     showComments, comments, userVotes, handleVote, showFullContent, handleToggleContent, user
 }) => {
     return (
-        <Card key={thread.id} sx={{ margin: 'auto', marginTop: 2, maxWidth: '100%', width: '100%'}}>
+        <Card key={thread.id} sx={{ margin: 'auto', marginTop: 2, maxWidth: '100%', width: '100%' }}>
             <CardHeader
-                avatar={<Avatar alt={thread.user?.firstName} src={thread.user?.avatarUrl} />}
-                title={thread.user?.firstName}
+                avatar={
+                    <Link to={`/guestprofile/${thread.userId}`}>
+                        <Avatar alt={thread.user?.firstName} src={thread.user?.imageFile ? `${import.meta.env.VITE_FILE_PROFILE_URL}${thread.user?.imageFile}` : undefined} />
+                    </Link>
+                }
+                title={
+                    <Link to={`/guestprofile/${thread.userId}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                        {thread.user?.firstName}
+                    </Link>
+                }
                 subheader={dayjs(thread.createdAt).format(global.datetimeFormat)}
             />
             <CardContent>
@@ -29,7 +36,7 @@ const ThreadCard = ({
                 <Typography variant="body2" color="text.secondary" paragraph>
                     {truncateContent(thread.description, 200)}
                     {thread.description.length > 200 && (
-                        <Button onClick={handleToggleContent} sx={{ mt: 1, color: 'primary.main'}}>
+                        <Button onClick={handleToggleContent} sx={{ mt: 1, color: 'primary.main' }}>
                             {showFullContent ? 'View Less' : 'View More'}
                         </Button>
                     )}

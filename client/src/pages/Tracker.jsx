@@ -220,6 +220,12 @@ function Trackers() {
   // Text for CO2 saving
   const co2SavingText = `Save 500g of CO2 every ${goalType.charAt(0).toUpperCase() + goalType.slice(1)}`;
 
+  const addActivity = (newActivity) => {
+    setTrackerList((prevList) => [...prevList, newActivity]);
+    // Optionally, update CO2 data or any other relevant state here
+  };
+
+
   return (
     <Box sx={{ p: 2 }}>
       <Box
@@ -387,7 +393,7 @@ function Trackers() {
           </Dialog>
           {/* Add button */}
           <Box sx={{ position: "absolute", bottom: 16, right: 16 }}>
-            <Button onClick={handleOpenAddDialog} color="primary">Add Activity</Button>
+            <Button onClick={handleOpenAddDialog} color="primary"><Add></Add></Button>
             <AddActivity open={openAddDialog} handleClose={handleCloseAddDialog} activities={activities} />
           </Box>
         </Box>

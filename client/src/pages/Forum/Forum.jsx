@@ -28,14 +28,9 @@ function Forum() {
             const [threadsRes, bookmarksRes] = await Promise.all([
                 http.get('/thread'),
                 http.get('/bookmarks'),
-                // user ? http.get(`/userVotes/${user.id}`) : Promise.resolve({ data: [] })
             ]);
             setThreadList(threadsRes.data);
             setBookmarkedThreads(bookmarksRes.data.map(b => b.threadId));
-            // setUserVotes(votesRes.data.reduce((acc, vote) => {
-            //     acc[vote.threadId] = vote.voteType;
-            //     return acc;
-            // }, {}));
         } catch (error) {
             console.error('Error fetching data:', error);
         }
@@ -45,8 +40,7 @@ function Forum() {
         try {
             const response = await http.get(`/user/userinfo`);
             const user = response.data.find(u => u.id === userId);
-        return user ? user.email : "Unknown sender";
-
+            return user ? user.email : "Unknown sender";
         } catch (error) {
             console.error('Error fetching user email:', error);
             return null;
@@ -99,7 +93,6 @@ function Forum() {
         }
     };
 
-    // biodiversity, energy, conservation, agriculture, recycling, climate change
     const getCategoryChipColor = (categoryName) => {
         switch (categoryName.toLowerCase()) {
             case 'biodiversity':
@@ -220,21 +213,17 @@ function Forum() {
         }
     };
 
-
-
     return (
         <Box>
             <ForumBigPicture />
             <Grid container spacing={2} sx={{ my: 2 }}>
                 <ForumNavigation />
-
                 <Grid item xs={9}>
                     <Link to="/addthread">
                         <Button variant='contained' startIcon={<AddIcon />} fullWidth sx={{ mb: 2 }}>
                             Add a new thread
                         </Button>
                     </Link>
-
                     {threadList.map((thread) => (
                         <ThreadCard
                             key={thread.id}

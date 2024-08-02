@@ -17,7 +17,9 @@ const AdminSidebar = ({ username }) => {
         <Box sx={{ width: 240, height: '95vh', backgroundColor: '#5a9895', borderRadius: '20px', margin: 2, color: 'white', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', overflow: 'hidden' }}>
             <Box>
                 <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', padding: 2 }}>
-                    <Avatar alt="Eco Unity Logo" src= {EcoUnityLogo} sx={{ width: 80, height: 80 }} />
+                    <Link to="/" style={{ textDecoration: 'none' }}>
+                        <Avatar alt="Eco Unity Logo" src={EcoUnityLogo} sx={{ width: 80, height: 80 }} />
+                    </Link>
                 </Box>
                 <Box sx={{ overflowY: 'auto', height: 'calc(100% - 100px)', paddingRight: 2 }} className="sidebar-scrollbar">
                     <List>

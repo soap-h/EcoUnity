@@ -120,9 +120,10 @@ function Profile() {
                             <Box sx={{ position: 'relative', display: 'inline-block' }}>
                                 <Avatar
                                     alt={`${user.firstName} ${user.lastName}`}
-                                    src={`${import.meta.env.VITE_FILE_PROFILE_URL}${user.imageFile}`}
+                                    src={`${import.meta.env.VITE_FILE_PROFILE_URL}${user?.imageFile}`} 
                                     sx={{ width: 150, height: 150, marginLeft: 12 }}
                                 />
+                               
                                 <IconButton
                                     component="label"
                                     sx={{
