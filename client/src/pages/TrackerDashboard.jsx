@@ -134,7 +134,7 @@ const Dashboard = () => {
                     <Grid item xs={12} sm={4}>
                         <Paper sx={{ p: 2, textAlign: 'center' }}>
                             <Typography variant="h6">Average CO2 Saved</Typography>
-                            <Typography variant="h4">{data.averageCo2Saved / 1000 || 0} Kg</Typography>
+                            <Typography variant="h4">{(data.averageCo2Saved / 1000).toFixed(2) || 0} Kg</Typography>
                         </Paper>
                     </Grid>
                     <Grid item xs={12} sm={4}>
