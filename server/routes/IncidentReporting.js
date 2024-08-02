@@ -59,30 +59,25 @@ router.get("/:id", async (req, res) => {
     res.json(incidentReporting);
 });
 
-router.put('/:id/status', validateToken, async (req, res) => {
+router.put('/:id', validateToken, async (req, res) => {
     const id = req.params.id;
+    const status = req.body.status; // Ensure you are extracting the correct field
 
-    // Find the incident by primary key
+    console.log('Updating status for ID:', id);
+    console.log('New status:', status);
+
     let incidentReporting = await IncidentReporting.findByPk(id);
     if (!incidentReporting) {
         return res.sendStatus(404); // Not found
     }
 
-    // Check if the requesting user is authorized to update this incident
-    const userId = req.user.id;
-    if (incidentReporting.userId !== userId) {
-        return res.sendStatus(403); // Forbidden
-    }
-    // Define validation schema for action status
     const validationSchema = yup.object({
-        status: yup.string().trim().oneOf(['Pending', 'Approved', 'Rejected']).required(), // Adjust options as needed
+        status: yup.string().trim().oneOf(['Pending', 'Approved', 'Rejected']).required(),
     });
 
     try {
-        // Validate the incoming data
-        const { status } = await validationSchema.validate(req.body, { abortEarly: false });
+        await validationSchema.validate({ status }, { abortEarly: false });
 
-        // Update the incident's action status
         const [updated] = await IncidentReporting.update({ ActionStatus: status }, {
             where: { id: id }
         });
@@ -93,6 +88,7 @@ router.put('/:id/status', validateToken, async (req, res) => {
             return res.status(400).json({ message: `Cannot update status for incident with id ${id}.` });
         }
     } catch (err) {
+        console.error('Validation or update error:', err);
         return res.status(400).json({ errors: err.errors });
     }
 });

@@ -41,13 +41,13 @@ const AdminSidebar = ({ username }) => {
                             </ListItemIcon>
                             <ListItemText primary="Events" />
                         </ListItem>
-                        <ListItem button component={Link} to="/admin/event-feedback">
+                        <ListItem button component={Link} to="/admin/FeedbackAdmin">
                             <ListItemIcon sx={{ color: 'white' }}>
                                 <FeedbackIcon />
                             </ListItemIcon>
                             <ListItemText primary="Event Feedback" />
                         </ListItem>
-                        <ListItem button component={Link} to="/admin/incident-reports">
+                        <ListItem button component={Link} to="/admin/IncidentReportAdmin">
                             <ListItemIcon sx={{ color: 'white' }}>
                                 <ReportIcon />
                             </ListItemIcon>
