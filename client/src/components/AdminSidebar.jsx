@@ -65,6 +65,12 @@ const AdminSidebar = ({ username }) => {
                             </ListItemIcon>
                             <ListItemText primary="Account Management" />
                         </ListItem>
+                        <ListItem button component={Link} to="/admin/merchandise-management">
+                            <ListItemIcon sx={{ color: 'white' }}>
+                                <ShoppingBagIcon />
+                            </ListItemIcon>
+                            <ListItemText primary="Merchandise Management" />
+                        </ListItem>
                         <ListItem button component={Link} to="/admin/quiz-management">
                             <ListItemIcon sx={{ color: 'white' }}>
                                 <QuizIcon />
