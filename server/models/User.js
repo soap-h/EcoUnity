@@ -89,6 +89,12 @@ module.exports = (sequelize, DataTypes) => {
             onDelete: 'cascade'
         });
 
+        // Report Thread Relationship
+        User.hasMany(models.ReportThread, {
+            foreignKey: 'reporterId',
+            as: 'reportedThreads',
+            onDelete: 'CASCADE'
+        })
     };
     // User.associate = (models) => {
     //     User.hasMany(models.EventFeedback, {

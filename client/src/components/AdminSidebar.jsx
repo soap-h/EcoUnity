@@ -8,6 +8,7 @@ import ReportIcon from '@mui/icons-material/Report';
 import ForumIcon from '@mui/icons-material/Forum';
 import AccountBoxIcon from '@mui/icons-material/AccountBox';
 import QuizIcon from '@mui/icons-material/Quiz';
+import ShoppingBagIcon from '@mui/icons-material/ShoppingBag';
 import LogoutIcon from '@mui/icons-material/Logout';
 import EcoUnityLogo from '../assets/Eco Unity.png';
 import { Link } from 'react-router-dom';
@@ -54,7 +55,7 @@ const AdminSidebar = ({ username }) => {
                             </ListItemIcon>
                             <ListItemText primary="Incident Reports" />
                         </ListItem>
-                        <ListItem button component={Link} to="/admin/forum-moderation">
+                        <ListItem button component={Link} to="/admin/reportthread">
                             <ListItemIcon sx={{ color: 'white' }}>
                                 <ForumIcon />
                             </ListItemIcon>
@@ -65,6 +66,12 @@ const AdminSidebar = ({ username }) => {
                                 <AccountBoxIcon />
                             </ListItemIcon>
                             <ListItemText primary="Account Management" />
+                        </ListItem>
+                        <ListItem button component={Link} to="/admin/merchandise-management">
+                            <ListItemIcon sx={{ color: 'white' }}>
+                                <ShoppingBagIcon />
+                            </ListItemIcon>
+                            <ListItemText primary="Merchandise Management" />
                         </ListItem>
                         <ListItem button component={Link} to="/admin/quiz-management">
                             <ListItemIcon sx={{ color: 'white' }}>

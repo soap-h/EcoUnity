@@ -214,7 +214,7 @@ function Forum() {
     };
 
     return (
-        <Box>
+        <Box sx={{p:4}}>
             <ForumBigPicture />
             <Grid container spacing={2} sx={{ my: 2 }}>
                 <ForumNavigation />

@@ -206,7 +206,7 @@ function UserThreads() {
     }
 
     return (
-        <Box>
+        <Box sx={{p:4}}>
             {
                 loading ? (
                     <CircularProgress />
