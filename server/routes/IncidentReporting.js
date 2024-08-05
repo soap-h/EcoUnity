@@ -68,11 +68,21 @@ router.put('/:id', validateToken, async (req, res) => {
 
     let incidentReporting = await IncidentReporting.findByPk(id);
     if (!incidentReporting) {
-        return res.sendStatus(404); // Not found
+        res.sendStatus(404);
+        return;
     }
+    // Check request user id
+    let userId = req.user.id;
+    if (incidentReporting.userId != userId) {
+        res.sendStatus(403);
+        return;
+    }
+    let data = req.body;
+    let validationSchema = yup.object({
+        ReportType: yup.string().trim().min(3).max(100).required(),
+        ReportDetails: yup.string().trim().min(3).max(500).required(),
+        Location: yup.string().trim().min(3).max(100).required(),
 
-    const validationSchema = yup.object({
-        status: yup.string().trim().oneOf(['Pending', 'Approved', 'Rejected']).required(),
     });
 
     try {
@@ -81,11 +91,15 @@ router.put('/:id', validateToken, async (req, res) => {
         const [updated] = await IncidentReporting.update({ ActionStatus: status }, {
             where: { id: id }
         });
-
-        if (updated) {
-            return res.json({ message: 'Status updated successfully.' });
-        } else {
-            return res.status(400).json({ message: `Cannot update status for incident with id ${id}.` });
+        if (num == 1) {
+            res.json({
+                message: "participant was updated successfully."
+            });
+        }
+        else {
+            res.status(400).json({
+                message: `Cannot update participant with id ${id}.`
+            });
         }
     } catch (err) {
         console.error('Validation or update error:', err);
