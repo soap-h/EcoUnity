@@ -6,10 +6,9 @@ import http from '../../http';
 import { useNavigate } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-
+import './AddThread.css'; // Import your updated CSS file
 
 function AddThread() {
-
     const navigate = useNavigate();
 
     // For File Upload
@@ -19,7 +18,7 @@ function AddThread() {
     const onFileChange = (e) => {
         let file = e.target.files[0];
         if (file) {
-            if (file.size > 1024 * 1024){
+            if (file.size > 1024 * 1024) {
                 toast.error('Maximum file size is 1MB');
                 return;
             }
@@ -39,9 +38,6 @@ function AddThread() {
             });
         }
     };
-
-
-
 
     const formik = useFormik({
         initialValues: {
@@ -75,12 +71,11 @@ function AddThread() {
         }
     });
 
-
     return (
-        <Container>
-            <Typography variant="h5" sx={{ my: 2 }}>Add Thread</Typography>
+        <Container className="container" sx={{mt:4}}>
+            <Typography variant="h5" className="header">Add Thread</Typography>
 
-            <Box component="form" onSubmit={formik.handleSubmit}>
+            <Box component="form" onSubmit={formik.handleSubmit} className="form-container">
                 <Grid container spacing={2}>
                     <Grid item xs={12} md={6} lg={8}>
                         <TextField fullWidth margin="dense"
@@ -91,9 +86,10 @@ function AddThread() {
                             onChange={formik.handleChange}
                             onBlur={formik.handleBlur}
                             error={formik.touched.title && Boolean(formik.errors.title)}
-                            helperText={formik.touched.title && formik.errors.title} />
+                            helperText={formik.touched.title && formik.errors.title}
+                            className="text-field" />
 
-                        <FormControl sx={{ my: 2, minWidth: 200 }}>
+                        <FormControl className="form-control">
                             <InputLabel id='chooseCategory'>Category</InputLabel>
                             <Select
                                 labelId='chooseCategory'
@@ -105,7 +101,8 @@ function AddThread() {
                                 value={formik.values.category}
                                 onBlur={formik.handleBlur}
                                 error={formik.touched.category && Boolean(formik.errors.category)}
-                                helperText={formik.touched.category && formik.errors.category}>
+                                helperText={formik.touched.category && formik.errors.category}
+                                className="category-select">
                                 <MenuItem value="">None</MenuItem>
                                 <MenuItem value="Biodiversity">Biodiversity</MenuItem>
                                 <MenuItem value="Energy">Energy</MenuItem>
@@ -124,38 +121,35 @@ function AddThread() {
                             onChange={formik.handleChange}
                             onBlur={formik.handleBlur}
                             error={formik.touched.description && Boolean(formik.errors.description)}
-                            helperText={formik.touched.description && formik.errors.description} />
-
+                            helperText={formik.touched.description && formik.errors.description}
+                            className="text-field" />
                     </Grid>
 
                     <Grid item xs={12} md={6} lg={4}>
-                        <Box sx={{ textAlign: 'center', mt: 2}}>
+                        <Box className="upload-button">
                             <Button variant="contained" component="label">
                                 Upload Image
-                                <input hidden accept="image/*" multiple type='file' onChange={onFileChange}/>
+                                <input hidden accept="image/*" multiple type='file' onChange={onFileChange} />
                             </Button>
-                            {
-                                imageFile && (
-                                    <Box className="aspect-ratio-container" sx={{ mt: 2}}>
-                                        <img alt="thread" 
-                                             src={`${import.meta.env.VITE_FILE_THREAD_URL}${imageFile}`}>
-                                        </img>
-                                    </Box>
-                                )
-                            }
                         </Box>
-
-
+                        {
+                            imageFile && (
+                                <Box className="image-preview">
+                                    <img alt="thread" 
+                                         src={`${import.meta.env.VITE_FILE_THREAD_URL}${imageFile}`} />
+                                </Box>
+                            )
+                        }
                     </Grid>
                 </Grid>
 
-                <Box sx={{ mt: 2 }}>
+                <Box className="button-container">
                     <Button variant='contained' type='submit'>Create Thread</Button>
                 </Box>
             </Box>
-            <ToastContainer/>
+            <ToastContainer />
         </Container>
     )
 }
 
-export default AddThread
+export default AddThread;

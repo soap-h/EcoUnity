@@ -1,0 +1,36 @@
+/* ForumNavigation.css */
+
+.menu-item {
+    transition: background-color 0.3s ease;
+    border-radius: 4px;
+}
+
+.menu-item:hover {
+    background-color: rgba(0, 0, 0, 0.1);
+}
+
+.selected {
+    background-color: rgba(0, 0, 0, 0.2);
+}
+
+.accordion-summary {
+    background-color: #f5f5f5;
+    border-radius: 4px;
+}
+
+.accordion-summary:hover {
+    background-color: #e0e0e0;
+}
+
+.accordion-details {
+    background-color: #fafafa;
+}
+
+.category-chip {
+    margin-right: 8px;
+    transition: background-color 0.3s ease;
+}
+
+.category-chip:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}

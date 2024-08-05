@@ -13,6 +13,7 @@ import ReportGmailerrorredIcon from '@mui/icons-material/ReportGmailerrorred';
 import { Link } from 'react-router-dom';
 import ReportThreadForm from './ReportThreadForm';
 import global from '../../global';
+import './ThreadCard.css'; // Import the CSS file
 
 const ThreadCard = ({
     thread, onDeleteClick, onBookmarkToggle, onCommentClick, onCommentChange, onCommentSubmit, newComment, bookmarkedThreads, onViewCommentsToggle, truncateContent, getCategoryChipColor,
@@ -30,7 +31,7 @@ const ThreadCard = ({
 
     return (
         <>
-            <Card key={thread.id} sx={{ margin: 'auto', marginTop: 2, maxWidth: '100%', width: '100%' }}>
+            <Card key={thread.id} className="thread-card">
                 <CardHeader
                     avatar={<Link to={`/guestprofile/${thread.userId}`}>
                         <Avatar alt={thread.user?.firstName} src={thread.user?.imageFile ? `${import.meta.env.VITE_FILE_PROFILE_URL}${thread.user?.imageFile}` : undefined} />
@@ -39,15 +40,16 @@ const ThreadCard = ({
                         {thread.user?.firstName}
                     </Link>}
                     subheader={dayjs(thread.createdAt).format(global.datetimeFormat)}
+                    className="card-header"
                 />
-                <CardContent>
+                <CardContent className="card-content">
                     <Typography variant="h6" component="div">
                         {thread.title}
                     </Typography>
                     <Typography variant="body2" color="text.secondary" paragraph>
                         {truncateContent(thread.description, 200)}
                         {thread.description.length > 200 && (
-                            <Button onClick={handleToggleContent} sx={{ mt: 1, color: 'primary.main' }}>
+                            <Button onClick={handleToggleContent} className="button">
                                 {showFullContent ? 'View Less' : 'View More'}
                             </Button>
                         )}
@@ -61,10 +63,10 @@ const ThreadCard = ({
                         <Chip
                             label={thread.category}
                             color={getCategoryChipColor(thread.category)}
-                            sx={{ mt: 1 }}
+                            className="chip"
                         />
                     )}
-                    <Collapse in={newComment[thread.id]?.expanded || false} sx={{ mt: 2 }}>
+                    <Collapse in={newComment[thread.id]?.expanded || false} className="comment-section">
                         <TextField
                             fullWidth
                             multiline
@@ -90,22 +92,17 @@ const ThreadCard = ({
                         variant="outlined"
                         endIcon={<ExpandMoreIcon />}
                         onClick={() => onViewCommentsToggle(thread.id)}
-                        sx={{ mb: 2 }}
+                        className="button"
                     >
                         {showComments[thread.id] ? 'Hide Comments' : 'View Comments'}
                     </Button>
                     {showComments[thread.id] && (
-                        <Box sx={{ mt: 2 }}>
+                        <Box className="comments-container">
                             {comments[thread.id]?.map((comment, index) => (
                                 <Box
                                     key={index}
-                                    sx={{
-                                        mb: 2,
-                                        borderRadius: 2,
-                                        p: 2,
-                                        boxShadow: 1,
-                                        bgcolor: 'background.paper',
-                                    }}
+                                    className="comment"
+                                    sx={{mt:2}}
                                 >
                                     <CardHeader
                                         avatar={
@@ -116,24 +113,24 @@ const ThreadCard = ({
                                         }
                                         title={comment.user?.firstName}
                                         subheader={dayjs(comment.createdAt).format('MMM D, YYYY h:mm A')}
-                                        sx={{ pb: 1 }}
+                                        className="comment-header"
                                     />
-                                    <Divider sx={{ mb: 1, py: 1 }} />
+                                    <Divider className="comment-divider" />
                                     <Typography
                                         variant="body1"
                                         color="text.primary"
-                                        sx={{ py: 2 }}
+                                        sx={{mt:2}}
                                     >
                                         {comment.description}
                                     </Typography>
                                     <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
                                         <Tooltip title="Like">
-                                            <IconButton>
+                                            <IconButton className="icon-button">
                                                 <FavoriteBorderIcon />
                                             </IconButton>
                                         </Tooltip>
                                         <Tooltip title="Reply">
-                                            <IconButton>
+                                            <IconButton className="icon-button">
                                                 <ReplyIcon />
                                             </IconButton>
                                         </Tooltip>
@@ -157,6 +154,7 @@ const ThreadCard = ({
                             aria-label="like"
                             onClick={() => handleVote(thread.id, 'upvote')}
                             disabled={userVotes[thread.id] === 'upvote'}
+                            className="icon-button"
                         >
                             <MoodIcon />
                             {thread.upvote}
@@ -165,6 +163,7 @@ const ThreadCard = ({
                             aria-label="dislike"
                             onClick={() => handleVote(thread.id, 'downvote')}
                             disabled={userVotes[thread.id] === 'downvote'}
+                            className="icon-button"
                         >
                             <MoodBadIcon />
                             {thread.downvote}
@@ -172,6 +171,7 @@ const ThreadCard = ({
                         <IconButton
                             aria-label="comment"
                             onClick={() => onCommentClick(thread.id)}
+                            className="icon-button"
                         >
                             <CommentIcon />
                             {thread.comments?.length || 0}
@@ -180,20 +180,24 @@ const ThreadCard = ({
                             color={bookmarkedThreads.includes(thread.id) ? 'primary' : 'default'}
                             aria-label="bookmark"
                             onClick={() => onBookmarkToggle(thread.id)}
+                            className="icon-button"
                         >
                             {bookmarkedThreads.includes(thread.id) ? <BookmarkIcon /> : <BookmarkBorderIcon />}
                         </IconButton>
-                        <IconButton onClick={handleReportButtonClick}>
+                        <IconButton
+                            onClick={handleReportButtonClick}
+                            className="icon-button"
+                        >
                             <ReportGmailerrorredIcon />
                         </IconButton>
                     </Box>
                     {user && user.id === thread.userId && (
                         <Box sx={{ display: 'flex', gap: 1 }}>
-                            <IconButton aria-label="delete" onClick={() => onDeleteClick(thread.id)}>
+                            <IconButton aria-label="delete" onClick={() => onDeleteClick(thread.id)} className="icon-button">
                                 <DeleteIcon />
                             </IconButton>
                             <Link to={`/editthread/${thread.id}`}>
-                                <IconButton aria-label="edit">
+                                <IconButton aria-label="edit" className="icon-button">
                                     <EditIcon />
                                 </IconButton>
                             </Link>
@@ -209,4 +213,3 @@ const ThreadCard = ({
 };
 
 export default ThreadCard;
-
