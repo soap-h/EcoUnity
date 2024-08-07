@@ -62,8 +62,8 @@ function Payment() {
                         <CheckoutForm totalAmount={totalAmount} handleCheckout={handleCheckout} formik={formik} />
                     </Paper>
                 </Grid>
-                <Grid item xs={12} sm={4} md={3}>
-                    <Paper elevation={3} sx={{ padding: 2, margin: 2, backgroundColor: 'rgba(232,225,225,0.85)', border: '1px solid rgba(0,0,0,0.1)' }}>
+                <Grid item xs={12} sm={6} md={4}>
+                    <Paper elevation={3} sx={{ padding: 1, margin: 2, backgroundColor: 'rgba(232,225,225,0.85)', border: '1px solid rgba(0,0,0,0.1)' }}>
                         <Typography variant="h6" gutterBottom>
                             Your Cart
                         </Typography>
