@@ -1,11 +1,11 @@
 const express = require('express');
 const router = express.Router();
-const { User, Thread} = require('../models');
+const { User, Thread, Comment } = require('../models');
 const yup = require('yup');
-const { Op } = require('sequelize');
 const { validateToken } = require('../middlewares/auth');
+const { Op, literal } = require('sequelize');
 
-// Retrieve All Threads + Search API
+// GET ALL Thread + Search API
 router.get("/", async (req, res) => {
     let condition = {};
     let search = req.query.search;
@@ -15,13 +15,29 @@ router.get("/", async (req, res) => {
             { description: { [Op.like]: `%${search}%` } }
         ];
     }
-    let list = await Thread.findAll({
-        where: condition,
-        order: [['createdAt', 'DESC']],
-        include: { model: User, as: 'user', attributes: ['firstName'] } // Include user information
-    });
-    res.json(list);
+
+    try {
+        let list = await Thread.findAll({
+            where: condition,
+            order: [['createdAt', 'DESC']],
+            attributes: {
+                include: [
+                    // Adding a count of associated comments
+                    [literal('(SELECT COUNT(*) FROM comments WHERE comments.threadId = Thread.id)'), 'commentCount']
+                ]
+            },
+            include: {
+                model: User,
+                as: 'user',
+                attributes: ['firstName', 'imageFile']
+            }
+        });
+        res.json(list);
+    } catch (error) {
+        res.status(500).json({ error: 'An error occurred while fetching threads' });
+    }
 });
+
 
 // Retrieve Threads with Common Category
 router.get("/:category", async (req, res) => {
@@ -114,7 +130,7 @@ router.get("/id/:id", async (req, res) => {
 
 //         // Prepare response data
 //         const threadData = thread.toJSON();
-        
+
 //         // Add vote counts to the thread data
 //         threadData.upvoteCount = upvoteCount;
 //         threadData.downvoteCount = downvoteCount;

@@ -33,7 +33,7 @@ import {
     MoodBad as MoodBadIcon
 } from '@mui/icons-material';
 import http from '../../http';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import ForumNavigation from '../../components/Forum/ForumNavigation';
 import ForumBigPicture from '../../components/Forum/ForumBigPicture';
 import UserContext from '../../contexts/UserContext';
@@ -55,6 +55,7 @@ function SavedThreads() {
     const [showComments, setShowComments] = useState({});
     const [showFullContent, setShowFullContent] = useState(false);
     const [userVotes, setUserVotes] = useState({});
+    const navigate = useNavigate();
 
 
     const handleToggleContent = () => {
@@ -78,6 +79,12 @@ function SavedThreads() {
     };
 
     useEffect(() => {
+        if (!user || !user.id) {
+            // Redirect to login if user is not logged in
+            navigate('/login');
+            return;
+        }
+
         if (!user || !user.id) return; // Ensure user is logged in
 
         // Fetch bookmarked threads

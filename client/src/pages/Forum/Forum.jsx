@@ -1,16 +1,16 @@
 import React, { useEffect, useState, useContext } from 'react';
-import { Box, Grid, Button, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, Typography, Paper } from '@mui/material';
+import { Box, Grid, Button, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions } from '@mui/material';
 import http from '../../http';
 import {
-    Add as AddIcon, Delete as DeleteIcon, Edit as EditIcon, Comment as CommentIcon, BookmarkBorder as BookmarkBorderIcon,
+    Add as AddIcon, Delete as DeleteIcon, Comment as CommentIcon, BookmarkBorder as BookmarkBorderIcon,
     Bookmark as BookmarkIcon, ExpandMore as ExpandMoreIcon, Mood as MoodIcon, MoodBad as MoodBadIcon
 } from '@mui/icons-material';
 import UserContext from '../../contexts/UserContext';
 import ForumNavigation from '../../components/Forum/ForumNavigation';
-import ForumBigPicture from '../../components/Forum/ForumBigPicture';
 import ThreadCard from '../../components/Forum/ThreadCard';
-import { Link } from 'react-router-dom';
 import ForumHeader from '../../components/Forum/ForumHeader';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function Forum() {
     const [threadList, setThreadList] = useState([]);
@@ -28,10 +28,12 @@ function Forum() {
         try {
             const [threadsRes, bookmarksRes] = await Promise.all([
                 http.get('/thread'),
-                http.get('/bookmarks'),
+                user ? http.get('/bookmarks') : Promise.resolve({ data: [] })  // Fetch bookmarks only if the user is logged in
             ]);
             setThreadList(threadsRes.data);
-            setBookmarkedThreads(bookmarksRes.data.map(b => b.threadId));
+            if (user) {
+                setBookmarkedThreads(bookmarksRes.data.map(b => b.threadId));
+            }
         } catch (error) {
             console.error('Error fetching data:', error);
         }
@@ -81,6 +83,11 @@ function Forum() {
     };
 
     const handleBookmarkToggle = async (threadId) => {
+        if (!user) {
+            toast.error('You need to be logged in to bookmark threads.');
+            return;
+        }
+
         try {
             if (bookmarkedThreads.includes(threadId)) {
                 await http.delete(`/bookmarks/${threadId}`);
@@ -132,36 +139,58 @@ function Forum() {
     };
 
     const handleCommentSubmit = async (threadId) => {
+        if (!user) {
+            toast.error('You need to be logged in to comment.');
+            return;
+        }
+    
         try {
+            // Post the comment
             await http.post(`/comment/${threadId}`, { description: newComment[threadId]?.text });
+    
+            // Update comments locally
             setComments(prevState => ({
                 ...prevState,
-                [threadId]: [...(prevState[threadId] || []), newComment[threadId]?.text]
+                [threadId]: [...(prevState[threadId] || []), { description: newComment[threadId]?.text, user: { firstName: user.firstName, imageFile: user.imageFile }, createdAt: new Date() }]
             }));
+    
+            // Clear the comment input field
             setNewComment(prevState => ({
                 ...prevState,
                 [threadId]: { text: '', expanded: false }
             }));
+    
+            // Fetch and update the latest comment count
+            const updatedThreadRes = await http.get(`/thread/${threadId}`);
+            const updatedThread = updatedThreadRes.data;
+    
+            // Update the thread list
+            setThreadList(prevThreads =>
+                prevThreads.map(thread =>
+                    thread.id === threadId
+                        ? { ...thread, commentCount: updatedThread.commentCount }
+                        : thread
+                )
+            );
+    
+            // Notify the recipient
             const thread = threadList.find(t => t.id === threadId);
             const recipientEmail = await getUserEmailById(thread.userId);
-
             const message = {
                 'title': `${user.firstName} ${user.lastName} Commented on your post`,
-                'content': `${user.firstName} ${user.lastName} Commented ${newComment[threadId]?.text}`,
+                'content': `${user.firstName} ${user.lastName} Commented: ${newComment[threadId]?.text}`,
                 'recipient': `${recipientEmail}`,
                 'date': `${new Date()}`,
                 'category': "forum",
-            }
-            http.post("/inbox", message)
-                .catch((error) => {
-                    toast.error('error');
-                    console.log(error);
-                });
-
+            };
+            await http.post("/inbox", message);
+    
         } catch (error) {
-            console.error('Error posting comment:', error);
+            console.error('Error posting comment:', error.message);
         }
     };
+    ;
+
 
     const handleViewCommentsToggle = async (threadId) => {
         if (showComments[threadId]) {
@@ -187,6 +216,11 @@ function Forum() {
     };
 
     const handleVote = async (threadId, voteType) => {
+        if (!user) {
+            toast.error('You need to be logged in to vote.');
+            return;
+        }
+
         try {
             const currentVote = userVotes[threadId];
 
@@ -216,11 +250,7 @@ function Forum() {
 
     return (
         <Box sx={{ p: 4 }}>
-
-            {/* Header Section */}
             <ForumHeader/>
-
-
             <Grid container spacing={2}>
                 <ForumNavigation />
                 <Grid item xs={9}>
@@ -249,7 +279,6 @@ function Forum() {
                     ))}
                 </Grid>
             </Grid>
-
             <Dialog open={open} onClose={handleClose}>
                 <DialogTitle>Confirm Deletion</DialogTitle>
                 <DialogContent>
@@ -262,6 +291,7 @@ function Forum() {
                     <Button onClick={handleDeleteConfirm} color="error">Delete</Button>
                 </DialogActions>
             </Dialog>
+            <ToastContainer/>
         </Box>
     );
 }

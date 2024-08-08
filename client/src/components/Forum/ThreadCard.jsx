@@ -6,7 +6,8 @@ import {
     Add as AddIcon, Delete as DeleteIcon, Edit as EditIcon, Comment as CommentIcon, BookmarkBorder as BookmarkBorderIcon,
     Bookmark as BookmarkIcon, ExpandMore as ExpandMoreIcon, Mood as MoodIcon, MoodBad as MoodBadIcon
 } from '@mui/icons-material';
-import dayjs from 'dayjs';
+// import dayjs from 'dayjs';
+import dayjs from '../../dayjsConfig';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import ReplyIcon from '@mui/icons-material/Reply';
 import ReportGmailerrorredIcon from '@mui/icons-material/ReportGmailerrorred';
@@ -14,6 +15,7 @@ import { Link } from 'react-router-dom';
 import ReportThreadForm from './ReportThreadForm';
 import global from '../../global';
 import './ThreadCard.css'; // Import the CSS file
+
 
 const ThreadCard = ({
     thread, onDeleteClick, onBookmarkToggle, onCommentClick, onCommentChange, onCommentSubmit, newComment, bookmarkedThreads, onViewCommentsToggle, truncateContent, getCategoryChipColor,
@@ -29,17 +31,28 @@ const ThreadCard = ({
         setReportFormOpen(false);
     };
 
+    const showThreadUserProfilePic = (picture) => {
+        var picture = `${import.meta.env.VITE_FILE_PROFILE_URL}${picture}`;
+        if (picture) {
+            return picture;
+        }
+        else{
+            return undefined;
+        }
+    }
+
     return (
         <>
             <Card key={thread.id} className="thread-card">
                 <CardHeader
                     avatar={<Link to={`/guestprofile/${thread.userId}`}>
-                        <Avatar alt={thread.user?.firstName} src={thread.user?.imageFile ? `${import.meta.env.VITE_FILE_PROFILE_URL}${thread.user?.imageFile}` : undefined} />
+                        <Avatar alt={thread.user?.firstName} src={showThreadUserProfilePic(thread.user?.imageFile)}/>
                     </Link>}
                     title={<Link to={`/guestprofile/${thread.userId}`} style={{ textDecoration: 'none', color: 'inherit' }}>
                         {thread.user?.firstName}
                     </Link>}
-                    subheader={dayjs(thread.createdAt).format(global.datetimeFormat)}
+                    // subheader={dayjs(thread.createdAt).format(global.datetimeFormat)}
+                    subheader = {dayjs(thread.createdAt).fromNow()}
                     className="card-header"
                 />
                 <CardContent className="card-content">
@@ -112,7 +125,8 @@ const ThreadCard = ({
                                             />
                                         }
                                         title={comment.user?.firstName}
-                                        subheader={dayjs(comment.createdAt).format('MMM D, YYYY h:mm A')}
+                                        subheader = {dayjs(comment.createdAt).fromNow()}
+                                        // subheader={dayjs(comment.createdAt).format('MMM D, YYYY h:mm A')}
                                         className="comment-header"
                                     />
                                     <Divider className="comment-divider" />
@@ -174,7 +188,7 @@ const ThreadCard = ({
                             className="icon-button"
                         >
                             <CommentIcon />
-                            {thread.comments?.length || 0}
+                            {thread.commentCount || 0}
                         </IconButton>
                         <IconButton
                             color={bookmarkedThreads.includes(thread.id) ? 'primary' : 'default'}

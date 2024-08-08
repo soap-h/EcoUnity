@@ -22,7 +22,7 @@ const ReportThreadForm = ({ threadId, onClose }) => {
         }),
         onSubmit: (values) => {
             if (!user || !user.id) {
-                toast.error('User not logged in.');
+                toast.error('You need to be logged in to report!');
                 return;
             }
 

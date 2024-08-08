@@ -213,8 +213,7 @@ router.get("/thread/:threadId", async (req, res) => {
     try {
         const comments = await Comment.findAll({
             where: { threadId: threadIdInt },
-            // include: [{ model: User, as: 'user', attributes: ['firstName', 'avatarUrl'] }] // Include user info
-            include: [{ model: User, as: 'user', attributes: ['firstName'] }]
+            include: [{ model: User, as: 'user', attributes: ['firstName', 'imageFile'] }] // Include user info
         });
         res.json(comments);
     }
