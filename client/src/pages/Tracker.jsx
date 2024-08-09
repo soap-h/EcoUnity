@@ -8,7 +8,6 @@ import global from "../global";
 import http from "../http";
 import { useNavigate } from "react-router-dom";
 import { Bar, Doughnut } from "react-chartjs-2";
-import TaskRecommendations from '../components/TaskRecommendations';
 
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -52,11 +51,6 @@ function Trackers() {
   const [activityPoints, setActivityPoints] = useState('');
   const [co2Data, setCo2Data] = useState([]);
   const [improvement, setImprovement] = useState(0); // State for improvement from last month
-  const tasks = [
-    { title: 'Complete project report' },
-    { title: 'Prepare for meeting' },
-    { title: 'Update client on progress' },
-  ];
 
   const formatDate = (date) => {
     const [year, month, day] = date.split("-");
@@ -94,6 +88,15 @@ function Trackers() {
       console.error("Failed to fetch improvement data:", err);
     });
   };
+
+  const getCo2Data = () => {
+    http.get("/tracker/monthly-co2").then((res) => {
+      setCo2Data(res.data);
+    }).catch(err => {
+      console.error("Failed to fetch CO2 data:", err);
+    });
+  };
+
 
   useEffect(() => {
     getTrackers();
@@ -228,12 +231,13 @@ function Trackers() {
 
   const addActivity = (newActivity) => {
     setTrackerList((prevList) => [...prevList, newActivity]);
-    // Optionally, update CO2 data or any other relevant state here
+    getTrackers();  
+    getCo2Data();
   };
 
 
   return (
-    <Box sx={{ p: 2 }}>
+    <Box sx={{ p: 4, bgcolor: "#f4f6f8", minHeight: "100vh" }}>
       <Box
         component="img"
         src={bannerImage}
@@ -242,51 +246,72 @@ function Trackers() {
           width: "100%",
           height: "auto",
           display: "block",
-          mb: 2,
+          mb: 3,
+          borderRadius: "12px",
+          boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
         }}
       />
-      <Typography variant="h5" sx={{ my: 2 }}>
+      <Typography variant="h4" sx={{ mb: 4, fontWeight: "bold", color: "#333" }}>
         Tracker
       </Typography>
 
-      <Box
-        sx={{ display: "flex", justifyContent: "space-between", width: "100%" }}
-      >
+      <Box sx={{ display: "flex", justifyContent: "space-between", gap: 4 }}>
         <Box
           sx={{
-            width: "400px",
+            flex: "1 1 45%",
             height: "80vh",
-            maxHeight: "80vh",
-            overflowY: "auto",
-            border: "1px solid #ccc",
+            overflow: "hidden", // Remove scrolling
+            border: "1px solid #ddd",
             borderRadius: "8px",
-            p: 3,
-            ml: 8,
+            p: 4,
+            bgcolor: "#fff",
+            boxShadow: "0 4px 12px rgba(0, 0, 0, 0.05)",
+            display: "flex",
+            flexDirection: "column",
           }}
         >
-          <Typography variant="h6" sx={{ mb: 2 }}>
-            Co2 Saved
+
+          <Typography variant="h6" sx={{ mb: 3, fontWeight: "bold", color: "#5A9895" }}>
+            CO2 Saved
           </Typography>
           <Typography
-            variant="h4"
-            sx={{ mb: 2, textAlign: "center", color: "#5A9895" }}
+            variant="h3"
+            sx={{ mb: 3, textAlign: "center", color: "#5A9895", fontWeight: "bold" }}
           >
             {totalPoints}/{goal}
           </Typography>
-          <Box sx={{ display: "flex", justifyContent: "center", mt: 2 }}>
-            <Doughnut data={data} />
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              flexGrow: 1,
+              mb: 3,
+              height: "300px", // Adjust height as needed
+              width: "300px",  // Adjust width as needed
+              margin: "0 auto", // Center the chart horizontally
+            }}
+          >
+            <Doughnut
+              data={data}
+              options={{
+                maintainAspectRatio: false,
+              }}
+            />
           </Box>
-          <Typography variant="subtitle1" sx={{ mt: 2, textAlign: "center", color: "#5A9895" }}>
+
+          <Typography variant="subtitle1" sx={{ textAlign: "center", color: "#5A9895" }}>
             Save {goal}g of CO2 {goalType.charAt(0).toUpperCase() + goalType.slice(1)}
           </Typography>
-          <Typography variant="subtitle2" sx={{ mt: 1, textAlign: "center", color: "textSecondary" }}>
+          <Typography variant="subtitle2" sx={{ mt: 1, textAlign: "center", color: "#777" }}>
             {getCompletionPercentage()}% Completed - {getCurrentPeriod()}
           </Typography>
-          <Box sx={{ textAlign: "center", mt: 2 }}>
+          <Box sx={{ textAlign: "center", mt: 4 }}>
             <Button
               variant="contained"
               startIcon={<Edit />}
               onClick={handleOpenEditDialog}
+              sx={{ bgcolor: "#5A9895", "&:hover": { bgcolor: "#497c7a" } }}
             >
               Edit Goal
             </Button>
@@ -295,14 +320,14 @@ function Trackers() {
 
         <Box
           sx={{
-            width: "400px",
+            flex: "1 1 45%",
             height: "80vh",
-            maxHeight: "80vh",
             overflowY: "auto",
-            border: "1px solid #ccc",
+            border: "1px solid #ddd",
             borderRadius: "8px",
-            p: 3,
-            mr: 8,
+            p: 4,
+            bgcolor: "#fff",
+            boxShadow: "0 4px 12px rgba(0, 0, 0, 0.05)",
             position: "relative",
           }}
         >
@@ -310,75 +335,74 @@ function Trackers() {
             sx={{
               display: "flex",
               justifyContent: "space-between",
-              width: "100%",
               mb: 2,
-              bgcolor: "#f5f5f5",
               p: 1,
-              borderRadius: "4px",
+              bgcolor: "#f9f9f9",
+              borderRadius: "8px",
+              fontWeight: "bold",
             }}
           >
-            <Typography variant="body1" sx={{ width: "30%" }}>
+            <Typography variant="body1" sx={{ width: "30%", color: "#333" }}>
               Date
             </Typography>
-            <Typography variant="body1" sx={{ width: "50%" }}>
+            <Typography variant="body1" sx={{ width: "50%", color: "#333" }}>
               Activity
             </Typography>
-            <Typography variant="body1" sx={{ width: "20%" }}>
-              Co2/g
+            <Typography variant="body1" sx={{ width: "20%", color: "#333" }}>
+              CO2/g
             </Typography>
           </Box>
-          {
-            trackerList.length === 0 ? (
-              <Typography sx={{ textAlign: "center", color: "gray" }}>
-                No Recorded activities
-              </Typography>
-            ) : (
-              trackerList.map((tracker) => (
-                user && user.id === tracker.userId && (
-                  <Box
-                    key={tracker.id}
-                    sx={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      py: 2,
-                      px: 1,
-                      bgcolor: "#fff",
-                      borderBottom: "1px solid #ddd",
-                      "&:hover": { backgroundColor: "#f5f5f5" },
-                      position: "relative"
-                    }}
-                    onMouseEnter={() => setHoveredId(tracker.id)}
-                    onMouseLeave={() => setHoveredId(null)}
-                  >
-                    <Typography variant="body2" sx={{ width: "30%" }}>
-                      {formatDate(tracker.date)}
-                    </Typography>
-                    <Typography variant="body2" sx={{ width: "55%" }}>
-                      {tracker.title}
-                    </Typography>
-                    <Typography variant="body2" sx={{ width: "15%" }}>
-                      {tracker.points}g
-                    </Typography>
-                    {hoveredId === tracker.id && (
-                      <IconButton
-                        size="small"
-                        sx={{
-                          position: "absolute",
-                          right: 25,
-                          color: "red",
-                        }}
-                        onClick={() => handleOpen(tracker.id)}
-                      >
-                        <Delete />
-                      </IconButton>
-                    )}
-                  </Box>
-                )
-              ))
-            )
-          }
+          {trackerList.length === 0 ? (
+            <Typography sx={{ textAlign: "center", color: "gray" }}>
+              No Recorded activities
+            </Typography>
+          ) : (
+            trackerList.map((tracker) => (
+              user && user.id === tracker.userId && (
+                <Box
+                  key={tracker.id}
+                  sx={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    py: 2,
+                    px: 1,
+                    bgcolor: "#fff",
+                    borderBottom: "1px solid #ddd",
+                    borderRadius: "4px",
+                    "&:hover": { backgroundColor: "#f5f5f5" },
+                    position: "relative",
+                  }}
+                  onMouseEnter={() => setHoveredId(tracker.id)}
+                  onMouseLeave={() => setHoveredId(null)}
+                >
+                  <Typography variant="body2" sx={{ width: "30%" }}>
+                    {formatDate(tracker.date)}
+                  </Typography>
+                  <Typography variant="body2" sx={{ width: "55%" }}>
+                    {tracker.title}
+                  </Typography>
+                  <Typography variant="body2" sx={{ width: "15%" }}>
+                    {tracker.points}g
+                  </Typography>
+                  {hoveredId === tracker.id && (
+                    <IconButton
+                      size="small"
+                      sx={{
+                        position: "absolute",
+                        right: 25,
+                        color: "red",
+                      }}
+                      onClick={() => handleOpen(tracker.id)}
+                    >
+                      <Delete />
+                    </IconButton>
+                  )}
+                </Box>
+              )
+            ))
+          )}
           <Dialog open={open} onClose={handleClose}>
-            <DialogTitle>Delete Activity</DialogTitle>
+            <DialogTitle sx={{ fontWeight: "bold" }}>Delete Activity</DialogTitle>
             <DialogContent>
               <DialogContentText>
                 Are you sure you want to delete this activity?
@@ -388,38 +412,47 @@ function Trackers() {
               <Button variant="contained" color="inherit" onClick={handleClose}>
                 Cancel
               </Button>
-              <Button
-                variant="contained"
-                color="error"
-                onClick={deleteActivity}
-              >
+              <Button variant="contained" color="error" onClick={deleteActivity}>
                 Delete
               </Button>
             </DialogActions>
           </Dialog>
-          {/* Add button */}
           <Box sx={{ position: "absolute", bottom: 16, right: 16 }}>
-            <Button onClick={handleOpenAddDialog} color="primary"><Add></Add></Button>
-            <AddActivity open={openAddDialog} handleClose={handleCloseAddDialog} activities={activities} />
+          <Button onClick={handleOpenAddDialog} color="primary"><Add /></Button>
+          <AddActivity open={openAddDialog} handleClose={handleCloseAddDialog} activities={activities} onActivityAdded={addActivity} />
           </Box>
-        </Box>
-      </Box>
-      <Box sx={{ display: "flex", justifyContent: "center", mt: 7, width: '80%' }}>
-        <Box sx={{ width: '100%', p: 3, border: '1px solid #ccc', borderRadius: '8px', position: 'relative', display: "column" }}>
-          <Typography variant="h6" sx={{ position: 'absolute', top: 16, right: 16 }}>
-            Total CO2 Saved: {totalPoints}g
-          </Typography>
-          <Box sx={{ height: '500px', width: '60%'}}>
-            <Bar data={co2ChartData} options={co2ChartOptions} />
-          </Box>
-          <Typography variant="body2" sx={{ mt: 2, textAlign: 'center', color: 'textSecondary' }}>
-            You have saved {improvement}g more CO2 compared to last month
-          </Typography>
         </Box>
       </Box>
 
+      <Box sx={{ display: "flex", justifyContent: "center", mt: 7, width: '100%' }}>
+  <Box 
+    sx={{ 
+      width: '80%', // Adjust width as needed to control how wide the centered section is
+      p: 4, 
+      border: '1px solid #ddd', 
+      borderRadius: '8px', 
+      boxShadow: "0 4px 12px rgba(0, 0, 0, 0.05)", 
+      bgcolor: "#fff", 
+      position: 'relative',
+      display: "flex", 
+      flexDirection: "column",
+      alignItems: "center" // Center content horizontally
+    }}
+  >
+    <Typography variant="h6" sx={{ position: 'absolute', top: 16, right: 16, fontWeight: "bold", color: "#5A9895" }}>
+      Total CO2 Saved: {totalPoints}g
+    </Typography>
+    <Box sx={{ height: '500px', width: '100%' }}>
+      <Bar data={co2ChartData} options={co2ChartOptions} />
+    </Box>
+    <Typography variant="body2" sx={{ mt: 3, textAlign: 'center', color: '#777' }}>
+      You have saved {improvement}g more CO2 compared to last month
+    </Typography>
+  </Box>
+</Box>
+
       <Dialog open={openEditDialog} onClose={handleCloseEditDialog}>
-        <DialogTitle>Edit Goal</DialogTitle>
+        <DialogTitle sx={{ fontWeight: "bold" }}>Edit Goal</DialogTitle>
         <DialogContent>
           <DialogContentText>
             Please enter a new value for the goal and select the goal type.
@@ -451,15 +484,16 @@ function Trackers() {
           <Button onClick={handleCloseEditDialog} color="inherit">
             Cancel
           </Button>
-          <Button onClick={handleGoalChange} color="primary">
+          <Button onClick={handleGoalChange} sx={{ bgcolor: "#5A9895", "&:hover": { bgcolor: "#497c7a" } }}>
             Save
           </Button>
         </DialogActions>
       </Dialog>
-      <TaskRecommendations tasks={tasks} />
+
       <ToastContainer />
     </Box>
   );
+
 }
 
 export default Trackers;

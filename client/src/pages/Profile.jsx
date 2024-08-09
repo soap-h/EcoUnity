@@ -10,10 +10,12 @@ import { useNavigate } from 'react-router-dom';
 
 function Profile() {
     const { id } = useParams();
+    
     const { user, setUser } = useContext(UserContext);
     const [trackerList, setTrackerList] = useState([]);
     const [description, setDescription] = useState(user ? user.description : '');
     const [isEditing, setIsEditing] = useState(false);
+    const [event, setEvents] = useState([]);
     const navigate = useNavigate(); // For redirecting after deletion
 
     const getTrackers = () => {
@@ -22,9 +24,18 @@ function Profile() {
         });
     };
 
+    const getEvents = () => {
+        http.get("/EventParticipants").then((res) => {
+            const userEvents = res.data.filter(event => event.email === user.email);
+            setEvents(res.data);
+            console.log(event)    
+        });
+    }
+
     useEffect(() => {
         getTrackers();
         setDescription(user?.description || '');
+        getEvents();
     }, [user]);
 
     const userTrackers = trackerList.filter(tracker => user && user.id === tracker.userId);
@@ -112,7 +123,9 @@ function Profile() {
     };
 
     return (
+        
         <Box sx={{ bgcolor: '#F0F5F8', minHeight: '100vh', width: '100%' }}>
+
             <Container maxWidth="lg">
                 <Paper elevation={3} sx={{ padding: 4, marginTop: 4 }}>
                     <Grid container spacing={3}>
