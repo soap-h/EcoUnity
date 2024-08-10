@@ -36,6 +36,8 @@ const fileRoute = require('./routes/file');
 app.use("/file", fileRoute);
 const eventsRoute = require('./routes/events');
 app.use("/events", eventsRoute);
+const proposalsRoute = require('./routes/proposals'); 
+app.use("/proposals", proposalsRoute); 
 const adminRoute = require('./routes/admin')
 app.use('/admin', adminRoute);
 const trackerRoute = require('./routes/tracker');
