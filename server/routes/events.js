@@ -172,13 +172,14 @@ router.get('/:id/participants', async (req, res) => {
                 {
                     model: User,
                     as: 'user',
-                    attributes: ['id', 'firstName', 'lastName'],
+                    attributes: ['id', 'firstName', 'lastName', 'email'],
                 },
             ],
         });
         const participants = registrations.map((registration) => ({
             id: registration.user.id,
             name: `${registration.user.firstName} ${registration.user.lastName}`,
+            email: registration.user.email
         }));
         res.json(participants);
     } catch (error) {
