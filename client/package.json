@@ -27,6 +27,7 @@
     "nodemailer": "^6.9.14",
     "react": "^18.2.0",
     "react-chartjs-2": "^5.2.0",
+    "react-confetti": "^6.1.0",
     "react-dom": "^18.2.0",
     "react-dropzone": "^14.2.3",
     "react-material-ui-carousel": "^3.4.2",
