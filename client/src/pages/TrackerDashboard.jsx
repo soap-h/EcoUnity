@@ -2,11 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { Box, Typography, Paper, Grid, Button } from '@mui/material';
 import { PieChart, Pie, Cell, Tooltip, Legend, LineChart, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer } from 'recharts';
 import http from '../http';
-import AdminSidebar from '../components/AdminSidebar'; 
+import AdminSidebar from '../components/AdminSidebar';
+import { useNavigate } from 'react-router-dom';
+import TableauDashboard from '../components/TableauDashboard';
 
 const Dashboard = () => {
     const [data, setData] = useState({});
     const [timeframe, setTimeframe] = useState('all');
+    const navigate = useNavigate();
 
     useEffect(() => {
         fetchData(timeframe);
@@ -75,76 +78,32 @@ const Dashboard = () => {
         </ResponsiveContainer>
     );
 
+    const calculateTreesPlanted = (co2Saved) => {
+        return (co2Saved / 100).toFixed(0);
+    };
+
+    const calculateKmDriven = (co2Saved) => {
+        return (co2Saved / 500).toFixed(0);
+    };
+
+    const calculateWaterGallonsSaved = (co2Saved) => {
+        return (co2Saved / 200).toFixed(0);
+    };
+
+    const calculateLightBulbHours = (co2Saved) => {
+        return (co2Saved / 50).toFixed(0);
+    };
+
     return (
+        
         <Box sx={{ display: 'flex', height: '100vh' }}>
-            <AdminSidebar /> {/* Sidebar Component */}
-            <Box sx={{ flexGrow: 1, p: 3 }}>
-                <Grid container justifyContent="space-between" alignItems="center" sx={{ mb: 3 }}>
-                    <Grid item>
-                        <Typography variant="h4">Dashboard</Typography>
-                    </Grid>
-                    <Grid item>
-                        <Paper sx={{ p: 2 }}>
-                            <Typography variant="h6">Filter</Typography>
-                            <Box sx={{ display: 'flex', justifyContent: 'center', gap: 1, flexWrap: 'wrap' }}>
-                                <Button variant="contained" onClick={() => setTimeframe('all')}>All</Button>
-                                <Button variant="contained" onClick={() => setTimeframe('year')}>Year</Button>
-                                <Button variant="contained" onClick={() => setTimeframe('month')}>Month</Button>
-                            </Box>
-                        </Paper>
-                    </Grid>
-                </Grid>
-                <Grid container spacing={3}>
-                    <Grid item xs={12} sm={4}>
-                        <Paper sx={{ p: 2, textAlign: 'center' }}>
-                            <Typography variant="h6">Total CO2 Saved</Typography>
-                            <Typography variant="h4">{data.totalCo2Saved/1000 || 0} Kg</Typography>
-                        </Paper>
-                    </Grid>
-                    <Grid item xs={12} sm={4}>
-                        <Paper sx={{ p: 2, textAlign: 'center' }}>
-                            <Typography variant="h6">Average CO2 Saved</Typography>
-                            <Typography variant="h4">{data.averageCo2Saved/1000 || 0} Kg</Typography>
-                        </Paper>
-                    </Grid>
-                    <Grid item xs={12} sm={4}>
-                        <Paper sx={{ p: 2, textAlign: 'center' }}>
-                            <Typography variant="h6">Active Users</Typography>
-                            <Typography variant="h4">{data.activeUsers || 0}</Typography>
-                        </Paper>
-                    </Grid>
-                </Grid>
-
-                <Grid container spacing={3} sx={{ mt: 3 }}>
-                    <Grid item xs={12}>
-                        <Paper sx={{ p: 2 }}>
-                            <Typography variant="h6">Top Activities Contributing to CO2 Savings</Typography>
-                            {renderPieChart(data.topActivities || [])}
-                        </Paper>
-                    </Grid>
-                </Grid>
-
-                <Grid container spacing={3} sx={{ mt: 3 }}>
-                    <Grid item xs={12}>
-                        <Paper sx={{ p: 2 }}>
-                            <Typography variant="h6">Total CO2 Saved Over Time</Typography>
-                            {renderLineChart(data.co2SavedOverTime || [])}
-                        </Paper>
-                    </Grid>
-                </Grid>
-
-                <Grid container spacing={3} sx={{ mt: 3 }}>
-                    <Grid item xs={12}>
-                        <Paper sx={{ p: 2 }}>
-                            <Typography variant="h6">Environmental Impact</Typography>
-                            <Typography variant="body1">350 Trees Planted</Typography>
-                            <Typography variant="body1">2000 Km Driven by Cars</Typography>
-                            <Typography variant="body1">5000 Water Gallons Saved</Typography>
-                            <Typography variant="body1">10000 Light bulb hours</Typography>
-                        </Paper>
-                    </Grid>
-                </Grid>
-            </Box>
+        <AdminSidebar /> {/* Sidebar Component */}
+        <Box>
+        <h2>Tracker Dashboard</h2>
+        
+        <TableauDashboard />
+        
+        </Box>
         </Box>
     );
 };

@@ -59,40 +59,50 @@ router.get("/:id", async (req, res) => {
     res.json(incidentReporting);
 });
 
-router.put('/:id/status', validateToken, async (req, res) => {
+router.put('/:id', validateToken, async (req, res) => {
     const id = req.params.id;
+    const status = req.body.status; // Ensure you are extracting the correct field
 
-    // Find the incident by primary key
+    console.log('Updating status for ID:', id);
+    console.log('New status:', status);
+
     let incidentReporting = await IncidentReporting.findByPk(id);
     if (!incidentReporting) {
-        return res.sendStatus(404); // Not found
+        res.sendStatus(404);
+        return;
     }
+    // Check request user id
+    let userId = req.user.id;
+    if (incidentReporting.userId != userId) {
+        res.sendStatus(403);
+        return;
+    }
+    let data = req.body;
+    let validationSchema = yup.object({
+        ReportType: yup.string().trim().min(3).max(100).required(),
+        ReportDetails: yup.string().trim().min(3).max(500).required(),
+        Location: yup.string().trim().min(3).max(100).required(),
 
-    // Check if the requesting user is authorized to update this incident
-    const userId = req.user.id;
-    if (incidentReporting.userId !== userId) {
-        return res.sendStatus(403); // Forbidden
-    }
-    // Define validation schema for action status
-    const validationSchema = yup.object({
-        status: yup.string().trim().oneOf(['Pending', 'Approved', 'Rejected']).required(), // Adjust options as needed
     });
 
     try {
-        // Validate the incoming data
-        const { status } = await validationSchema.validate(req.body, { abortEarly: false });
+        await validationSchema.validate({ status }, { abortEarly: false });
 
-        // Update the incident's action status
         const [updated] = await IncidentReporting.update({ ActionStatus: status }, {
             where: { id: id }
         });
-
-        if (updated) {
-            return res.json({ message: 'Status updated successfully.' });
-        } else {
-            return res.status(400).json({ message: `Cannot update status for incident with id ${id}.` });
+        if (num == 1) {
+            res.json({
+                message: "participant was updated successfully."
+            });
+        }
+        else {
+            res.status(400).json({
+                message: `Cannot update participant with id ${id}.`
+            });
         }
     } catch (err) {
+        console.error('Validation or update error:', err);
         return res.status(400).json({ errors: err.errors });
     }
 });

@@ -8,6 +8,7 @@ import ReportIcon from '@mui/icons-material/Report';
 import ForumIcon from '@mui/icons-material/Forum';
 import AccountBoxIcon from '@mui/icons-material/AccountBox';
 import QuizIcon from '@mui/icons-material/Quiz';
+import ShoppingBagIcon from '@mui/icons-material/ShoppingBag';
 import LogoutIcon from '@mui/icons-material/Logout';
 import EcoUnityLogo from '../assets/Eco Unity.png';
 import { Link } from 'react-router-dom';
@@ -17,7 +18,9 @@ const AdminSidebar = ({ username }) => {
         <Box sx={{ width: 240, height: '95vh', backgroundColor: '#5a9895', borderRadius: '20px', margin: 2, color: 'white', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', overflow: 'hidden' }}>
             <Box>
                 <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', padding: 2 }}>
-                    <Avatar alt="Eco Unity Logo" src= {EcoUnityLogo} sx={{ width: 80, height: 80 }} />
+                    <Link to="/" style={{ textDecoration: 'none' }}>
+                        <Avatar alt="Eco Unity Logo" src={EcoUnityLogo} sx={{ width: 80, height: 80 }} />
+                    </Link>
                 </Box>
                 <Box sx={{ overflowY: 'auto', height: 'calc(100% - 100px)', paddingRight: 2 }} className="sidebar-scrollbar">
                     <List>
@@ -28,7 +31,7 @@ const AdminSidebar = ({ username }) => {
                             </ListItemIcon>
                             <ListItemText primary="Dashboard" />
                         </ListItem>
-                        <ListItem button component={Link} to="/admin/eco-tracker">
+                        <ListItem button component={Link} to="/admin/trackerdashboard">
                             <ListItemIcon sx={{ color: 'white' }}>
                                 <DataSaverOffIcon />
                             </ListItemIcon>
@@ -40,29 +43,35 @@ const AdminSidebar = ({ username }) => {
                             </ListItemIcon>
                             <ListItemText primary="Events" />
                         </ListItem>
-                        <ListItem button component={Link} to="/admin/event-feedback">
+                        <ListItem button component={Link} to="/admin/FeedbackAdmin">
                             <ListItemIcon sx={{ color: 'white' }}>
                                 <FeedbackIcon />
                             </ListItemIcon>
                             <ListItemText primary="Event Feedback" />
                         </ListItem>
-                        <ListItem button component={Link} to="/admin/incident-reports">
+                        <ListItem button component={Link} to="/admin/IncidentReportAdmin">
                             <ListItemIcon sx={{ color: 'white' }}>
                                 <ReportIcon />
                             </ListItemIcon>
                             <ListItemText primary="Incident Reports" />
                         </ListItem>
-                        <ListItem button component={Link} to="/admin/forum-moderation">
+                        <ListItem button component={Link} to="/admin/reportthread">
                             <ListItemIcon sx={{ color: 'white' }}>
                                 <ForumIcon />
                             </ListItemIcon>
                             <ListItemText primary="Forum Moderation" />
                         </ListItem>
-                        <ListItem button component={Link} to="/admin/account-management">
+                        <ListItem button component={Link} to="/admin/manageusers">
                             <ListItemIcon sx={{ color: 'white' }}>
                                 <AccountBoxIcon />
                             </ListItemIcon>
                             <ListItemText primary="Account Management" />
+                        </ListItem>
+                        <ListItem button component={Link} to="/admin/merchandise-management">
+                            <ListItemIcon sx={{ color: 'white' }}>
+                                <ShoppingBagIcon />
+                            </ListItemIcon>
+                            <ListItemText primary="Merchandise Management" />
                         </ListItem>
                         <ListItem button component={Link} to="/admin/quiz-management">
                             <ListItemIcon sx={{ color: 'white' }}>

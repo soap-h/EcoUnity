@@ -14,9 +14,10 @@ npm i react-toastify
 npm i react-slick slick-carousel
 npm i @mui/material @mui/lab @emotion/react @emotion/styled
 npm i @mui/material @emotion/react @emotion/styled react-material-ui-carousel dayjs @mui/x-date-pickers
-
+npm install @stripe/react-stripe-js @stripe/stripe-js   
 npm install chart.js react-chartjs-2
 npm i recharts
+npm i nodemailer
 
 under server:
 npm i cors
@@ -24,3 +25,9 @@ npm i cors
 for file uploading 
 npm i multer
 npm i nanoid@3
+
+for payments
+npm i @stripe/react-stripe-js @stripe/stripe-js
+
+for emails
+npm i nodemailer
