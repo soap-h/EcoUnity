@@ -159,7 +159,7 @@ const AdminEvents = () => {
                         events.map((event) => (
                             <TableRow key={event.id}>
                                 <TableCell>{event.id}</TableCell>
-                                <TableCell>{new Date(event.date).toLocaleDateString()}</TableCell>
+                                <TableCell>{event.date}</TableCell>
                                 <TableCell>{event.title}</TableCell>
                                 <TableCell>{event.registered}/{event.participants}</TableCell>
                                 <TableCell>{event.price}</TableCell>

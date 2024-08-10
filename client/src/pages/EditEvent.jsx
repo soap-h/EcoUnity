@@ -17,29 +17,36 @@ const EditEvent = ({ event, onClose }) => {
     const [category, setCategory] = useState(event.category);
     const [type, setType] = useState(event.type);
     const [registerEndDate, setRegisterEndDate] = useState(dayjs(event.registerEndDate));
+    const [imageFile, setImageFile] = useState(null);
+    const [existingImage, setExistingImage] = useState(event.imageFile);
 
     const handleSubmit = async () => {
-        const updatedEvent = { 
-            title, 
-            details, 
-            date: date ? date.format('YYYY-MM-DD') : null, 
-            timeStart: timeStart ? timeStart.format('HH:mm:ss') : null, 
-            timeEnd: timeEnd ? timeEnd.format('HH:mm:ss') : null, 
-            venue, 
-            price, 
-            participants, 
-            category, 
-            type, 
-            registerEndDate: registerEndDate ? registerEndDate.format('YYYY-MM-DD') : null 
-        };
+        const formData = new FormData();
+        formData.append('title', title);
+        formData.append('details', details);
+        formData.append('date', date ? date.format('YYYY-MM-DD') : null);
+        formData.append('timeStart', timeStart ? timeStart.format('HH:mm:ss') : null);
+        formData.append('timeEnd', timeEnd ? timeEnd.format('HH:mm:ss') : null);
+        formData.append('venue', venue);
+        formData.append('price', price);
+        formData.append('participants', participants);
+        formData.append('category', category);
+        formData.append('type', type);
+        formData.append('registerEndDate', registerEndDate ? registerEndDate.format('YYYY-MM-DD') : null);
 
-        console.log('Updating event:', updatedEvent);
+        if (imageFile) {
+            formData.append('file', imageFile);
+        }
 
         try {
-            await http.put(`/events/${event.id}`, updatedEvent);
+            await http.put(`/events/${event.id}`, formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
             onClose();
         } catch (error) {
-            console.error('Failed to update event:', error);
+            console.error('Failed to update event:', error.response ? error.response.data : error.message);
         }
     };
 
@@ -67,19 +74,19 @@ const EditEvent = ({ event, onClose }) => {
                         label="Date"
                         value={date}
                         onChange={(newValue) => setDate(newValue)}
-                        slots={{ textField: TextField }}
+                        renderInput={(params) => <TextField {...params} fullWidth margin="normal" />}
                     />
                     <TimePicker
                         label="Start Time"
                         value={timeStart}
                         onChange={(newValue) => setTimeStart(newValue)}
-                        slots={{ textField: TextField }}
+                        renderInput={(params) => <TextField {...params} fullWidth margin="normal" />}
                     />
                     <TimePicker
                         label="End Time"
                         value={timeEnd}
                         onChange={(newValue) => setTimeEnd(newValue)}
-                        slots={{ textField: TextField }}
+                        renderInput={(params) => <TextField {...params} fullWidth margin="normal" />}
                     />
                     <TextField
                         label="Venue"
@@ -135,8 +142,22 @@ const EditEvent = ({ event, onClose }) => {
                         label="Register End Date"
                         value={registerEndDate}
                         onChange={(newValue) => setRegisterEndDate(newValue)}
-                        slots={{ textField: TextField }}
+                        renderInput={(params) => <TextField {...params} fullWidth margin="normal" />}
                     />
+                    <Box mt={2}>
+                        {existingImage && (
+                            <img
+                                src={`${import.meta.env.VITE_FILE_BASE_URL}/${event.imageFile}`} 
+                                alt={`Event ${event.id}'s current image`}
+                                style={{ height: '30%', width: '50%', borderRadius: '8px', marginBottom: '10px' }}
+                            />
+                        )}
+                        <input
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) => setImageFile(e.target.files[0])}
+                        />
+                    </Box>
                 </Box>
                 <Box display="flex" justifyContent="flex-end">
                     <Button onClick={onClose} color="primary" variant="outlined" sx={{ mr: 1 }}>
