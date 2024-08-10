@@ -163,4 +163,28 @@ router.delete("/:id", validateToken, async (req, res) => {
     }
 });
 
+router.get('/:id/participants', async (req, res) => {
+    try {
+        const eventId = req.params.id;
+        const registrations = await Registration.findAll({
+            where: { eventId },
+            include: [
+                {
+                    model: User,
+                    as: 'user',
+                    attributes: ['id', 'firstName', 'lastName'],
+                },
+            ],
+        });
+        const participants = registrations.map((registration) => ({
+            id: registration.user.id,
+            name: `${registration.user.firstName} ${registration.user.lastName}`,
+        }));
+        res.json(participants);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+
 module.exports = router;
