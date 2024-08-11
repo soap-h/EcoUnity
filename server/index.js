@@ -80,6 +80,8 @@ const userRoute = require('./routes/user');
 app.use("/user", userRoute);
 const fileRoute = require('./routes/file');
 app.use("/file", fileRoute);
+// const locationsRoute = require('./routes/locations');
+// app.use("/locations", locationsRoute);
 const eventsRoute = require('./routes/events');
 app.use("/events", eventsRoute);
 const paymentRoute = require('./routes/payment');

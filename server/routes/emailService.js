@@ -39,7 +39,7 @@ const sendReceiptEmail = async ({ to, subject, items, totalAmount, paymentMethod
         const logoImage = fs.readFileSync(logoPath);
 
         let info = await transporter.sendMail({
-            from: `"Your Company Name" <${process.env.OUTLOOK_EMAIL}>`,
+            from: `"EcoUnity" <${process.env.OUTLOOK_EMAIL}>`,
             to: to,
             subject: subject,
             html: emailTemplate,

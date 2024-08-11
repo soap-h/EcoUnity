@@ -7,6 +7,7 @@ import http from "./http";
 
 // pages
 import Home from "./pages/Home.jsx";
+import Locations from "./pages/Locations.jsx"
 import Events from "./pages/Events.jsx";
 import EventRegistration from './pages/EventRegistration';
 import EventPayment from './pages/EventPayment';
@@ -124,6 +125,8 @@ function App() {
           <Route path={"/register"} element={<Register />} />
 
           <Route path={"/"} element={<Home />} />
+
+          <Route path={"/locations"} element={<Locations />} />
 
           <Route path={"/events"} element={<Events />} />
           <Route path="/event/:id" element={<EventRegistration />} />
