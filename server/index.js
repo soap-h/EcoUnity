@@ -109,6 +109,8 @@ const bookmarkRoute = require('./routes/bookmark');
 app.use("/bookmarks", bookmarkRoute);
 const reportthreadRoute = require('./routes/reportthread');
 app.use("/reportthread", reportthreadRoute);
+const commentlikesRoute = require('./routes/commentLikes');
+app.use("/commentLikes", commentlikesRoute);
 
 
 

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { Box, Typography, TextField, Button, Container, InputLabel, MenuItem, FormControl, Select, Grid } from '@mui/material';
 import { useFormik } from 'formik';
 import * as yup from 'yup';
@@ -7,9 +7,13 @@ import { useNavigate } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import './AddThread.css'; // Import your updated CSS file
+import UserContext from '../../contexts/UserContext';
+
 
 function AddThread() {
     const navigate = useNavigate();
+
+    const { user } = useContext(UserContext);
 
     // For File Upload
     const [imageFile, setImageFile] = useState(null);
@@ -57,6 +61,12 @@ function AddThread() {
         }),
 
         onSubmit: (data) => {
+
+            if (!user || !user.id) {
+                toast.error('You are not logged in.');
+                return;
+            }
+            
             if (imageFile) {
                 data.imageFile = imageFile;
             }

@@ -36,7 +36,11 @@ const validateToken = (req, res, next) => {
         req.user = validToken;
         next();
     } catch (err) {
-        return res.status(403).json({ error: "Invalid token" });
+        // return res.status(403).json({ error: "Invalid token" });
+        // if (err instanceof yup.ValidationError) {
+        //     return res.status(400).json({ error: err.errors });
+        // }
+        return res.status(500).json({ error: err.message });
 
     }
 };
