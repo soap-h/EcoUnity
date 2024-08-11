@@ -2,7 +2,7 @@ import React, { useContext } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Box, Typography, Button, Grid, Paper } from '@mui/material';
 import { loadStripe } from '@stripe/stripe-js';
-import UserContext from '../contexts/UserContext';  // Assuming you have a UserContext to manage user state
+import UserContext from '../contexts/UserContext';
 import http from '../http';
 
 const stripePromise = loadStripe('pk_test_51PmSFiFpoOUPPAxlsyo5TmSRhjZOa1dsX7QkKYWRUAyVaILMCEknE9CqcUONBj6ah1bqYfSNAaaE9JsgOmcB8arE00UP5Y5YgG');
@@ -30,6 +30,7 @@ function EventPayment() {
                 eventTitle,
                 amount,
                 currency,
+                email: user.email, // Pass the user's email for receipt
             });
 
             const { id } = response.data;

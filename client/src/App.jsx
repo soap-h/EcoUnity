@@ -10,6 +10,8 @@ import Home from "./pages/Home.jsx";
 import Events from "./pages/Events.jsx";
 import EventRegistration from './pages/EventRegistration';
 import EventPayment from './pages/EventPayment';
+import Success from './pages/Success';
+import Cancel from './pages/Cancel';  // In case you have a cancel page
 import ProposeEvent from './pages/ProposeEvent';
 import UserContext from "./contexts/UserContext";
 import AdminDashboard from "./pages/AdminDashboard.jsx";
@@ -129,6 +131,8 @@ function App() {
           <Route path={"/admin/events"} element={<AdminEvents />} />
           <Route path="/propose-event" element={<ProposeEvent />} />
           <Route path="/event-payment/:id" element={<EventPayment />} />
+          <Route path="/success" element={<Success />} />
+          <Route path="/cancel" element={<Cancel />} />
 
           {/* <Route path={"/forums"} element={<Forums />} /> */}
           <Route path={"/learning"} element={<Learning />} />
