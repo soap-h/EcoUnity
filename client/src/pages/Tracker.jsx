@@ -8,6 +8,7 @@ import global from "../global";
 import http from "../http";
 import { useNavigate } from "react-router-dom";
 import { Bar, Doughnut } from "react-chartjs-2";
+import TaskRecommendations from '../components/TaskRecommendations';
 
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -51,6 +52,11 @@ function Trackers() {
   const [activityPoints, setActivityPoints] = useState('');
   const [co2Data, setCo2Data] = useState([]);
   const [improvement, setImprovement] = useState(0); // State for improvement from last month
+  const tasks = [
+    { title: 'Complete project report' },
+    { title: 'Prepare for meeting' },
+    { title: 'Update client on progress' },
+  ];
 
   const formatDate = (date) => {
     const [year, month, day] = date.split("-");
@@ -73,7 +79,7 @@ function Trackers() {
   };
 
   const getUserGoal = () => {
-    http.get(`/user/trackergoal/${user.id}`).then((res) => {
+    http.get(`/user/${user.id}`).then((res) => {
       setGoal(res.data.goals || 1000);
       setGoalType(res.data.goaltype || "monthly");
     }).catch(err => {
@@ -450,7 +456,7 @@ function Trackers() {
           </Button>
         </DialogActions>
       </Dialog>
-
+      <TaskRecommendations tasks={tasks} />
       <ToastContainer />
     </Box>
   );

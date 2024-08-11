@@ -98,8 +98,6 @@ router.put("/:id/register", validateToken, async (req, res) => {
     }
 });
 
-module.exports = router;
-
 router.put("/:id", validateToken, upload, async (req, res) => {
     let data = req.body;
     let userId = req.user.id;  // Ensure the user is authenticated
@@ -164,5 +162,29 @@ router.delete("/:id", validateToken, async (req, res) => {
         });
     }
 });
+
+router.get('/:id/participants', async (req, res) => {
+    try {
+        const eventId = req.params.id;
+        const registrations = await Registration.findAll({
+            where: { eventId },
+            include: [
+                {
+                    model: User,
+                    as: 'user',
+                    attributes: ['id', 'firstName', 'lastName'],
+                },
+            ],
+        });
+        const participants = registrations.map((registration) => ({
+            id: registration.user.id,
+            name: `${registration.user.firstName} ${registration.user.lastName}`,
+        }));
+        res.json(participants);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
 
 module.exports = router;

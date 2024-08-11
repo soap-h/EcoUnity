@@ -1,4 +1,3 @@
-// AdminEvents.jsx
 import React, { useState, useEffect } from 'react';
 import { Box, Tab, Tabs, Typography, IconButton, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Menu, MenuItem, Button, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
@@ -13,15 +12,7 @@ import dayjs from 'dayjs';
 const AdminEvents = () => {
     const { user } = React.useContext(UserContext);
     const [events, setEvents] = useState([]);
-    const [proposals, setProposals] = useState([
-        {
-            id: 1,
-            date: new Date().toLocaleDateString(),
-            document: 'proposal_template.docx',
-            userId: 1,
-            status: 'Pending'
-        }
-    ]);
+    const [proposals, setProposals] = useState([]);
     const [tabValue, setTabValue] = useState(0);
     const [anchorEl, setAnchorEl] = useState(null);
     const [selectedEvent, setSelectedEvent] = useState(null);
@@ -29,6 +20,24 @@ const AdminEvents = () => {
     const [openEdit, setOpenEdit] = useState(false);
     const [openView, setOpenView] = useState(false);
     const [openDeleteConfirm, setOpenDeleteConfirm] = useState(false);
+    const [participants, setParticipants] = useState([]);
+    const [openParticipantsDialog, setOpenParticipantsDialog] = useState(false);
+
+    const handleOpenParticipantsDialog = async (event) => {
+        try {
+            const res = await http.get(`/events/${event.id}/participants`);
+            setParticipants(res.data);
+            setSelectedEvent(event);
+            setOpenParticipantsDialog(true);
+        } catch (error) {
+            console.error('Failed to fetch participants:', error);
+        }
+    };
+
+    const handleCloseParticipantsDialog = () => {
+        setOpenParticipantsDialog(false);
+        setParticipants([]);
+    };
 
     const fetchEvents = async () => {
         try {
@@ -42,7 +51,7 @@ const AdminEvents = () => {
     const fetchProposals = async () => {
         try {
             const res = await http.get('/proposals');
-            setProposals([...res.data, ...proposals]); // Adding hardcoded proposal to fetched proposals
+            setProposals(res.data);
         } catch (error) {
             console.error('Failed to fetch proposals:', error);
         }
@@ -52,6 +61,12 @@ const AdminEvents = () => {
         fetchEvents();
         fetchProposals();
     }, []);
+
+    useEffect(() => {
+        console.log("Fetched events:", events);
+        console.log("Current events:", currentEvents);
+        console.log("Past events:", pastEvents);
+    }, [events]);
 
     const handleTabChange = (event, newValue) => {
         setTabValue(newValue);
@@ -119,25 +134,34 @@ const AdminEvents = () => {
         }
     };
 
-    const handleApproveProposal = async (proposalId) => {
-        try {
-            await http.put(`/proposals/${proposalId}/approve`);
-            fetchProposals();
-        } catch (error) {
-            console.error('Failed to approve proposal:', error);
-        }
-    };
+    const now = dayjs();
 
-    const handleRejectProposal = async (proposalId) => {
-        try {
-            await http.put(`/proposals/${proposalId}/reject`);
-            fetchProposals();
-        } catch (error) {
-            console.error('Failed to reject proposal:', error);
-        }
-    };
+    const currentEvents = events.filter(event => {
+        let eventEndTime = dayjs(event.date); // Parse the date
 
-    const renderEventsTable = () => (
+        if (event.timeEnd) {
+            // If timeEnd is in the correct format, parse it
+            const [hours, minutes, seconds] = event.timeEnd.split(':');
+            eventEndTime = eventEndTime.hour(hours).minute(minutes).second(seconds);
+        }
+
+        console.log(`Event ${event.id} end time: ${eventEndTime.isValid() ? eventEndTime.format() : 'Invalid Date'}`);
+        return now.isBefore(eventEndTime);
+    });
+
+    const pastEvents = events.filter(event => {
+        let eventEndTime = dayjs(event.date);
+
+        if (event.timeEnd) {
+            const [hours, minutes, seconds] = event.timeEnd.split(':');
+            eventEndTime = eventEndTime.hour(hours).minute(minutes).second(seconds);
+        }
+
+        console.log(`Event ${event.id} end time: ${eventEndTime.isValid() ? eventEndTime.format() : 'Invalid Date'}`);
+        return now.isAfter(eventEndTime);
+    });
+
+    const renderEventsTable = (eventsToDisplay) => (
         <TableContainer component={Paper}>
             <Table>
                 <TableHead>
@@ -155,13 +179,15 @@ const AdminEvents = () => {
                     </TableRow>
                 </TableHead>
                 <TableBody>
-                    {events.length > 0 ? (
-                        events.map((event) => (
+                    {eventsToDisplay.length > 0 ? (
+                        eventsToDisplay.map((event) => (
                             <TableRow key={event.id}>
                                 <TableCell>{event.id}</TableCell>
-                                <TableCell>{new Date(event.date).toLocaleDateString()}</TableCell>
+                                <TableCell>{event.date}</TableCell>
                                 <TableCell>{event.title}</TableCell>
-                                <TableCell>{event.registered}/{event.participants}</TableCell>
+                                <TableCell onClick={() => handleOpenParticipantsDialog(event)}>
+                                    {event.registered}/{event.participants}
+                                </TableCell>
                                 <TableCell>{event.price}</TableCell>
                                 <TableCell>{event.category}</TableCell>
                                 <TableCell>{event.type}</TableCell>
@@ -202,7 +228,7 @@ const AdminEvents = () => {
                         <TableCell>Date</TableCell>
                         <TableCell>Document</TableCell>
                         <TableCell>User ID</TableCell>
-                        <TableCell>Approve</TableCell>
+                        <TableCell>Actions</TableCell>
                     </TableRow>
                 </TableHead>
                 <TableBody>
@@ -210,18 +236,18 @@ const AdminEvents = () => {
                         proposals.map((proposal) => (
                             <TableRow key={proposal.id} style={{ backgroundColor: proposal.status === 'Approved' ? 'lightgreen' : proposal.status === 'Rejected' ? 'lightcoral' : 'inherit' }}>
                                 <TableCell>{proposal.id}</TableCell>
-                                <TableCell>{new Date(proposal.date).toLocaleDateString()}</TableCell>
+                                <TableCell>{proposal.date}</TableCell>
                                 <TableCell>
-                                    <a variant="contained" color="primary" href="/assets/proposal_template.docx" download>
-                                        proposal_template.docx
+                                    <a href={`/uploads/${proposal.document}`} download>
+                                        {proposal.name}
                                     </a>
                                 </TableCell>
                                 <TableCell>{proposal.userId}</TableCell>
                                 <TableCell>
-                                    <Button variant="contained" color="primary" onClick={() => handleApproveProposal(proposal.id)} disabled={proposal.status !== 'Pending'}>
+                                    <Button variant="contained" sx={{ backgroundColor: 'green', color: 'white' }} onClick={() => handleApproveProposal(proposal.id)} disabled={proposal.status !== 'Pending'}>
                                         Approve
                                     </Button>
-                                    <Button variant="contained" color="secondary" onClick={() => handleRejectProposal(proposal.id)} disabled={proposal.status !== 'Pending'} sx={{ ml: 2 }}>
+                                    <Button variant="contained" sx={{ backgroundColor: 'red', color: 'white', ml: 2 }} onClick={() => handleRejectProposal(proposal.id)} disabled={proposal.status !== 'Pending'}>
                                         Reject
                                     </Button>
                                 </TableCell>
@@ -229,7 +255,7 @@ const AdminEvents = () => {
                         ))
                     ) : (
                         <TableRow>
-                            <TableCell colSpan={6}>No proposals available</TableCell>
+                            <TableCell colSpan={5}>No proposals available</TableCell>
                         </TableRow>
                     )}
                 </TableBody>
@@ -253,9 +279,9 @@ const AdminEvents = () => {
                     <Tab label="Past Events" />
                 </Tabs>
                 <Box sx={{ paddingTop: 3 }}>
-                    {tabValue === 0 && renderEventsTable()}
+                    {tabValue === 0 && renderEventsTable(currentEvents)}
                     {tabValue === 1 && renderProposalsTable()}
-                    {tabValue === 2 && <Typography>Past Events</Typography>}
+                    {tabValue === 2 && renderEventsTable(pastEvents)}
                 </Box>
                 <Dialog open={openAdd} onClose={handleCloseAddDialog}>
                     <DialogTitle>Add Event</DialogTitle>
@@ -268,6 +294,37 @@ const AdminEvents = () => {
                         </Button>
                     </DialogActions>
                 </Dialog>
+                <Dialog open={openParticipantsDialog} onClose={handleCloseParticipantsDialog}>
+                    <DialogTitle>Registered Participants for {selectedEvent?.title}</DialogTitle>
+                    <DialogContent>
+                        {participants.length > 0 ? (
+                            <Table>
+                                <TableHead>
+                                    <TableRow>
+                                        <TableCell>User ID</TableCell>
+                                        <TableCell>User Name</TableCell>
+                                    </TableRow>
+                                </TableHead>
+                                <TableBody>
+                                    {participants.map((participant) => (
+                                        <TableRow key={participant.id}>
+                                            <TableCell>{participant.id}</TableCell>
+                                            <TableCell>{participant.name}</TableCell>
+                                        </TableRow>
+                                    ))}
+                                </TableBody>
+                            </Table>
+                        ) : (
+                            <Typography>No participants registered yet.</Typography>
+                        )}
+                    </DialogContent>
+                    <DialogActions>
+                        <Button onClick={handleCloseParticipantsDialog} color="primary">
+                            Close
+                        </Button>
+                    </DialogActions>
+                </Dialog>
+
                 {selectedEvent && (
                     <Dialog open={openEdit} onClose={handleCloseEditDialog}>
                         <DialogTitle>Edit Event</DialogTitle>
