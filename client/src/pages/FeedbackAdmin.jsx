@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react';
 import { InputLabel, FormControl, Box, Typography, Select, MenuItem, IconButton, Button } from '@mui/material';
 import { Link } from 'react-router-dom';
 import Table from '@mui/material/Table';
@@ -19,38 +19,25 @@ import AdminSidebar from '../components/AdminSidebar';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import { useParams, useNavigate } from 'react-router-dom';
 
-
-
 function FeedbackAdmin() {
     const { id } = useParams();
     const navigate = useNavigate();
     const [FeedbackList, setFeedback] = useState([]);
     const [FeedbackCount, setFeedbackCount] = useState(0);
+    const [FeedbackID, setFeedbackID] = useState(null);
+    const [open, setOpen] = useState(false);
 
     useEffect(() => {
         http.get('/EventFeedback').then((res) => {
             console.log(res.data);
             setFeedback(res.data);
-
         }).catch(error => {
             console.error('Error fetching data:', error);
         });
     }, []);
 
-    const deleteFeedback = () => {
-
-        http.delete(`/EventFeedback/${id}`)
-            .then((res) => {
-                console.log(res.data);
-                navigate("/admin/FeedbackAdmin");
-            });
-    };
-
-    const itemCount = FeedbackList.length;
-    
-    const [open, setOpen] = useState(false);
-
-    const handleOpen = () => {
+    const handleOpen = (id) => {
+        setFeedbackID(id);
         setOpen(true);
     };
 
@@ -58,7 +45,22 @@ function FeedbackAdmin() {
         setOpen(false);
     };
 
+    const deleteFeedback = () => {
+        if (FeedbackID !== null) {
+            http.delete(`/EventFeedback/${FeedbackID}`)
+                .then((res) => {
+                    console.log(res.data);
+                    setFeedback(prevFeedback => prevFeedback.filter(feedback => feedback.id !== FeedbackID));
+                    handleClose();
+                    toast.success('Feedback deleted successfully!');
+                }).catch(error => {
+                    console.error('Error deleting feedback:', error);
+                    toast.error('Failed to delete feedback.');
+                });
+        }
+    };
 
+    const itemCount = FeedbackList.length;
 
     return (
         <Box sx={{ display: 'flex', height: '100vh' }}>
@@ -74,25 +76,28 @@ function FeedbackAdmin() {
                                     <TableCell align="center">Name</TableCell>
                                     <TableCell align="center">Email</TableCell>
                                     <TableCell align="center">Feedback Response</TableCell>
-                                    <TableCell align="center"> Send Reply </TableCell>
-                                    <TableCell align="center"> </TableCell>
-
+                                    <TableCell align="center">Send Reply</TableCell>
+                                    <TableCell align="center"></TableCell>
                                 </TableRow>
                             </TableHead>
                             <TableBody>
-                                {FeedbackList.map((Feedback, i) => (
+                                {FeedbackList.map((Feedback) => (
                                     <TableRow
-                                        key={Feedback.id} // Assuming each row has a unique 'id'
+                                        key={Feedback.id}
                                         sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                                     >
                                         <TableCell component="th" scope="row">
-                                            {dayjs(Feedback.createdAt).format('YYYY-MM-DD')} {/* Format date as needed */}
+                                            {dayjs(Feedback.createdAt).format('YYYY-MM-DD')}
                                         </TableCell>
                                         <TableCell align="center">{Feedback.user?.firstName}</TableCell>
                                         <TableCell align="center">{Feedback.user?.email}</TableCell>
                                         <TableCell align="center"><a href={`/admin/FeedbackAdmin/${Feedback.id}`}>Feedback</a></TableCell>
                                         <TableCell align="center"><Link to={`/addinbox`}><ReplyIcon /></Link></TableCell>
-                                        <TableCell align="center"  ><IconButton onClick={handleOpen} ><DeleteOutlineIcon /></IconButton></TableCell>
+                                        <TableCell align="center">
+                                            <IconButton onClick={() => handleOpen(Feedback.id)}>
+                                                <DeleteOutlineIcon />
+                                            </IconButton>
+                                        </TableCell>
                                     </TableRow>
                                 ))}
                             </TableBody>
@@ -100,31 +105,28 @@ function FeedbackAdmin() {
                     </TableContainer>
                 </Box>
                 <Dialog open={open} onClose={handleClose}>
-                <DialogTitle>
-                    Delete Feedback
-                </DialogTitle>
-                <DialogContent>
-                    <DialogContentText>
-                        Are you sure you want to delete this Feedback?
-                    </DialogContentText>
-                </DialogContent>
-                <DialogActions>
-                    <Button variant="contained" color="inherit"
-                        onClick={handleClose}>
-                        Cancel
-                    </Button>
-                    <Button variant="contained" color="error"
-                        onClick={deleteFeedback}>
-                        Delete
-                    </Button>
-                </DialogActions>
-            </Dialog>
+                    <DialogTitle>
+                        Delete Feedback
+                    </DialogTitle>
+                    <DialogContent>
+                        <DialogContentText>
+                            Are you sure you want to delete this Feedback?
+                        </DialogContentText>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button variant="contained" color="inherit" onClick={handleClose}>
+                            Cancel
+                        </Button>
+                        <Button variant="contained" color="error" onClick={deleteFeedback}>
+                            Delete
+                        </Button>
+                    </DialogActions>
+                </Dialog>
 
-            <ToastContainer />
+                <ToastContainer />
             </Box>
-
         </Box>
     );
 }
 
-export default FeedbackAdmin
+export default FeedbackAdmin;

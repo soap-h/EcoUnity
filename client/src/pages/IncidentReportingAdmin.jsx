@@ -51,6 +51,9 @@ function IncidentReportingUsers() {
       });
   };
 
+  
+
+
   return (
     <Box sx={{ display: 'flex', height: '100vh' }}>
       <AdminSidebar /> {/* Sidebar Component */}
