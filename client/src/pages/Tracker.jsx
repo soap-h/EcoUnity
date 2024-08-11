@@ -91,6 +91,7 @@ function Trackers() {
     });
   };
 
+
   useEffect(() => {
     getTrackers();
     getUserGoal();
@@ -183,16 +184,16 @@ function Trackers() {
     if (totalPoints >= goal && !goalHit) {
       setGoalHit(true);
       toast.success("You hit your goal!");
-  
+
       const timeout = setTimeout(() => {
         setGoalHit(false);
         console.log("Finish!")
       }, 3000);
-  
+
       return () => clearTimeout(timeout);
     }
   }, [totalPoints, goal, goalHit]);
-  
+
 
 
   const data = {
@@ -332,6 +333,10 @@ function Trackers() {
               bgcolor: "#f9f9f9",
               borderRadius: "8px",
               fontWeight: "bold",
+              position: "sticky",
+              top: 0,
+              zIndex: 1,
+              backgroundColor: "#eee",  // Ensure it's visible
             }}
           >
             <Typography variant="body1" sx={{ width: "30%", color: "#333" }}>
@@ -409,8 +414,8 @@ function Trackers() {
               </Button>
             </DialogActions>
           </Dialog>
-          <Box sx={{ position: "absolute", bottom: 16, right: 16 }}>
-            <Button onClick={handleOpenAddDialog} color="primary"><Add /></Button>
+          <Box sx={{ position: "sticky", bottom: 16, right: 16, zIndex: 1, textAlign: 'right' }}> {/* Sticky add button */}
+            <Button onClick={handleOpenAddDialog} color="primary" sx={{backgroundColor: '#eee'}}><Add /></Button>
             <AddActivity open={openAddDialog} handleClose={handleCloseAddDialog} activities={activities} onActivityAdded={addActivity} />
           </Box>
         </Box>

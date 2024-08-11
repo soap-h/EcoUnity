@@ -186,5 +186,17 @@ router.get('/:id/participants', async (req, res) => {
     }
 });
 
-
+router.get('/:id/participatedevents', async (req, res) => {
+    try {
+        const userid = req.params.id;
+        const registrations = await Registration.findAll({
+            where: { userId: userid },
+            order: [["createdAt", "DESC"]]
+        });
+        res.json(registrations);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+})
 module.exports = router;
+

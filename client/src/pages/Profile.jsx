@@ -15,7 +15,8 @@ function Profile() {
     const [trackerList, setTrackerList] = useState([]);
     const [description, setDescription] = useState(user ? user.description : '');
     const [isEditing, setIsEditing] = useState(false);
-    const [event, setEvents] = useState([]);
+    const [eventcount, seteventcount] = useState(0);
+    const [participatedEvents, setParticipatedEvents] = useState([]); // Store participated events
     const navigate = useNavigate();
 
     const getTrackers = () => {
@@ -24,12 +25,33 @@ function Profile() {
         });
     };
 
-    const getEvents = () => {
-        http.get("/EventParticipants").then((res) => {
-            const userEvents = res.data.filter(event => event.email === user.email);
-            setEvents(res.data);
-        });
-    }
+    const getEvents = async () => {
+        try {
+            const [participatedResponse, eventsResponse] = await Promise.all([
+                http.get(`events/${id}/participatedevents`),
+                http.get('/events/')
+            ]);
+
+            const participatedData = participatedResponse.data;
+            const eventsData = eventsResponse.data;
+
+            // Link the eventId from participated events to the events data
+            const linkedEvents = participatedData.map(pe => {
+                const eventDetails = eventsData.find(event => event.id === pe.eventId);
+                return {
+                    ...pe,
+                    eventDetails,
+                };
+            });
+
+            const eventCount = linkedEvents.length;
+
+            setParticipatedEvents(linkedEvents);
+            seteventcount(eventCount);
+        } catch (err) {
+            console.error("Failed to get events:", err);
+        }
+    };
 
     useEffect(() => {
         if (!user || !user.description) {
@@ -135,7 +157,12 @@ function Profile() {
                 <Paper elevation={3} sx={{ padding: 4, marginTop: 4, borderRadius: 2 }}>
                     <Grid container spacing={3}>
                         <Grid item xs={12} md={4}>
-                            <Box sx={{ position: 'relative', display: 'inline-block', textAlign: 'center' }}>
+                            <Box sx={{ 
+                                position: 'relative', 
+                                display: 'inline-block', 
+                                textAlign: 'center',
+                                ml: 2 // Shift the profile image slightly to the right
+                            }}>
                                 <Avatar
                                     alt={`${user.firstName} ${user.lastName}`}
                                     src={`${import.meta.env.VITE_FILE_PROFILE_URL}${user.imageFile}`}
@@ -146,10 +173,10 @@ function Profile() {
                                     sx={{
                                         position: 'absolute',
                                         bottom: 0,
-                                        right: 0, // Aligns the button to the right corner
-                                        backgroundColor: 'primary.main',
+                                        right: 0, 
+                                        backgroundColor: 'grey', // Change icon color to grey
                                         color: '#fff',
-                                        '&:hover': { backgroundColor: 'primary.dark' },
+                                        '&:hover': { backgroundColor: 'darkgrey' },
                                     }}
                                 >
                                     <AddPhotoAlternateIcon />
@@ -159,7 +186,7 @@ function Profile() {
                             </Box>
                         </Grid>
                         <Grid item xs={12} md={8}>
-                            <Typography variant="h4" sx={{ fontWeight: 'bold', color: 'primary.main' }}>
+                            <Typography variant="h4" sx={{ fontWeight: 'bold', color: 'black' }}>
                                 {user.firstName} {user.lastName}
                             </Typography>
                             <Typography variant="body1" color="textSecondary" gutterBottom>
@@ -201,7 +228,7 @@ function Profile() {
 
                     <Grid container spacing={4} sx={{ marginTop: 4 }}>
                         <Grid item xs={12} md={6}>
-                            <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold', color: 'primary.main' }}>
+                            <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold', color: 'black' }}>
                                 Stats
                             </Typography>
                             <Grid container spacing={2}>
@@ -218,7 +245,7 @@ function Profile() {
                                 <Grid item xs={6}>
                                     <Paper elevation={2} sx={{ padding: 2, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: 100 }}>
                                         <Typography variant="h3" component="div" sx={{ fontWeight: 'bold' }}>
-                                            2
+                                            {eventcount}
                                         </Typography>
                                         <Typography variant="body2" color="textSecondary">
                                             Events Participated
@@ -248,24 +275,25 @@ function Profile() {
                             </Grid>
                         </Grid>
                         <Grid item xs={12} md={6}>
-                            <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold', color: 'primary.main' }}>
+                            <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold', color: 'black' }}>
                                 Activities
                             </Typography>
-                            <Paper elevation={2} sx={{ padding: 2 }}>
-                                <Box display="flex" justifyContent="space-between" alignItems="center" sx={{ marginBottom: 1 }}>
-                                    <Typography variant="body1">31/4/2024</Typography>
-                                    <Typography variant="body1">Plant-a-tree</Typography>
-                                    <Button variant="contained" color="primary" size="small">
-                                        Give Feedback
-                                    </Button>
-                                </Box>
-                                <Box display="flex" justifyContent="space-between" alignItems="center">
-                                    <Typography variant="body1">29/2/2024</Typography>
-                                    <Typography variant="body1">ZeroWaste Upcycling Workshop</Typography>
-                                    <Button variant="contained" color="secondary" size="small">
-                                        Give Feedback
-                                    </Button>
-                                </Box>
+                            <Paper elevation={2} sx={{ padding: 2, maxHeight: 248, overflowY: 'auto' }}> {/* Scrollable container */}
+                                {participatedEvents.length > 0 ? (
+                                    participatedEvents.map((event, index) => (
+                                        <Box key={index} display="flex" justifyContent="space-between" alignItems="center" sx={{ marginBottom: 1 }}>
+                                            <Typography variant="body1">{event.eventDetails.date}</Typography>
+                                            <Typography variant="body1">{event.eventDetails.title}</Typography>
+                                            <Button variant="contained" color="primary" size="small">
+                                                Give Feedback
+                                            </Button>
+                                        </Box>
+                                    ))
+                                ) : (
+                                    <Typography variant="body1" color="textSecondary">
+                                        No events found.
+                                    </Typography>
+                                )}
                             </Paper>
                         </Grid>
                     </Grid>
