@@ -191,7 +191,7 @@ router.get("/:id", validateToken, async (req, res) => {
     try {
         const user = await User.findOne({
             where: { id: userId },  // Fetch the user with the specified ID
-            attributes: ['id', 'firstName', 'lastName', 'email', 'isAdmin', 'imageFile']  // Only fetch specified attributes
+            attributes: ['id', 'firstName', 'lastName', 'email', 'isAdmin', 'imageFile', 'goals']  // Only fetch specified attributes
         });
 
         if (!user) {
