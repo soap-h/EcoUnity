@@ -94,7 +94,13 @@ module.exports = (sequelize, DataTypes) => {
             foreignKey: 'reporterId',
             as: 'reportedThreads',
             onDelete: 'CASCADE'
-        })
+        });
+
+        // User can have many comment likes 
+        User.hasMany(models.CommentLike, {
+            foreignKey: 'userId',
+            as: 'likedComments'
+        });
     };
     // User.associate = (models) => {
     //     User.hasMany(models.EventFeedback, {

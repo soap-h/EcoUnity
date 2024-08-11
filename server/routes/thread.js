@@ -87,8 +87,21 @@ router.post("/", validateToken, async (req, res) => {
 router.get("/id/:id", async (req, res) => {
     let id = req.params.id;
     try {
+        // Fetch the thread including user information and count of associated comments
         let thread = await Thread.findByPk(id, {
-            include: { model: User, as: 'user', attributes: ['firstName'] } // Include user information
+            attributes: {
+                include: [
+                    // Adding a count of associated comments
+                    [literal('(SELECT COUNT(*) FROM comments WHERE comments.threadId = Thread.id)'), 'commentCount']
+                ]
+            },
+            include: [
+                {
+                    model: User,
+                    as: 'user',
+                    attributes: ['firstName', 'imageFile'] // Include user information
+                }
+            ]
         });
 
         if (!thread) {
@@ -229,6 +242,7 @@ router.get('/user/:userId', validateToken, async (req, res) => {
     try {
         const { userId } = req.params;
 
+        // Validate if the user is authorized to view these threads (uncomment if needed)
         // if (userId !== req.user.id) {
         //     return res.status(403).json({ error: 'Forbidden' });
         // }
@@ -236,7 +250,18 @@ router.get('/user/:userId', validateToken, async (req, res) => {
         // Find all threads created by the user
         const threads = await Thread.findAll({
             where: { userId },
-            include: { model: User, as: 'user', attributes: ['firstName'] }
+            attributes: {
+                include: [
+                    // Adding a count of associated comments
+                    [literal('(SELECT COUNT(*) FROM comments WHERE comments.threadId = Thread.id)'), 'commentCount']
+                ]
+            },
+            include: {
+                model: User,
+                as: 'user',
+                attributes: ['firstName', 'imageFile']
+            },
+            order: [['createdAt', 'DESC']]
         });
 
         res.json(threads);

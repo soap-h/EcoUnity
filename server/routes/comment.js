@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 
 // Require User, Comment, Thread Models
-const  { User, Comment, Thread } = require('../models');
+const  { User, Comment, Thread, CommentLike } = require('../models');
 
 // Validation
 const yup = require("yup");
@@ -57,7 +57,10 @@ router.post("/:threadId", validateToken, async (req, res) => {
 
         // If data is valid, create the comment
         const result = await Comment.create(data);
-        res.json(result);
+
+        // Return the created comment along with its ID:
+        const createdComment = await Comment.findByPk(result.id);
+        res.json(createdComment);
     }
     catch (err) {
         // If invalid data, return validation error
@@ -197,7 +200,9 @@ router.get("/:commentId", async (req, res) => {
     }
 });
 
-// GET All Comments by Thread ID
+
+
+// GET All Comments by Thread ID with Users Who Liked the Comment
 router.get("/thread/:threadId", async (req, res) => {
     const { threadId } = req.params;
 
@@ -211,13 +216,33 @@ router.get("/thread/:threadId", async (req, res) => {
     }
 
     try {
+        // Fetch comments with associated users and likes
         const comments = await Comment.findAll({
             where: { threadId: threadIdInt },
-            include: [{ model: User, as: 'user', attributes: ['firstName', 'imageFile'] }] // Include user info
+            include: [
+                {
+                    model: User,
+                    as: 'user',
+                    attributes: ['firstName', 'imageFile']
+                },
+                {
+                    model: CommentLike,
+                    as: 'likes',
+                    attributes: ['userId'] // We only need the userId
+                }
+            ]
         });
-        res.json(comments);
-    }
-    catch (err) {
+
+        // Transform comments to include 'likes' as a list of userIds
+        const transformedComments = comments.map(comment => {
+            return {
+                ...comment.toJSON(),
+                likes: comment.likes.map(like => like.userId)
+            };
+        });
+
+        res.json(transformedComments);
+    } catch (err) {
         res.status(500).json({
             error: err.message
         });

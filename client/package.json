@@ -24,6 +24,7 @@
     "date-fns": "^3.6.0",
     "dayjs": "^1.11.12",
     "formik": "^2.4.6",
+    "jsonwebtoken": "^9.0.2",
     "nodemailer": "^6.9.14",
     "react": "^18.2.0",
     "react-chartjs-2": "^5.2.0",

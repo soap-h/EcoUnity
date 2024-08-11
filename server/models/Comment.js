@@ -43,6 +43,13 @@ module.exports = (sequelize, DataTypes) => {
             as: 'replies',
             onDelete: 'CASCADE', // delete all the child comments when the parent is deleted
         });
+
+
+        // A Comment can have many likes
+        Comment.hasMany(models.CommentLike, {
+            foreignKey: 'commentId',
+            as: 'likes'
+        });
     };
 
     return Comment;
