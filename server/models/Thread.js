@@ -51,7 +51,7 @@ module.exports = (sequelize, DataTypes) => {
             foreignKey: 'threadId',
             as: 'reports',
             onDelete: 'CASCADE'
-        })
+        });
     };
 
     return Thread;
