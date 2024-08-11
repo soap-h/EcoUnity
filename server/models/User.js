@@ -66,7 +66,6 @@ module.exports = (sequelize, DataTypes) => {
 
         User.hasMany(models.Tracker, {
             foreignKey: "userId",
-
             onDelete: "cascade"
         });
 
@@ -86,6 +85,11 @@ module.exports = (sequelize, DataTypes) => {
         User.hasMany(models.IncidentReporting, {
             foreignKey: "userId",
             as: 'incidentReports',
+            onDelete: 'cascade'
+        });
+        User.hasMany(models.IncidentReporting, {
+            foreignKey: "EditNoteId",
+            as: 'EditNoteUser',
             onDelete: 'cascade'
         });
 

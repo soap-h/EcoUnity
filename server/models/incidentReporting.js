@@ -15,6 +15,13 @@ module.exports = (sequelize, DataTypes) => {
         ActionTaken: {
             type: DataTypes.STRING(100),
         },
+
+        Note: {
+            type: DataTypes.STRING(500),
+        },
+        
+   
+        
         imageFile: {
             type: DataTypes.STRING(20)
             },
@@ -28,6 +35,10 @@ module.exports = (sequelize, DataTypes) => {
         IncidentReporting.belongsTo(models.User, {
             foreignKey: "userId",
             as: 'user'
+        });
+        IncidentReporting.belongsTo(models.User, {
+            foreignKey: "EditNoteId", // A different foreign key
+            as: 'EditNoteUser' // A different alias
         });
     };
     return IncidentReporting;
