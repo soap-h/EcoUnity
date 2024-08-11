@@ -82,6 +82,8 @@ const fileRoute = require('./routes/file');
 app.use("/file", fileRoute);
 const eventsRoute = require('./routes/events');
 app.use("/events", eventsRoute);
+const paymentRoute = require('./routes/payment');
+app.use('/payment', paymentRoute);
 const proposalsRoute = require('./routes/proposals'); 
 app.use("/proposals", proposalsRoute); 
 const adminRoute = require('./routes/admin')

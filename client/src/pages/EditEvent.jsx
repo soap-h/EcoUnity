@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { Box, TextField, Button, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
+import { Box, TextField, Button, FormControl, InputLabel, Select, MenuItem, List, ListItem } from '@mui/material';
 import { LocalizationProvider, DatePicker, TimePicker } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import usePlacesAutocomplete, { getGeocode, getLatLng } from 'use-places-autocomplete';
 import dayjs from 'dayjs';
 import http from '../http';
 
@@ -11,7 +12,7 @@ const EditEvent = ({ event, onClose }) => {
     const [date, setDate] = useState(dayjs(event.date));
     const [timeStart, setTimeStart] = useState(dayjs(event.timeStart, 'HH:mm:ss'));
     const [timeEnd, setTimeEnd] = useState(dayjs(event.timeEnd, 'HH:mm:ss'));
-    const [venue, setVenue] = useState(event.venue);
+    const [venue, setVenue] = useState(event.venue);  // Venue state
     const [price, setPrice] = useState(event.price);
     const [participants, setParticipants] = useState(event.participants);
     const [category, setCategory] = useState(event.category);
@@ -19,15 +20,65 @@ const EditEvent = ({ event, onClose }) => {
     const [registerEndDate, setRegisterEndDate] = useState(dayjs(event.registerEndDate));
     const [imageFile, setImageFile] = useState(null);
     const [existingImage, setExistingImage] = useState(event.imageFile);
+    const [location, setLocation] = useState({ lat: event.latitude, lng: event.longitude }); // Use event's location
+
+    const {
+        ready,
+        value,
+        suggestions: { status, data },
+        setValue,
+        clearSuggestions,
+    } = usePlacesAutocomplete({
+        requestOptions: {
+            location: { lat: () => 1.3521, lng: () => 103.8198 },
+            radius: 200 * 1000,
+        },
+        defaultValue: venue,
+    });
+
+    const handleSelect = async (address) => {
+        setValue(address, false);
+        clearSuggestions();
+
+        try {
+            const results = await getGeocode({ address });
+            const { lat, lng } = await getLatLng(results[0]);
+            setVenue(address);  // Set the venue state
+            setLocation({ lat, lng });
+        } catch (error) {
+            console.error('Error: ', error);
+        }
+    };
 
     const handleSubmit = async () => {
+        // Ensure venue is a string and has a valid value
+        let venueText = venue || '';
+    
+        if (typeof venueText !== 'string' || venueText.trim().length < 3) {
+            // Fetch address from latitude and longitude if venue is not properly set
+            const geocoder = new google.maps.Geocoder();
+            const latLng = new google.maps.LatLng(location.lat, location.lng);
+            const response = await new Promise((resolve, reject) => {
+                geocoder.geocode({ location: latLng }, (results, status) => {
+                    if (status === "OK" && results[0]) {
+                        resolve(results[0].formatted_address);
+                    } else {
+                        reject('Failed to fetch address');
+                    }
+                });
+            });
+            venueText = response;
+        }
+    
         const formData = new FormData();
         formData.append('title', title);
         formData.append('details', details);
         formData.append('date', date ? date.format('YYYY-MM-DD') : null);
         formData.append('timeStart', timeStart ? timeStart.format('HH:mm:ss') : null);
         formData.append('timeEnd', timeEnd ? timeEnd.format('HH:mm:ss') : null);
-        formData.append('venue', venue);
+        formData.append('venue', venueText);  // Use the processed venue text
+        formData.append('latitude', location.lat);
+        formData.append('longitude', location.lng);
         formData.append('price', price);
         formData.append('participants', participants);
         formData.append('category', category);
@@ -90,11 +141,21 @@ const EditEvent = ({ event, onClose }) => {
                     />
                     <TextField
                         label="Venue"
-                        value={venue}
-                        onChange={(e) => setVenue(e.target.value)}
+                        value={value}
+                        onChange={(e) => setValue(e.target.value)}
                         fullWidth
                         margin="normal"
+                        placeholder="Enter the venue"
                     />
+                    {status === 'OK' && (
+                        <List sx={{ maxHeight: 200, overflow: 'auto', marginTop: '10px' }}>
+                            {data.map(({ place_id, description }) => (
+                                <ListItem key={place_id} button onClick={() => handleSelect(description)}>
+                                    {description}
+                                </ListItem>
+                            ))}
+                        </List>
+                    )}
                     <TextField
                         label="Price"
                         type="number"
@@ -147,7 +208,7 @@ const EditEvent = ({ event, onClose }) => {
                     <Box mt={2}>
                         {existingImage && (
                             <img
-                                src={`${import.meta.env.VITE_FILE_BASE_URL}/${event.imageFile}`} 
+                                src={`${import.meta.env.VITE_FILE_BASE_URL}/${event.imageFile}`}
                                 alt={`Event ${event.id}'s current image`}
                                 style={{ height: '30%', width: '50%', borderRadius: '8px', marginBottom: '10px' }}
                             />
@@ -160,9 +221,6 @@ const EditEvent = ({ event, onClose }) => {
                     </Box>
                 </Box>
                 <Box display="flex" justifyContent="flex-end">
-                    <Button onClick={onClose} color="primary" variant="outlined" sx={{ mr: 1 }}>
-                        Cancel
-                    </Button>
                     <Button onClick={handleSubmit} color="primary" variant="contained">
                         Save Changes
                     </Button>
