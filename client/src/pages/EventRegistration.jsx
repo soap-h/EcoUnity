@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Box, Typography, Button, Card, CardContent, CardMedia, Grid, Divider } from '@mui/material';
+import { Box, Typography, Button, Card, CardContent, CardMedia, Grid, Divider, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
 import { Person, AttachMoney, CalendarToday, AccessTime, Room } from '@mui/icons-material';
 import http from '../http';
 import UserContext from '../contexts/UserContext';  // Assuming you have a UserContext to manage user state
@@ -9,6 +9,7 @@ function EventRegistration() {
     const { id } = useParams();
     const [event, setEvent] = useState(null);
     const [error, setError] = useState('');
+    const [isDialogOpen, setIsDialogOpen] = useState(false);
     const { user } = useContext(UserContext);  // Assuming UserContext provides the logged-in user
     const navigate = useNavigate();
 
@@ -32,23 +33,36 @@ function EventRegistration() {
             return;
         }
 
+        if (event.price === 0) {
+            setIsDialogOpen(true);  // Open the confirmation dialog if the event is free
+        } else {
+            proceedWithRegistration();
+        }
+    };
+
+    const proceedWithRegistration = async () => {
         if (event.registered < event.participants) {
             try {
                 await http.put(`/events/${id}/register`);
                 setEvent({ ...event, registered: event.registered + 1 });
                 
-                // Navigate to the payment page and pass the required data
-                navigate(`/event-payment/${id}`, {
-                    state: {
-                        amount: event.price,  // Assuming the event price is the amount to be paid
-                        currency: 'SGD',  // Replace with actual currency if it's dynamic
-                        eventTitle: event.title,
-                        eventDetails: event.details,
-                        eventDate: new Date(event.date).toDateString(),
-                        eventTime: `${event.timeStart} - ${event.timeEnd}`,
-                        eventVenue: event.venue
-                    }
-                });
+                if (event.price === 0) {
+                    // Navigate to a success page or a confirmation message if free
+                    navigate('/success');
+                } else {
+                    // Navigate to the payment page if the event has a price
+                    navigate(`/event-payment/${id}`, {
+                        state: {
+                            amount: event.price,
+                            currency: 'SGD',
+                            eventTitle: event.title,
+                            eventDetails: event.details,
+                            eventDate: new Date(event.date).toDateString(),
+                            eventTime: `${event.timeStart} - ${event.timeEnd}`,
+                            eventVenue: event.venue
+                        }
+                    });
+                }
             } catch (error) {
                 console.error('Failed to register for event:', error);
                 setError('Failed to register for event.');
@@ -91,7 +105,7 @@ function EventRegistration() {
                             <Box display="flex" alignItems="center">
                                 <AttachMoney sx={{ mr: 1 }} />
                                 <Typography>
-                                    {event.price}
+                                    {event.price === 0 ? 'FREE' : event.price}
                                 </Typography>
                             </Box>
                         </CardContent>
@@ -111,7 +125,7 @@ function EventRegistration() {
                     </Typography>
                     <Divider sx={{ my: 2 }} />
                     <Typography variant="h6" sx={{ mb: 1 }}>
-                        Workshop Programme:
+                        Programme Description:
                     </Typography>
                     <Typography variant="body1" sx={{ mb: 2 }}>
                         {event.details}
@@ -179,6 +193,22 @@ function EventRegistration() {
                     {error}
                 </Typography>
             )}
+
+            {/* Confirmation Dialog */}
+            <Dialog open={isDialogOpen} onClose={() => setIsDialogOpen(false)}>
+                <DialogTitle>Confirm Registration</DialogTitle>
+                <DialogContent>
+                    <Typography>Are you sure you want to register for this event?</Typography>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => setIsDialogOpen(false)} color="secondary">
+                        Cancel
+                    </Button>
+                    <Button onClick={proceedWithRegistration} color="primary">
+                        Confirm
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </Box>
     );
 }

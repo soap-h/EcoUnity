@@ -34,10 +34,10 @@ function Success() {
 
         if (sessionId) {
             verifyPayment();
-        } else {
-            setError('No session ID found.');
-            setLoading(false);
         }
+        else [
+            setLoading(false)
+        ]
     }, [sessionId]);
 
     if (loading) {
@@ -53,6 +53,19 @@ function Success() {
             <Box sx={{ padding: 4 }}>
                 <Typography variant="h4" color="error" gutterBottom>
                     {error}
+                </Typography>
+            </Box>
+        );
+    }
+
+    if (!sessionId) {
+        return (
+            <Box sx={{ padding: 4 }}>
+                <Typography variant="h4" gutterBottom>
+                    Registration Successful!
+                </Typography>
+                <Typography variant="body1">
+                    You may view your registered events under Profile.
                 </Typography>
             </Box>
         );
