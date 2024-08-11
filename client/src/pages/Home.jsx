@@ -3,6 +3,7 @@ import { AppBar, Toolbar, Typography, Box, Button, Menu, MenuItem, IconButton, I
 import MenuIcon from '@mui/icons-material/Menu';
 import SearchIcon from '@mui/icons-material/Search';
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 
 function Home() {
     const [anchorElEvents, setAnchorElEvents] = useState(null);
@@ -49,10 +50,12 @@ function Home() {
                     IN ONE PLACE
                 </Typography>
                 <Box sx={{ mt: 2 }}>
-                    <Button variant="contained" sx={{ mr: 2, backgroundColor: '#00796b' }}>
+                    <Button variant="contained" sx={{ mr: 2, backgroundColor: '#00796b' }} 
+                    component={Link} to="/locations">
                         EXPLORE
                     </Button>
-                    <Button variant="contained" sx={{ backgroundColor: '#212121' }}>
+                    <Button variant="contained" sx={{ backgroundColor: '#212121' }}
+                    component={Link} to="/learning">
                         LEARN MORE
                     </Button>
                 </Box>
