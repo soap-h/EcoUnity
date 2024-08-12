@@ -14,11 +14,6 @@ module.exports = (sequelize, DataTypes) => {
             default: 0
         },
 
-        FeedbackStatus: {
-            type: DataTypes.BOOLEAN,
-            defaultValue: false,
-            allowNull: false
-        },
     }, {
         tableName: 'registrations'
     });

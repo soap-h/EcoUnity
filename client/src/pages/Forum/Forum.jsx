@@ -350,7 +350,7 @@ function Forum() {
             <ForumHeader />
             <Grid container spacing={2}>
                 <ForumNavigation handleSortChange={handleSortChange}/>
-                <Grid item xs={8.86}>
+                <Grid item xs={7.86}>
                     <ForumSearchBar onSearchResults={handleSearchResults} sx={{ pb: 2}}/> {/* Add SearchBar here */}
                     {threadList.map((thread) => (
                         <ThreadCard
