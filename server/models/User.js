@@ -39,7 +39,7 @@ module.exports = (sequelize, DataTypes) => {
         goals: {
             type: DataTypes.INTEGER,
             allowNull: true,
-            defaultValue: 1000
+            defaultValue: 5000
         },
 
         goaltype: {

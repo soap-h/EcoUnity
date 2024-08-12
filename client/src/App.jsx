@@ -96,11 +96,7 @@ function App() {
       })
         .then((res) => {
           setUser(res.data.user);
-
-          // if (res.data.user.isAdmin) {
-          //   window.location = "/admin";
-          // }
-
+          
         }).catch(() => {
           localStorage.clear();
         }).finally(() => {
@@ -171,14 +167,14 @@ function App() {
           <Route path={"/editactivity/:id"} element={<EditActivity />} />
           <Route path={"/activities"} element={<Activities />} />
           <Route path={"/createactivity"} element={<CreateActivity />} />
-          <Route path={"/profile/:id"} element={user ? <Profile /> : <Navigate to="/login" />} />
+          <Route path={"/profile/:id"} element={user ? <Profile /> : <Navigate to="/" />} />
           <Route path={"/guestprofile/:id"} element={<GuestProfile />} />
           <Route path={"/inbox"} element={<Inbox />} />
           <Route path={"/addinbox"} element={<AddInboxMessage />} />
           <Route path="/admin/manageusers" element={<ManageUsers />} />
           <Route path="/admin/trackerdashboard" element={<TrackerDashboard />} />
           <Route path={"/AddincidentReporting"} element={<AddIncidentReport />} />
-          <Route path={"/addfeedback"} element={<AddFeedback />} />
+          <Route path={"/addfeedback/:id"} element={<AddFeedback />} />
           <Route path={"/admin/IncidentReportAdmin"} element={<IncidentReportingUsers />} />
           <Route path={"/admin/IncidentReportAdmin/:id"} element={<IndividualReport />} />
           <Route path={"/admin/FeedbackAdmin"} element={<FeedbackAdmin />} />

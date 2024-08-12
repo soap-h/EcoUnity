@@ -38,7 +38,7 @@ function Trackers() {
   const [trackerList, setTrackerList] = useState([]);
   const [hoveredId, setHoveredId] = useState(null);
   const [selectedId, setSelectedId] = useState(null);
-  const [goal, setGoal] = useState(1000);
+  const [goal, setGoal] = useState(5000);
   const [goalType, setGoalType] = useState("monthly");
   const [tempGoal, setTempGoal] = useState(goal);
   const [tempGoalType, setTempGoalType] = useState(goalType);
@@ -199,10 +199,12 @@ function Trackers() {
 
 
   useEffect(() => {
-    console.log('Total Points:', totalPoints, 'Goal:', goal, 'Goal Hit:', goalHit);
+    const totalPoints = userTrackers.reduce((total, tracker) => total + tracker.points, 0);
+    console.log(totalPoints)
     if (totalPoints >= goal && !goalHit) {
       setGoalHit(true);
       toast.success("You hit your goal!");
+      console.log('Total Points:', totalPoints, 'Goal:', goal, 'Goal Hit:', goalHit);
 
       const timeout = setTimeout(() => {
         setGoalHit(false);
@@ -431,7 +433,7 @@ function Trackers() {
               </Button>
             </DialogActions>
           </Dialog>
-          <Box sx={{ position: "sticky", bottom: 16, right: 16, zIndex: 1, textAlign: 'right' }}> {/* Sticky add button */}
+          <Box sx={{ position: "sticky", bottom: 16, right: 16, zIndex: 1, textAlign: 'right' }}>
             <Button onClick={handleOpenAddDialog} color="primary" sx={{ backgroundColor: '#eee' }}><Add sx={{ color: "#5A9895" }} /></Button>
             <AddActivity open={openAddDialog} handleClose={handleCloseAddDialog} activities={activities} onActivityAdded={addActivity} />
           </Box>
