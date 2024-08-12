@@ -6,7 +6,7 @@ import { Search, Clear, Edit, Add } from '@mui/icons-material';
 import dayjs from 'dayjs';
 import global from '../global';
 import http from '../http';
-import AdminSidebar from '../components/AdminSidebar'; // Import the AdminSidebar component
+import AdminSidebar from '../components/AdminSidebar'; 
 
 function Activities() {
     const [trackerList, setTrackerList] = useState([]);

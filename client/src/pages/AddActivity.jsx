@@ -1,17 +1,14 @@
-import React,{ useEffect, useState } from 'react';
-import { Dialog, DialogTitle, DialogContent, DialogActions, Button, Typography, TextField, MenuItem, Select, FormControl, InputLabel } from '@mui/material';
+import React, { useState } from 'react';
+import { Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField, MenuItem, Select, FormControl, InputLabel, Box } from '@mui/material';
 import { useFormik } from 'formik';
 import * as yup from 'yup';
-import { toast } from 'react-toastify';  // Import toast
-import 'react-toastify/dist/ReactToastify.css'; // Import toast styles
-
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 import http from '../http';
 import { useNavigate } from 'react-router-dom';
 
-
-
-function AddActivity({ open, handleClose, activities }) {
+function AddActivity({ open, handleClose, activities, onActivityAdded }) {
     const [selectedActivity, setSelectedActivity] = useState('');
     const [activityPoints, setActivityPoints] = useState('');
     const navigate = useNavigate();
@@ -36,7 +33,8 @@ function AddActivity({ open, handleClose, activities }) {
             http.post("/tracker", trackerData)
                 .then(() => {
                     toast.success('Activity added successfully');
-                    handleClose(); 
+                    handleClose();
+                    onActivityAdded(trackerData);
                     navigate("/tracker");
                 }).catch(error => {
                     toast.error('Failed to add activity');
@@ -52,55 +50,57 @@ function AddActivity({ open, handleClose, activities }) {
     };
 
     return (
-        <Dialog open={open} onClose={handleClose}>
+        <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
             <DialogTitle>Add Activity to Tracker</DialogTitle>
             <DialogContent>
-                <FormControl fullWidth margin="dense">
-                    <InputLabel id="activity-label">Activity</InputLabel>
-                    <Select
-                        labelId="activity-label"
-                        label="Activity"
-                        name="activity"
-                        value={formik.values.activity}
-                        onChange={(e) => {
-                            formik.handleChange(e);
-                            handleActivityChange(e);
+                <Box sx={{ minWidth: 300 }}>
+                    <FormControl fullWidth margin="dense">
+                        <InputLabel id="activity-label">Activity</InputLabel>
+                        <Select
+                            labelId="activity-label"
+                            label="Activity"
+                            name="activity"
+                            value={formik.values.activity}
+                            onChange={(e) => {
+                                formik.handleChange(e);
+                                handleActivityChange(e);
+                            }}
+                            onBlur={formik.handleBlur}
+                            error={formik.touched.activity && Boolean(formik.errors.activity)}
+                        >
+                            {activities.map((activity) => (
+                                <MenuItem key={activity.id} value={activity.id}>
+                                    {activity.title}
+                                </MenuItem>
+                            ))}
+                        </Select>
+                    </FormControl>
+                    <TextField
+                        fullWidth
+                        margin="dense"
+                        label="Points"
+                        name="points"
+                        value={activityPoints}
+                        InputProps={{
+                            readOnly: true,
                         }}
+                    />
+                    <TextField
+                        fullWidth
+                        margin="dense"
+                        label="Date"
+                        type="date"
+                        name="date"
+                        value={formik.values.date}
+                        onChange={formik.handleChange}
                         onBlur={formik.handleBlur}
-                        error={formik.touched.activity && Boolean(formik.errors.activity)}
-                    >
-                        {activities.map((activity) => (
-                            <MenuItem key={activity.id} value={activity.id}>
-                                {activity.title}
-                            </MenuItem>
-                        ))}
-                    </Select>
-                </FormControl>
-                <TextField
-                    fullWidth
-                    margin="dense"
-                    label="Points"
-                    name="points"
-                    value={activityPoints}
-                    InputProps={{
-                        readOnly: true,
-                    }}
-                />
-                <TextField
-                    fullWidth
-                    margin="dense"
-                    label="Date"
-                    type="date"
-                    name="date"
-                    value={formik.values.date}
-                    onChange={formik.handleChange}
-                    onBlur={formik.handleBlur}
-                    error={formik.touched.date && Boolean(formik.errors.date)}
-                    helperText={formik.touched.date && formik.errors.date}
-                    InputLabelProps={{
-                        shrink: true,
-                    }}
-                />
+                        error={formik.touched.date && Boolean(formik.errors.date)}
+                        helperText={formik.touched.date && formik.errors.date}
+                        InputLabelProps={{
+                            shrink: true,
+                        }}
+                    />
+                </Box>
             </DialogContent>
             <DialogActions>
                 <Button onClick={handleClose} color="inherit">Cancel</Button>

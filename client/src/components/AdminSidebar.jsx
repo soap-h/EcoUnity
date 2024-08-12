@@ -1,5 +1,5 @@
-import React from 'react';
-import { Box, List, ListItem, ListItemIcon, ListItemText, Avatar, Typography, Divider } from '@mui/material';
+import React, { useState, useContext } from 'react';
+import { Box, List, ListItem, ListItemIcon, ListItemText, Avatar, Divider, IconButton, Menu, MenuItem, Typography } from '@mui/material';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import DataSaverOffIcon from '@mui/icons-material/DataSaverOff';
 import EventIcon from '@mui/icons-material/Event';
@@ -11,9 +11,28 @@ import QuizIcon from '@mui/icons-material/Quiz';
 import ShoppingBagIcon from '@mui/icons-material/ShoppingBag';
 import LogoutIcon from '@mui/icons-material/Logout';
 import EcoUnityLogo from '../assets/Eco Unity.png';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import UserContext from '../contexts/UserContext';
 
-const AdminSidebar = ({ username }) => {
+const AdminSidebar = () => {
+    const navigate = useNavigate();
+    const { user } = useContext(UserContext);
+    const [anchorEl, setAnchorEl] = useState(null);
+
+    const handleMenuOpen = (event) => {
+        setAnchorEl(event.currentTarget);
+    };
+
+    const handleMenuClose = () => {
+        setAnchorEl(null);
+    };
+
+    const logout = () => {
+        localStorage.clear();
+        navigate("/");  // Navigate to home after logging out
+        window.location.reload();  // Force a reload to clear any cached user data
+    };
+
     return (
         <Box sx={{ width: 240, height: '95vh', backgroundColor: '#5a9895', borderRadius: '20px', margin: 2, color: 'white', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', overflow: 'hidden' }}>
             <Box>
@@ -83,12 +102,30 @@ const AdminSidebar = ({ username }) => {
                 </Box>
             </Box>
             <Box sx={{ backgroundColor: 'rgba(0, 0, 0, 0.1)', padding: 2, borderRadius: '0 0 20px 20px' }}>
-                <ListItem button component={Link} to="/logout">
-                    <ListItemIcon sx={{ color: 'white' }}>
-                        <LogoutIcon />
-                    </ListItemIcon>
-                    <ListItemText primary="Logout" />
-                </ListItem>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <ListItem button component={Link} to="/" sx={{ flexGrow: 1 }}>
+                        <ListItemIcon sx={{ color: 'white' }}>
+                            <LogoutIcon />
+                        </ListItemIcon>
+                        <ListItemText primary="Exit" />
+                    </ListItem>
+                    <IconButton color="inherit" onClick={handleMenuOpen} sx={{ ml: 1 }}>
+                        <Avatar
+                            alt={`${user.firstName} ${user.lastName}`}
+                            src={`${import.meta.env.VITE_FILE_PROFILE_URL}${user.imageFile}`}
+                            sx={{ width: 40, height: 40 }}
+                        />
+                    </IconButton>
+                    <Menu
+                        anchorEl={anchorEl}
+                        open={Boolean(anchorEl)}
+                        onClose={handleMenuClose}
+                    >
+                        <MenuItem onClick={() => { handleMenuClose(); navigate(`/profile/${user.id}`) }}>Profile</MenuItem>
+                        <MenuItem onClick={() => { handleMenuClose(); navigate('/inbox') }}>Inbox</MenuItem>
+                        <MenuItem onClick={() => { handleMenuClose(); logout(); }}>Logout</MenuItem>
+                    </Menu>
+                </Box>
             </Box>
         </Box>
     );

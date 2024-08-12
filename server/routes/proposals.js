@@ -2,7 +2,7 @@
 const express = require('express');
 const router = express.Router();
 const { Proposal, User } = require('../models');
-const { upload } = require('../middleware/upload');
+const { upload } = require('../middlewares/upload');
 const { validateToken } = require('../middlewares/auth');
 
 router.post('/', validateToken, upload, async (req, res) => {

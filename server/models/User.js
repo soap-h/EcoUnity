@@ -101,6 +101,13 @@ module.exports = (sequelize, DataTypes) => {
             onDelete: 'CASCADE'
         });
 
+        // User can have many comment likes 
+        User.hasMany(models.CommentLike, {
+            foreignKey: 'userId',
+            as: 'likedComments'
+        });
+        });
+
         // One-to-Many Relationship with Cart Table
         User.hasMany(models.Cart, {
             foreignKey: "userId",

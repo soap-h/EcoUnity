@@ -9,7 +9,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import ThreadCard from '../../components/Forum/ThreadCard';
 import UserContext from '../../contexts/UserContext';
-
+import ForumHeader from '../../components/Forum/ForumHeader';
 
 function ForumByCategory() {
     const { category } = useParams();
@@ -169,16 +169,10 @@ function ForumByCategory() {
 
     return (
         <Box sx={{p:4}}>
-            <ForumBigPicture />
+            <ForumHeader/>
             <Grid container spacing={2} sx={{ my: 2 }}>
                 <ForumNavigation />
                 <Grid item xs={9}>
-                    <Link to="/addthread">
-                        <Button variant="contained" startIcon={<AddIcon />} fullWidth sx={{ mb: 2 }}>
-                            Add a new thread
-                        </Button>
-                    </Link>
-
                     {categoryThreadList.length === 0 ? (
                         <Grid>
                             <Typography variant="h6" sx={{ mt: 2 }}>
