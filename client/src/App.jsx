@@ -38,6 +38,8 @@ import CartLayout from './components/CartLayout.jsx'; // Import the CartLayout c
 import ProductPage from './pages/ProductPage.jsx';
 import OrderConfirm from './pages/OrderConfirm.jsx'
 
+import AddLesson from './pages/AddLesson.jsx';
+
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements } from '@stripe/react-stripe-js';
 
@@ -78,6 +80,7 @@ import IncidentReportingUsers from './pages/IncidentReportingAdmin';
 import IndividualReport from "./pages/IndividualReport";
 import FeedbackAdmin from "./pages/FeedbackAdmin";
 import IndividualFeedback from "./pages/IndividualFeedback";
+import PurchaseHistory from "./pages/PurchaseHistory.jsx";
 import PrivateThreads from "./pages/Forum/PrivateThreads.jsx";
 function App() {
   const [user, setUser] = useState(null);
@@ -93,11 +96,7 @@ function App() {
       })
         .then((res) => {
           setUser(res.data.user);
-
-          // if (res.data.user.isAdmin) {
-          //   window.location = "/admin";
-          // }
-
+          
         }).catch(() => {
           localStorage.clear();
         }).finally(() => {
@@ -146,8 +145,8 @@ function App() {
           {/* <Route path={"/forums"} element={<Forums />} /> */}
           <Route path={"/learning"} element={<Learning />} />
           <Route path={"/adminpage"} element={<AdminPage />} />
-          <Route path={"/reviews/:id"} element={<Reviews />} />
-
+          <Route path={"/reviews/:productId"} element={<Reviews />} />
+          
           <Route element={<CartLayout />}>
             <Route path={"/merchandise"} element={<Merchandise />} />
             <Route path={"/products/:id"} element={<ProductPage />} />
@@ -156,24 +155,31 @@ function App() {
             <Route path={"/orderconfirm"} element={<OrderConfirm />} />
           </Route>
 
+          <Route path={"/purchasehistory"} element={<PurchaseHistory/>}/>
+
+
+          <Route path={"/login"} element={<Login />} />
+          <Route path={"/register"} element={<Register />} />
+          
           {/* <Route path={"/locations"} element={<Locations />} /> */}
           <Route path={"/tracker"} element={<Trackers />} />
           <Route path={"/addactivity"} element={<AddActivity />} />
           <Route path={"/editactivity/:id"} element={<EditActivity />} />
           <Route path={"/activities"} element={<Activities />} />
           <Route path={"/createactivity"} element={<CreateActivity />} />
-          <Route path={"/profile/:id"} element={user ? <Profile /> : <Navigate to="/login" />} />
+          <Route path={"/profile/:id"} element={user ? <Profile /> : <Navigate to="/" />} />
           <Route path={"/guestprofile/:id"} element={<GuestProfile />} />
           <Route path={"/inbox"} element={<Inbox />} />
           <Route path={"/addinbox"} element={<AddInboxMessage />} />
           <Route path="/admin/manageusers" element={<ManageUsers />} />
           <Route path="/admin/trackerdashboard" element={<TrackerDashboard />} />
           <Route path={"/AddincidentReporting"} element={<AddIncidentReport />} />
-          <Route path={"/addfeedback"} element={<AddFeedback />} />
+          <Route path={"/addfeedback/:id"} element={<AddFeedback />} />
           <Route path={"/admin/IncidentReportAdmin"} element={<IncidentReportingUsers />} />
           <Route path={"/admin/IncidentReportAdmin/:id"} element={<IndividualReport />} />
           <Route path={"/admin/FeedbackAdmin"} element={<FeedbackAdmin />} />
           <Route path={"/admin/FeedbackAdmin/:id"} element={<IndividualFeedback />} />
+          <Route path={"/admin/AddLesson"} element={<AddLesson />} />
 
 
           {/* Forum/Thread Routes */}

@@ -143,7 +143,7 @@ router.get("/month", async (req, res) => {
   try {
     const trackers = await Tracker.findAll({
       where: {
-        createdAt: {
+        date: {
           [Op.gte]: startOfMonth
         }
       },
@@ -162,7 +162,7 @@ router.get("/week", async (req, res) => {
   try {
     const trackers = await Tracker.findAll({
       where: {
-        createdAt: {
+        date: {
           [Op.gte]: startOfWeek
         }
       },

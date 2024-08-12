@@ -75,7 +75,15 @@ app.post('/create-payment-intent', async (req, res) => {
 
 // Routes
 const productRoute = require('./routes/products');
-app.use("/products", productRoute);
+app.use("/products", productRoute); 
+const reviewRoute = require('./routes/reviews');
+app.use("/reviews", reviewRoute);
+
+const purchaseRoute = require('./routes/purchase');
+app.use("/purchase", purchaseRoute);
+const lessonRoute = require('./routes/lesson');
+app.use("/lesson", lessonRoute);
+
 const userRoute = require('./routes/user');
 app.use("/user", userRoute);
 const fileRoute = require('./routes/file');

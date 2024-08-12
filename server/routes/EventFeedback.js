@@ -1,27 +1,40 @@
 const express = require('express');
 const router = express.Router();
-const { User, EventFeedback } = require('../models');
+const { User, EventFeedback, Registration } = require('../models');
 const { Op } = require("sequelize");
 const yup = require("yup");
 const { validateToken } = require('../middlewares/auth');
 
-router.post("/", validateToken, async (req, res) => {
+router.post("/:id", validateToken, async (req, res) => {
     let data = req.body;
     data.userId = req.user.id;
+    data.eventId = req.params.id;
+    console.log(data.eventId);
     let validationSchema = yup.object({
         EventName: yup.string().trim().min(3).max(100).required(),
         Improvement: yup.string().trim().min(3).max(500).required(),
         Enjoy: yup.string().trim().min(3).max(100).required(),
-        rating: yup.number().min(1).max(10).required()
+        rating: yup.number().min(1).max(10).required(),
+        eventId: yup.number().required()
     });
     try {
-        data = await validationSchema.validate(data,
-            { abortEarly: false });
-        // Process valid data
-        let result = await EventFeedback.create(data);
-        res.json(result);
-    }
-    catch (err) {
+        data = await validationSchema.validate(data, { abortEarly: false });
+
+        // Create EventFeedback record
+        let feedback = await EventFeedback.create(data);
+
+        // Update the Registration record to indicate feedback has been given
+        await Registration.update(
+            { feedback: 1 }, 
+            { 
+                where: { 
+                    id: data.eventId 
+                } 
+            }
+        );
+
+        res.json(feedback);
+    } catch (err) {
         res.status(400).json({ errors: err.errors });
     }
 });

@@ -29,13 +29,20 @@ module.exports = (sequelize, DataTypes) => {
             allowNull: true
         }
     }, {
-        tableName: 'reviews'
+        tableName: 'reviews',
+        indexes: [
+            {
+                unique: true,
+                fields: ['userId', 'productId']
+            }
+        ]
     });
 
     Review.associate = (models) => {
         Review.belongsTo(models.User, {
             foreignKey: "userId",
-            onDelete: "cascade"
+            onDelete: "cascade",
+            as: "user"
         });
         Review.belongsTo(models.Product, {
             foreignKey: "productId",

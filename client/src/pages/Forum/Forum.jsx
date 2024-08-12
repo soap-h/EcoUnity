@@ -205,6 +205,7 @@ function Forum() {
                 'recipient': `${recipientEmail}`,
                 'date': `${new Date()}`,
                 'category': "forum",
+                'unread': 1
             };
             await http.post("/inbox", message);
 
