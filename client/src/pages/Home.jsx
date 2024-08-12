@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Typography, Box, Button, Paper, Grid } from '@mui/material';
 import http from "../http";
 import { keyframes } from '@mui/system';
+import { Link } from 'react-router-dom';
 
 
 const fadeIn = keyframes`
@@ -41,7 +42,7 @@ function Home() {
             <Box
                 component="div"
                 sx={{
-                    height: 'calc(100vh - 128px)', 
+                    height: 'calc(100vh - 128px)',
                     backgroundImage: 'url(/src/assets/home-background.png)',
                     backgroundSize: 'cover',
                     backgroundPosition: 'center',
@@ -62,23 +63,23 @@ function Home() {
                     IN ONE PLACE
                 </Typography>
                 <Box sx={{ mt: 2 }}>
-                    <Button 
-                        variant="contained" 
-                        sx={{ 
-                            mr: 2, 
+                    <Button
+                        variant="contained"
+                        sx={{
+                            mr: 2,
                             backgroundColor: '#00796b',
                             animation: `${fadeIn} 2s ease-out 1s`,
-                            '&:hover': { transform: 'scale(1.05)' } 
+                            '&:hover': { transform: 'scale(1.05)' }
                         }}
                     >
                         EXPLORE
                     </Button>
-                    <Button 
-                        variant="contained" 
-                        sx={{ 
+                    <Button
+                        variant="contained"
+                        sx={{
                             backgroundColor: '#212121',
                             animation: `${fadeIn} 2s ease-out 1.5s`,
-                            '&:hover': { transform: 'scale(1.05)' } 
+                            '&:hover': { transform: 'scale(1.05)' }
                         }}
                     >
                         LEARN MORE
@@ -86,39 +87,56 @@ function Home() {
                 </Box>
             </Box>
 
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 4, p: 2 }}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 4, p: 2, backgroundColor: "#D7CAB7" }}>
 
                 <Paper sx={{ width: '20%', p: 2, animation: `${slideIn} 1s ease-out` }}>
                     <Typography variant="h6" gutterBottom>
                         I'M LOOKING FOR
                     </Typography>
                     <Box>
-                        <Button fullWidth sx={{ mb: 1 }}>A Community Centre (CC)</Button>
-                        <Button fullWidth sx={{ mb: 1 }}>Events</Button>
-                        <Button fullWidth sx={{ mb: 1 }}>Forum</Button>
-                        <Button fullWidth sx={{ mb: 1 }}>Incident Reporting</Button>
-                        <Button fullWidth sx={{ mb: 1 }}>Learning</Button>
-                        <Button fullWidth sx={{ mb: 1 }}>Merchandise</Button>
-                        <Button fullWidth sx={{ mb: 1 }}>Personal Eco-Tracker</Button>
+                        <Link to="/community-centre" style={{ textDecoration: 'none' }}>
+                            <Button fullWidth sx={{ mb: 1 }}>A Community Centre (CC)</Button>
+                        </Link>
+                        <Link to="/events" style={{ textDecoration: 'none' }}>
+                            <Button fullWidth sx={{ mb: 1 }}>Events</Button>
+                        </Link>
+                        <Link to="/forum" style={{ textDecoration: 'none' }}>
+                            <Button fullWidth sx={{ mb: 1 }}>Forum</Button>
+                        </Link>
+                        <Link to="/incident-reporting" style={{ textDecoration: 'none' }}>
+                            <Button fullWidth sx={{ mb: 1 }}>Incident Reporting</Button>
+                        </Link>
+                        <Link to="/learning" style={{ textDecoration: 'none' }}>
+                            <Button fullWidth sx={{ mb: 1 }}>Learning</Button>
+                        </Link>
+                        <Link to="/merchandise" style={{ textDecoration: 'none' }}>
+                            <Button fullWidth sx={{ mb: 1 }}>Merchandise</Button>
+                        </Link>
+                        <Link to="/eco-tracker" style={{ textDecoration: 'none' }}>
+                            <Button fullWidth sx={{ mb: 1 }}>Personal Eco-Tracker</Button>
+                        </Link>
                     </Box>
                 </Paper>
 
+
                 <Box sx={{ width: '55%', p: 2, animation: `${slideIn} 1.5s ease-out` }}>
-                    <Box
-                        sx={{
-                            backgroundImage: 'url(/src/assets/ccimages/ecounitybanner.png)', 
-                            backgroundSize: 'cover',
-                            backgroundPosition: 'center',
-                            height: '400px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            color: '#ffffff',
-                            textAlign: 'center',
-                            animation: `${fadeIn} 2s ease-out`,
-                        }}
-                    >
-                    </Box>
+                    <Link to="/your-target-route" style={{ textDecoration: 'none', display: 'block' }}>
+                        <Box
+                            sx={{
+                                backgroundImage: 'url(/src/assets/ccimages/ecounitybanner.png)',
+                                backgroundSize: 'cover',
+                                backgroundPosition: 'center',
+                                height: '400px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                color: '#ffffff',
+                                textAlign: 'center',
+                                animation: `${fadeIn} 2s ease-out`,
+                            }}
+                        >
+                        </Box>
+                    </Link>
                 </Box>
 
                 <Paper sx={{ width: '20%', p: 2, animation: `${slideIn} 2s ease-out` }}>
@@ -144,15 +162,51 @@ function Home() {
                     Our CCs
                 </Typography>
                 <Grid container spacing={2}>
-                    {['cc1.png', 'cc2.png', 'cc3.png', 'cc4.png', 'cc5.png', 'cc6.png'].map((ccImage, index) => (
-                        <Grid item xs={6} sm={4} key={index} sx={{ animation: `${slideIn} 2s ease-out` }}>
-                            <Paper>
-                                <img src={`/src/assets/ccimages/${ccImage}`} alt={`Community Centre ${index + 1}`} style={{ width: '100%' }} />
+                    <Grid item xs={6} sm={4} sx={{ animation: `${slideIn} 2s ease-out` }}>
+                        <Link to="/community-centre/1" style={{ textDecoration: 'none' }}>
+                            <Paper sx={{ cursor: 'pointer' }}>
+                                <img src="/src/assets/ccimages/cc1.png" alt="Community Centre 1" style={{ width: '100%' }} />
                             </Paper>
-                        </Grid>
-                    ))}
+                        </Link>
+                    </Grid>
+                    <Grid item xs={6} sm={4} sx={{ animation: `${slideIn} 2s ease-out` }}>
+                        <Link to="/community-centre/2" style={{ textDecoration: 'none' }}>
+                            <Paper sx={{ cursor: 'pointer' }}>
+                                <img src="/src/assets/ccimages/cc2.png" alt="Community Centre 2" style={{ width: '100%' }} />
+                            </Paper>
+                        </Link>
+                    </Grid>
+                    <Grid item xs={6} sm={4} sx={{ animation: `${slideIn} 2s ease-out` }}>
+                        <Link to="/community-centre/3" style={{ textDecoration: 'none' }}>
+                            <Paper sx={{ cursor: 'pointer' }}>
+                                <img src="/src/assets/ccimages/cc3.png" alt="Community Centre 3" style={{ width: '100%' }} />
+                            </Paper>
+                        </Link>
+                    </Grid>
+                    <Grid item xs={6} sm={4} sx={{ animation: `${slideIn} 2s ease-out` }}>
+                        <Link to="/community-centre/4" style={{ textDecoration: 'none' }}>
+                            <Paper sx={{ cursor: 'pointer' }}>
+                                <img src="/src/assets/ccimages/cc4.png" alt="Community Centre 4" style={{ width: '100%' }} />
+                            </Paper>
+                        </Link>
+                    </Grid>
+                    <Grid item xs={6} sm={4} sx={{ animation: `${slideIn} 2s ease-out` }}>
+                        <Link to="/community-centre/5" style={{ textDecoration: 'none' }}>
+                            <Paper sx={{ cursor: 'pointer' }}>
+                                <img src="/src/assets/ccimages/cc5.png" alt="Community Centre 5" style={{ width: '100%' }} />
+                            </Paper>
+                        </Link>
+                    </Grid>
+                    <Grid item xs={6} sm={4} sx={{ animation: `${slideIn} 2s ease-out` }}>
+                        <Link to="/community-centre/6" style={{ textDecoration: 'none' }}>
+                            <Paper sx={{ cursor: 'pointer' }}>
+                                <img src="/src/assets/ccimages/cc6.png" alt="Community Centre 6" style={{ width: '100%' }} />
+                            </Paper>
+                        </Link>
+                    </Grid>
                 </Grid>
             </Box>
+
         </Box>
     );
 }

@@ -39,6 +39,19 @@ function Inbox() {
 
     const handleSelectMail = (mail) => {
         setSelectedMail(mail);
+        if (mail.unread === 1) {
+            markAsRead(mail.id);
+        }
+    };
+
+    const markAsRead = (id) => {
+        http.put(`/inbox/${id}/read`).then(() => {
+            setMails(prevMails =>
+                prevMails.map(mail =>
+                    mail.id === id ? { ...mail, unread: 0 } : mail
+                )
+            );
+        }).catch(err => console.error("Failed to mark mail as read:", err));
     };
 
     const filterMails = (category) => {
@@ -98,22 +111,22 @@ function Inbox() {
                             onClick={() => handleSelectMail(mail)}
                             selected={selectedMail && mail.id === selectedMail.id}
                             sx={{
-                                bgcolor: selectedMail && mail.id === selectedMail.id ? 'action.selected' : 'transparent',
+                                bgcolor: mail.unread ? '#e3f2fd' : 'transparent',
                                 display: 'flex',
                                 alignItems: 'center',
-                                borderLeft: selectedMail && mail.id === selectedMail.id ? '4px solid #1976d2' : 'none',  // Highlight selected item
+                                borderLeft: selectedMail && mail.id === selectedMail.id ? '4px solid #1976d2' : 'none', 
                                 transition: 'background-color 0.3s, border-left 0.3s',
                             }}
                         >
                             <ListItemAvatar>
-                                <Avatar sx={{ bgcolor: 'primary.main' }}>{mail.title[0]}</Avatar>
+                                <Avatar>{mail.title[0]}</Avatar>
                             </ListItemAvatar>
                             <ListItemText
                                 primary={mail.title}
                                 secondary={`From: ${getUserEmailById(mail.userId)}`}
                                 sx={{
                                     '& .MuiListItemText-primary': {
-                                        fontWeight: selectedMail && mail.id === selectedMail.id ? 'bold' : 'normal',
+                                        fontWeight: mail.unread ? 'bold' : 'normal',
                                     },
                                     '& .MuiListItemText-secondary': {
                                         color: selectedMail && mail.id === selectedMail.id ? 'text.primary' : 'text.secondary',
@@ -140,7 +153,7 @@ function Inbox() {
                     <Button onClick={confirmDeleteMail} color="error">Delete</Button>
                 </DialogActions>
             </Dialog>
-            {selectedMail && (
+            {selectedMail ? (
                 <Paper elevation={3} sx={{ flex: 1, p: 3, bgcolor: 'background.paper', borderRadius: 2 }}>
                     <Typography variant="h5" sx={{ mb: 2, borderBottom: '2px solid #1976d2', pb: 1 }}>{selectedMail.title}</Typography>
                     <Typography variant="subtitle1" sx={{ mb: 2, color: 'text.secondary' }}>
@@ -148,6 +161,12 @@ function Inbox() {
                     </Typography>
                     <Typography variant="body1" sx={{ lineHeight: 1.6 }}>
                         {selectedMail.content}
+                    </Typography>
+                </Paper>
+            ) : (
+                <Paper elevation={3} sx={{ flex: 1, p: 3, bgcolor: 'background.paper', borderRadius: 2, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                    <Typography variant="body1" sx={{ color: 'text.secondary' }}>
+                        Select a message to view its content.
                     </Typography>
                 </Paper>
             )}

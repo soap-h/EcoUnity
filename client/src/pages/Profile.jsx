@@ -35,7 +35,7 @@ function Profile() {
             const participatedData = participatedResponse.data;
             const eventsData = eventsResponse.data;
 
-            // Link the eventId from participated events to the events data
+            
             const linkedEvents = participatedData.map(pe => {
                 const eventDetails = eventsData.find(event => event.id === pe.eventId);
                 return {
