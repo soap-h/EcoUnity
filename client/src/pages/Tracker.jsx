@@ -498,7 +498,7 @@ function Trackers() {
           <Button onClick={handleCloseEditDialog} color="inherit">
             Cancel
           </Button>
-          <Button onClick={handleGoalChange} sx={{ bgcolor: "#5A9895", "&:hover": { bgcolor: "#497c7a" } }}>
+          <Button onClick={handleGoalChange} sx={{ color:'#eee', bgcolor: "#5A9895", "&:hover": { bgcolor: "#497c7a" } }}>
             Save
           </Button>
         </DialogActions>
