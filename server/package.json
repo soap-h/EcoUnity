@@ -13,7 +13,7 @@
   "license": "ISC",
   "dependencies": {
     "@stripe/react-stripe-js": "^2.7.3",
-    "@stripe/stripe-js": "^4.1.0",
+    "@stripe/stripe-js": "^4.2.0",
     "bcrypt": "^5.1.1",
     "chart.js": "^4.4.3",
     "cors": "^2.8.5",
@@ -27,7 +27,7 @@
     "nodemailer": "^6.9.14",
     "react-chartjs-2": "^5.2.0",
     "sequelize": "^6.37.3",
-    "stripe": "^16.5.0",
+    "stripe": "^16.7.0",
     "yup": "^1.4.0"
   },
   "devDependencies": {

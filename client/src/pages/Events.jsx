@@ -52,7 +52,19 @@ function Events() {
         const fetchEvents = async () => {
             try {
                 const response = await http.get('/events');
-                setEvents(response.data);
+                const currentDateTime = new Date();
+
+                // Filter the events to show only those that haven't ended yet
+                const upcomingEvents = response.data.filter(event => {
+                    const eventDate = new Date(event.date);
+                    const [endHour, endMinute] = event.timeEnd.split(':').map(Number);
+                    eventDate.setHours(endHour);
+                    eventDate.setMinutes(endMinute);
+
+                    return eventDate >= currentDateTime;
+                });
+
+                setEvents(upcomingEvents);
             } catch (error) {
                 console.error('Failed to fetch events:', error);
             }
@@ -178,4 +190,4 @@ function Events() {
     );
 }
 
-export default Events
+export default Events;
