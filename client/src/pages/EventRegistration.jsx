@@ -27,7 +27,7 @@ function EventRegistration() {
         fetchEvent();
     }, [id]);
 
-    const handleRegister = async () => {
+    const handleRegister = () => {
         if (!user) {
             navigate('/login');  // Redirect to login if the user is not logged in
             return;
@@ -36,39 +36,36 @@ function EventRegistration() {
         if (event.price === 0) {
             setIsDialogOpen(true);  // Open the confirmation dialog if the event is free
         } else {
-            proceedWithRegistration();
+            navigateToPayment();
         }
     };
 
-    const proceedWithRegistration = async () => {
-        if (event.registered < event.participants) {
-            try {
-                await http.put(`/events/${id}/register`);
-                setEvent({ ...event, registered: event.registered + 1 });
-                
-                if (event.price === 0) {
-                    // Navigate to a success page or a confirmation message if free
-                    navigate('/success');
-                } else {
-                    // Navigate to the payment page if the event has a price
-                    navigate(`/event-payment/${id}`, {
-                        state: {
-                            amount: event.price,
-                            currency: 'SGD',
-                            eventTitle: event.title,
-                            eventDetails: event.details,
-                            eventDate: new Date(event.date).toDateString(),
-                            eventTime: `${event.timeStart} - ${event.timeEnd}`,
-                            eventVenue: event.venue
-                        }
-                    });
-                }
-            } catch (error) {
-                console.error('Failed to register for event:', error);
-                setError('Failed to register for event.');
+    const navigateToPayment = () => {
+        navigate(`/event-payment/${id}`, {
+            state: {
+                eventId: event.id, // Ensure eventId is passed here
+                amount: event.price,
+                currency: 'SGD',
+                eventTitle: event.title,
+                eventDetails: event.details,
+                eventDate: new Date(event.date).toDateString(),
+                eventTime: `${event.timeStart} - ${event.timeEnd}`,
+                eventVenue: event.venue,
             }
-        } else {
-            setError('Event is fully booked.');
+        });
+        
+    };
+
+    const proceedWithRegistration = async () => {
+        setIsDialogOpen(false);
+
+        try {
+            await http.put(`/events/${id}/register`);
+            setEvent({ ...event, registered: event.registered + 1 });
+            navigate('/success');  // Navigate to a simple success page after free event registration
+        } catch (error) {
+            console.error('Failed to register for event:', error);
+            setError('Failed to register for event.');
         }
     };
 
@@ -194,7 +191,7 @@ function EventRegistration() {
                 </Typography>
             )}
 
-            {/* Confirmation Dialog */}
+            {/* Confirmation Dialog for Free Events */}
             <Dialog open={isDialogOpen} onClose={() => setIsDialogOpen(false)}>
                 <DialogTitle>Confirm Registration</DialogTitle>
                 <DialogContent>
