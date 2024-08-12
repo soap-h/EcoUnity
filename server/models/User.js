@@ -106,7 +106,6 @@ module.exports = (sequelize, DataTypes) => {
             foreignKey: 'userId',
             as: 'likedComments'
         });
-        });
 
         // One-to-Many Relationship with Cart Table
         User.hasMany(models.Cart, {
