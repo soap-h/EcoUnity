@@ -19,9 +19,10 @@ const validationSchema = yup.object({
     email: yup.string().email('Enter a valid email').required('Email is required'),
 });
 
+
 function Payment() {
-    const totalAmount = 9000; // Replace with your dynamic total amount
     const { cart, dispatch } = useCart();
+    const totalAmount = cart.items.reduce((total, item) => total + item.price * item.quantity, 0);
 
     const formik = useFormik({
         initialValues: {
@@ -73,7 +74,7 @@ function Payment() {
                                     <ListItem key={item.id} sx={{ alignItems: 'center', mb: 2 }}>
                                         <Box sx={{ display: 'flex', alignItems: 'center', width: '100%' }}>
                                             <Box sx={{ display: 'flex', alignItems: 'center', width: '60%' }}>
-                                                <ItemImage src={`${import.meta.env.VITE_FILE_BASE_URL}/${item.image}`} alt={item.name} />
+                                                <ItemImage src={`${import.meta.env.VITE_FILE_PRODUCTS_URL}/${item.image}`} alt={item.name} />
                                                 <Box sx={{ ml: 2, width: 'calc(100% - 60px)', wordWrap: 'break-word' }}>
                                                     <Typography variant="body1">{item.name}</Typography>
                                                     <Typography variant="body2">{item.price} points</Typography>

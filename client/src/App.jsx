@@ -25,6 +25,8 @@ import CartLayout from './components/CartLayout.jsx'; // Import the CartLayout c
 import ProductPage from './pages/ProductPage.jsx';
 import OrderConfirm from './pages/OrderConfirm.jsx'
 
+import AddLesson from './pages/AddLesson.jsx';
+
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements } from '@stripe/react-stripe-js';
 
@@ -72,6 +74,7 @@ import IncidentReportingUsers from './pages/IncidentReportingAdmin';
 import IndividualReport from "./pages/IndividualReport";
 import FeedbackAdmin from "./pages/FeedbackAdmin";
 import IndividualFeedback from "./pages/IndividualFeedback";
+import PurchaseHistory from "./pages/PurchaseHistory.jsx";
 function App() {
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -123,7 +126,7 @@ function App() {
           {/* <Route path={"/forums"} element={<Forums />} /> */}
           <Route path={"/learning"} element={<Learning />} />
           <Route path={"/adminpage"} element={<AdminPage />} />
-          <Route path={"/reviews/:id"} element={<Reviews />} />
+          <Route path={"/reviews/:productId"} element={<Reviews />} />
           
           <Route element={<CartLayout />}>
               <Route path={"/merchandise"} element={<Merchandise />} />
@@ -132,6 +135,8 @@ function App() {
               <Route path={"/payment"} element={<Payment />} /> 
               <Route path={"/orderconfirm"} element={<OrderConfirm />} />
           </Route>
+
+          <Route path={"/purchasehistory"} element={<PurchaseHistory/>}/>
 
 
           <Route path={"/login"} element={<Login />} />
@@ -157,6 +162,7 @@ function App() {
           <Route path={"/admin/IncidentReportAdmin/:id"} element={<IndividualReport />} />
           <Route path={"/admin/FeedbackAdmin"} element={<FeedbackAdmin />} />
           <Route path={"/admin/FeedbackAdmin/:id"} element={<IndividualFeedback />} />
+          <Route path={"/admin/AddLesson"} element={<AddLesson />} />
 
 
           {/* Forum/Thread Routes */}

@@ -51,6 +51,11 @@ module.exports = (sequelize, DataTypes) => {
                 }
             },
             defaultValue: "monthly"
+        },
+
+        points: {
+            type: DataTypes.INTEGER,
+            defaultValue: 0,
         }
     }, {
         tableName: 'users'
@@ -94,7 +99,19 @@ module.exports = (sequelize, DataTypes) => {
             foreignKey: 'reporterId',
             as: 'reportedThreads',
             onDelete: 'CASCADE'
-        })
+        });
+
+        // One-to-Many Relationship with Cart Table
+        User.hasMany(models.Cart, {
+            foreignKey: "userId",
+            onDelete: 'cascade'
+        });
+
+        User.hasMany(models.Review, { 
+            foreignKey: 'userId',
+            onDelete: 'cascade'
+        });
+
     };
     // User.associate = (models) => {
     //     User.hasMany(models.EventFeedback, {
