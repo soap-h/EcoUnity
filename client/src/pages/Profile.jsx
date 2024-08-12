@@ -21,7 +21,7 @@ function Profile() {
     const [participatedEvents, setParticipatedEvents] = useState([]);
     const [points, setPoints] = useState(0);
     const navigate = useNavigate();
-
+    
     const getTrackers = () => {
         http.get("/tracker").then((res) => {
             setTrackerList(res.data);
@@ -35,6 +35,8 @@ function Profile() {
                 http.get('/events/')
             ]);
 
+
+
             const participatedData = participatedResponse.data;
             const eventsData = eventsResponse.data;
 
@@ -46,11 +48,12 @@ function Profile() {
                     eventDetails,
                 };
             });
-
+            
             const eventCount = linkedEvents.length;
 
             setParticipatedEvents(linkedEvents);
             seteventcount(eventCount);
+           
         } catch (err) {
             console.error("Failed to get events:", err);
         }

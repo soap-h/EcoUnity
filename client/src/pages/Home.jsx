@@ -103,7 +103,7 @@ function Home() {
                         <Link to="/forum" style={{ textDecoration: 'none' }}>
                             <Button fullWidth sx={{ mb: 1 }}>Forum</Button>
                         </Link>
-                        <Link to="/incident-reporting" style={{ textDecoration: 'none' }}>
+                        <Link to="/AddincidentReporting" style={{ textDecoration: 'none' }}>
                             <Button fullWidth sx={{ mb: 1 }}>Incident Reporting</Button>
                         </Link>
                         <Link to="/learning" style={{ textDecoration: 'none' }}>
@@ -120,7 +120,7 @@ function Home() {
 
 
                 <Box sx={{ width: '55%', p: 2, animation: `${slideIn} 1.5s ease-out` }}>
-                    <Link to="/your-target-route" style={{ textDecoration: 'none', display: 'block' }}>
+                    <Link to="/events" style={{ textDecoration: 'none', display: 'block' }}>
                         <Box
                             sx={{
                                 backgroundImage: 'url(/src/assets/ccimages/ecounitybanner.png)',
@@ -150,7 +150,11 @@ function Home() {
                             <Box key={event.id} sx={{ mb: 2, animation: `${fadeIn} 2s ease-out` }}>
                                 <Typography variant="body1">{event.title}</Typography>
                                 <Typography variant="body2">{new Date(event.date).toLocaleDateString()}</Typography>
-                                <Button variant="contained" color="primary" size="small">Book session</Button>
+                                <Link to={`/event/${event.id}`} style={{ textDecoration: 'none' }}>
+                                    <Button variant="contained" color="primary" size="small">
+                                        Book session
+                                    </Button>
+                                </Link>
                             </Box>
                         ))
                     )}
