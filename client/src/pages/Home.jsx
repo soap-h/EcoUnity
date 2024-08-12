@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Typography, Box, Button, Paper, Grid } from '@mui/material';
+import { Link } from 'react-router-dom';
 import http from "../http";
 import { keyframes } from '@mui/system';
 
@@ -146,9 +147,11 @@ function Home() {
                 <Grid container spacing={2}>
                     {['cc1.png', 'cc2.png', 'cc3.png', 'cc4.png', 'cc5.png', 'cc6.png'].map((ccImage, index) => (
                         <Grid item xs={6} sm={4} key={index} sx={{ animation: `${slideIn} 2s ease-out` }}>
-                            <Paper>
-                                <img src={`/src/assets/ccimages/${ccImage}`} alt={`Community Centre ${index + 1}`} style={{ width: '100%' }} />
-                            </Paper>
+                            <Link to="/locations" style={{ textDecoration: 'none' }}>
+                                <Paper>
+                                    <img src={`/src/assets/ccimages/${ccImage}`} alt={`Community Centre ${index + 1}`} style={{ width: '100%' }} />
+                                </Paper>
+                            </Link>
                         </Grid>
                     ))}
                 </Grid>
