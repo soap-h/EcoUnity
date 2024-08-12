@@ -42,6 +42,8 @@ import global from '../../global';
 import ThreadCard from '../../components/Forum/ThreadCard';
 import ForumHeader from '../../components/Forum/ForumHeader';
 import ForumSearchBar from '../../components/Forum/ForumSearchBar';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function SavedThreads() {
     const [threadList, setThreadList] = useState([]);
@@ -438,6 +440,7 @@ function SavedThreads() {
                     </Dialog>
                 </Grid>
             </Grid>
+            <ToastContainer/>
         </Box>
     );
 }

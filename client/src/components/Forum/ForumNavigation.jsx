@@ -72,7 +72,7 @@ function ForumNavigation() {
             <Divider sx={{ my: 2 }} />
 
             <MenuList>
-                <MenuItem className="forum-menu-item">
+                <MenuItem component={Link} to="/privatethread" className={`forum-menu-item ${isActive('/privatethread') ? 'forum-menu-item-selected' : ''}`}>
                     <LockIcon sx={{ mr: 1 }} /> Private
                 </MenuItem>
 

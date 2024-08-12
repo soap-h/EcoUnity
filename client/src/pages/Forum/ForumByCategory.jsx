@@ -11,6 +11,8 @@ import ThreadCard from '../../components/Forum/ThreadCard';
 import UserContext from '../../contexts/UserContext';
 import ForumHeader from '../../components/Forum/ForumHeader';
 import ForumSearchBar from '../../components/Forum/ForumSearchBar';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function ForumByCategory() {
     const { category } = useParams();
