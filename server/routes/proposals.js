@@ -1,5 +1,5 @@
-// server/routes/proposals.js
 const express = require('express');
+const path = require('path');
 const router = express.Router();
 const { Proposal, User } = require('../models');
 const { upload } = require('../middlewares/upload');
@@ -28,6 +28,18 @@ router.get('/', async (req, res) => {
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
+});
+
+// Serve the uploaded files
+router.get('/download/:filename', async (req, res) => {
+    const { filename } = req.params;
+    const fileLocation = path.join(__dirname, '..', 'public', 'uploads', filename);
+    res.download(fileLocation, filename, (err) => {
+        if (err) {
+            console.error('File download error:', err);
+            res.status(500).json({ error: 'File download failed' });
+        }
+    });
 });
 
 router.put('/:id/approve', async (req, res) => {

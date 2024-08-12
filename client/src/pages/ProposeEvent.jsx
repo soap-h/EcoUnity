@@ -11,6 +11,7 @@ import UserContext from '../contexts/UserContext';
 const ProposeEvent = () => {
     const [file, setFile] = useState(null);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
+    const [isConfirmationOpen, setIsConfirmationOpen] = useState(false); // New state for confirmation dialog
     const { user } = useContext(UserContext);  // Accessing user context to check if user is logged in
     const navigate = useNavigate();
 
@@ -37,6 +38,7 @@ const ProposeEvent = () => {
                 });
                 console.log('File uploaded successfully:', response.data);
                 setFile(null); // Clear the file after upload
+                setIsConfirmationOpen(true); // Open confirmation dialog
             } catch (error) {
                 console.error('Error uploading file:', error);
             }
@@ -132,6 +134,19 @@ const ProposeEvent = () => {
                         color="primary"
                     >
                         Login
+                    </Button>
+                </DialogActions>
+            </Dialog>
+
+            {/* Confirmation Dialog for successful submission */}
+            <Dialog open={isConfirmationOpen} onClose={() => setIsConfirmationOpen(false)}>
+                <DialogTitle>Submission Successful</DialogTitle>
+                <DialogContent>
+                    <Typography>Your event proposal has been submitted successfully!</Typography>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => setIsConfirmationOpen(false)} color="primary">
+                        OK
                     </Button>
                 </DialogActions>
             </Dialog>

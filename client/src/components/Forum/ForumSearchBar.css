@@ -1,0 +1,35 @@
+/* ForumSearchBar.css */
+.search-bar-container {
+    display: flex;
+    align-items: center;
+    margin-bottom: 16px; /* Adjust as needed */
+}
+
+.search-bar {
+    width: 100%;
+    border-radius: 8px;
+    background-color: white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Soft shadow */
+    transition: box-shadow 0.3s ease;
+}
+
+.search-bar:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Slightly larger shadow on hover */
+}
+
+.search-bar .MuiOutlinedInput-root {
+    border-radius: 8px; /* Curved edges */
+}
+
+.search-bar .MuiOutlinedInput-input {
+    padding: 10px 14px; /* Padding inside the input */
+}
+
+.search-bar .MuiOutlinedInput-notchedOutline {
+    border-color: transparent; /* Remove default border color */
+}
+
+.search-bar .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline {
+    border-color: transparent; /* Remove focus border */
+}
+

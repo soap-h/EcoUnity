@@ -146,7 +146,7 @@ function EventRegistration() {
                         <Box display="flex" alignItems="center" mt={1}>
                             <AccessTime sx={{ mr: 1 }} />
                             <Typography variant="body2">
-                                {event.timeStart} - {event.timeEnd}
+                                {event.timeStart.slice(0, 5)} - {event.timeEnd.slice(0, 5)}
                             </Typography>
                         </Box>
                         <Divider sx={{ my: 2 }} />

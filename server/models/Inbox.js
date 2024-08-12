@@ -20,6 +20,11 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.STRING(50),
             allowNull: false
         },
+        unread: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            default: 1
+        }
     }, {
         tableName: 'inbox'
     });

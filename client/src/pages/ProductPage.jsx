@@ -9,6 +9,7 @@ import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 function ProductPage( ) {
     const { id } = useParams();
     const [product, setProduct] = useState(null);
+    const [reviews, setReviews] = useState([]);
     const [loading, setLoading] = useState(true);
 
     const navigate = useNavigate();
@@ -22,6 +23,12 @@ function ProductPage( ) {
             try {
                 const response = await http.get(`/products/${id}`);
                 setProduct(response.data);
+
+                const reviewsResponse = await http.get(`/reviews/${id}`);
+                console.log(reviewsResponse.data);
+                setReviews(reviewsResponse.data);
+
+
                 setLoading(false);
             } catch (error) {
                 console.error('Failed to fetch product:', error);
@@ -40,16 +47,17 @@ function ProductPage( ) {
         return <div>Product not found</div>;
     }
 
+    const reviewCount = reviews.length
     
     return (
         <PageContainer>
         <Grid container spacing={4}>
             <Grid item xs={12} md={6}>
                 <ImageGallery>
-                    <MainImage src={`${import.meta.env.VITE_FILE_BASE_URL}/${product.prod_img}`} alt={product.prod_name} />
+                    <MainImage src={`${import.meta.env.VITE_FILE_PRODUCTS_URL}/${product.prod_img}`} alt={product.prod_name} />
                     <ThumbnailContainer>
                         {[...Array(4)].map((_, index) => (
-                            <Thumbnail key={index} src={`${import.meta.env.VITE_FILE_BASE_URL}/${product.prod_img}`} alt={`Thumbnail ${index}`} />
+                            <Thumbnail key={index} src={`${import.meta.env.VITE_FILE_PRODUCTS_URL}/${product.prod_img}`} alt={`Thumbnail ${index}`} />
                         ))}
                     </ThumbnailContainer>
                 </ImageGallery>
@@ -58,8 +66,8 @@ function ProductPage( ) {
                 <ProductDetails>
                     <ProductName variant="h4">{product.prod_name}</ProductName>
                     <RatingContainer>
-                        <Rating value={product.prod_rating} readOnly precision={0.5} />
-                        <ReviewCount>({product.prod_rating} reviews)</ReviewCount>
+                        <Rating value={product.prod_rating} readOnly precision={0.25} />
+                        <ReviewCount>({reviewCount} reviews)</ReviewCount>
                         <ReviewLink onClick={handleClick}>View Reviews</ReviewLink>
                     </RatingContainer>
                     <ProductPrice variant="h5">{product.prod_price} Points</ProductPrice>
