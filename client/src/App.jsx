@@ -23,6 +23,12 @@ import Register from "./pages/Register.jsx";
 import { Dialog } from "@mui/material";
 
 import Learning from "./pages/Learning.jsx";
+import Lesson from "./pages/Lesson.jsx"
+import Slides from "./pages/Slides.jsx";
+import Quiz from "./pages/Quiz.jsx";
+import CorrectAnswers from "./pages/CorrectAnswers.jsx"
+import QuizResults from "./pages/QuizResults.jsx";
+
 import Merchandise from "./pages/Merchandise.jsx";
 import AdminPage from "./pages/AdminPage.jsx";
 import ManageUsers from "./pages/ManageUsers.jsx";
@@ -144,6 +150,12 @@ function App() {
           
           {/* <Route path={"/forums"} element={<Forums />} /> */}
           <Route path={"/learning"} element={<Learning />} />
+          <Route path={"/learning/:id/*"} element={<Lesson/>} />
+          {/* <Route path={"/learning/:id/slides/*"} element={<Slides/>}/>
+          <Route path={"/learning/:id/quiz/*"} element={<Quiz/>}/> */}
+          {/* <Route path={"/learning/:id/correctanswers/*"} element={<CorrectAnswers/>}/> */}
+
+
           <Route path={"/adminpage"} element={<AdminPage />} />
           <Route path={"/reviews/:productId"} element={<Reviews />} />
           
@@ -156,7 +168,7 @@ function App() {
           </Route>
 
           <Route path={"/purchasehistory"} element={<PurchaseHistory/>}/>
-
+          
 
           <Route path={"/login"} element={<Login />} />
           <Route path={"/register"} element={<Register />} />

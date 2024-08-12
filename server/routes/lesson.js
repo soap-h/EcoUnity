@@ -1,6 +1,7 @@
 const yup = require('yup');
-const { Lesson } = require('../models'); // Adjust the path as necessary
+const { Lesson, Attempt } = require('../models'); // Adjust the path as necessary
 const express = require('express');
+
 const router = express.Router();
 
 // Validation Schema for creating a lesson
@@ -22,6 +23,8 @@ const lessonSchema = yup.object().shape({
 // POST /lessons - Create a new lesson
 router.post('/', async (req, res) => {
     try {
+   
+
         // Parse questions from JSON string
         const questions = JSON.parse(req.body.questions);
 
@@ -55,6 +58,20 @@ router.get('/', async (req, res) => {
 });
 
 // GET /lessons/:id - Get a lesson by ID
+router.get('/:id/quiz', async (req, res) => {
+    try {
+        const lesson = await Lesson.findByPk(req.params.id);
+        if (!lesson) {
+            return res.status(404).json({ error: 'Lesson not found' });
+        }
+        return res.status(200).json(lesson);
+    } catch (error) {
+        console.error('Error fetching lesson:', error);
+        return res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+// GET /lessons/:id - Get a lesson by ID
 router.get('/:id', async (req, res) => {
     try {
         const lesson = await Lesson.findByPk(req.params.id);
@@ -67,5 +84,67 @@ router.get('/:id', async (req, res) => {
         return res.status(500).json({ error: 'Internal Server Error' });
     }
 });
+
+
+
+const quizResultSchema = yup.object({
+    results: yup.array().of(
+        yup.object({
+            questionId: yup.number().required(),
+            userAnswer: yup.number().required(),
+            isCorrect: yup.boolean().required(),
+            points: yup.number().required(),
+        })
+    ).required(),
+});
+
+router.post('/:id/submit-quiz', async (req, res) => {
+    const { id } = req.params; // Lesson ID (or Quiz ID)
+    const { userId, results } = req.body;
+
+    try {
+        // Validate the quiz results
+        await quizResultSchema.validate({ results });
+
+        // Fetch the lesson to ensure it exists
+        const lesson = await Lesson.findByPk(id);
+        if (!lesson) {
+            return res.status(404).json({ error: 'Lesson not found' });
+        }
+
+        // Calculate the total points earned by the user
+        const totalPoints = results.reduce((sum, result) => sum + (result.isCorrect ? result.points : 0), 0);
+
+        // Save a single record of the overall attempt to the database
+        const newAttempt = await Attempt.create({
+            userId,
+            quizId: id, // Assuming quizId is equivalent to lessonId in this context
+            pointsEarned: totalPoints,
+        });
+
+        // Return feedback with details for each question
+        const feedback = results.map((result, index) => ({
+            questionIndex: result.questionIndex,
+            userAnswer: result.userAnswer,
+            isCorrect: result.isCorrect,
+            explanation: result.questionIndex.explanation,
+            points: result.points,
+        }));
+
+        return res.status(200).json({
+            message: 'Quiz submitted successfully',
+            attempt: newAttempt,
+            totalPoints,
+            feedback,
+        });
+    } catch (error) {
+        if (error instanceof yup.ValidationError) {
+            return res.status(400).json({ error: error.errors });
+        }
+        console.error('Error submitting quiz:', error);
+        return res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
 
 module.exports = router;

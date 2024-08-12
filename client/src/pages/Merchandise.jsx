@@ -136,64 +136,142 @@ function Merchandise() {
         return sorted;
     };
 
-    return (
-        <>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '95%', margin: 'auto' }}>
-                <IconButton onClick={handleHistory} sx={{ mt: 5, ml: 5, borderRadius: 10 }}>
-                    <WorkHistoryIcon sx={{ height: 35, width: 35 }} />
-                    <Typography>Purchase History</Typography>
-                </IconButton>
+    return (
+        <>
+            <Box
+                sx={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    width: '95%',
+                    margin: '5px auto',
+                    padding: '0px 0',
+                    borderRadius: 2,
+                }}
+            >
+                <IconButton
+                    onClick={handleHistory}
+                    sx={{
+                        mt: 5,
+                        ml: 5,
+                        borderRadius: 10,
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                    }}
+                >
+                    <WorkHistoryIcon sx={{ height: 40, width: 40, color: 'primary.main' }} />
+                    <Typography variant="subtitle1" sx={{ mt: 1 }}>
+                        Purchase History
+                    </Typography>
+                </IconButton>
 
-                <IconButton onClick={handleCart} sx={{ mt: 5, mr: 5, borderRadius: 10 }}>
-                    <ShoppingCartIcon sx={{ height: 35, width: 35 }} />
-                    <Typography>Shopping Cart</Typography>
-                </IconButton>
-            </Box>
+                <IconButton
+                    onClick={handleCart}
+                    sx={{
+                        mt: 5,
+                        mr: 5,
+                        borderRadius: 10,
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                    }}
+                >
+                    <ShoppingCartIcon sx={{ height: 40, width: 40, color: 'primary.main' }} />
+                    <Typography variant="subtitle1" sx={{ mt: 1 }}>
+                        Shopping Cart
+                    </Typography>
+                </IconButton>
+            </Box>
 
-            <input type="text" placeholder="Search Products" value={search} onChange={(event) => setSearch(event.target.value)} />
-            <select value={sortOption} onChange={handleSortChange}>
-                <option value="">Sort By</option>
-                <option value="alphabetical">Alphabetical (A-Z)</option>
-                <option value="priceLowToHigh">Price (Low to High)</option>
-                <option value="priceHighToLow">Price (High to Low)</option>
-            </select>
+            <Box
+                sx={{
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    flexDirection: 'column',
+                    mt: 4,
+                    mb: 4,
+                }}
+            >
+                <Box
+                    sx={{
+                        display: 'flex',
+                        gap: 2,
+                        mb: 4,
+                        width: '80%',
+                    }}
+                >
+                    <input
+                        type="text"
+                        placeholder="Search Products"
+                        value={search}
+                        onChange={(event) => setSearch(event.target.value)}
+                        style={{
+                            padding: '10px',
+                            borderRadius: '5px',
+                            border: '1px solid #ccc',
+                            flexGrow: 1,
+                        }}
+                    />
+                    <select
+                        value={sortOption}
+                        onChange={handleSortChange}
+                        style={{
+                            padding: '10px',
+                            borderRadius: '5px',
+                            border: '1px solid #ccc',
+                        }}
+                    >
+                        <option value="">Sort By</option>
+                        <option value="alphabetical">Alphabetical (A-Z)</option>
+                        <option value="priceLowToHigh">Price (Low to High)</option>
+                        <option value="priceHighToLow">Price (High to Low)</option>
+                    </select>
+                </Box>
 
-            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', mt: 2, width: '95%', margin: 'auto' }}>
-                <Box style={{ width: '90%' }}>
-                    {search && (
-                        <Box>
-                            <h1>Search Results</h1>
-                            <Slider ref={sliderRef} {...settings}>
-                                {sortedProducts().map((product) => (
-                                    <ProductCard key={product.id} product={product} handleBuy={handleBuy} />
-                                ))}
-                            </Slider>
-                        </Box>
-                    )}
+                <Box sx={{ width: '100%', maxWidth: '95%', mx: 'auto' }}>
+                    {search && (
+                        <Box sx={{ mb: 8 }}>
+                            <Typography variant="h4" sx={{ mb: 3, fontWeight: 'bold', color: 'text.primary' }}>
+                                Search Results
+                            </Typography>
+                            <Slider ref={sliderRef} {...settings}>
+                                {sortedProducts().map((product) => (
+                                    <ProductCard key={product.id} product={product} handleBuy={handleBuy} />
+                                ))}
+                            </Slider>
+                        </Box>
+                    )}
 
-                    <Box>
-                        <h1>New Arrivals</h1>
-                        <Slider ref={sliderRef} {...settings}>
-                            {sortedByNewest.map((product) => (
-                                <ProductCard key={product.id} product={product} handleBuy={handleBuy} />
-                            ))}
-                        </Slider>
-                    </Box>
+                    <Box sx={{ mb: 8 }}>
+                        <Typography variant="h4" sx={{ mb: 3, fontWeight: 'bold', color: 'text.primary' }}>
+                            New Arrivals
+                        </Typography>
+                        <Slider ref={sliderRef} {...settings}>
+                            {sortedByNewest.map((product) => (
+                                <ProductCard key={product.id} product={product} handleBuy={handleBuy} />
+                            ))}
+                        </Slider>
+                    </Box>
 
-                    <Box sx={{ mt: 15 }}>
-                        <h1>Highest Rated</h1>
-                        <Slider ref={sliderRef} {...settings}>
-                            {sortedByRating.map((product) => (
-                                <ProductCard key={product.id} product={product} handleBuy={handleBuy} />
-                            ))}
-                        </Slider>
-                    </Box>
-                </Box>
-            </Box>
+                    <Box sx={{ mt: 8 }}>
+                        <Typography variant="h4" sx={{ mb: 3, fontWeight: 'bold', color: 'text.primary' }}>
+                            Highest Rated
+                        </Typography>
+                        <Slider ref={sliderRef} {...settings}>
+                            {sortedByRating.map((product) => (
+                                <ProductCard key={product.id} product={product} handleBuy={handleBuy} />
+                            ))}
+                        </Slider>
+                    </Box>
+                </Box>
+            </Box>
 
-            <ToastContainer />
-        </>
-    );
+            <ToastContainer />
+        </>
+    );
+
 }
 
 export default Merchandise;
