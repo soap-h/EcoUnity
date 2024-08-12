@@ -1,35 +1,40 @@
 module.exports = (sequelize, DataTypes) => {
     const Attempt = sequelize.define('Attempt', {
-        userId: {
-          type: DataTypes.INTEGER,
-          allowNull: false,
-          references: {
-            model: 'Users', // Assuming your Users table is named 'Users'
-            key: 'id'
-          }
+      userId: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        references: {
+          model: 'Users', // Reference to the Users table
+          key: 'id',
         },
-        quizId: {
-          type: DataTypes.INTEGER,
-          allowNull: false,
-          references: {
-            model: 'Quizzes', // Assuming your Quizzes table is named 'Quizzes'
-            key: 'id'
-          }
+      },
+      quizId: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        references: {
+          model: 'Lessons', // Reference to the Quizzes table
+          key: 'id',
         },
-        pointsEarned: {
-          type: DataTypes.INTEGER,
-          allowNull: false
-        },
+      },
+      pointsEarned: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+      },
     }, {
-        tableName: 'lessons',
+      tableName: 'attempts', // Assuming your table for attempts is named 'attempts'
     });
-
+  
     Attempt.associate = (models) => {
-        Attempt.belongsTo(models.Lesson, {
-            foreignKey: "LessonId",
-            onDelete: "cascade"
-        });
+      Attempt.belongsTo(models.User, {
+        foreignKey: 'userId',
+        onDelete: 'cascade',
+      });
+      Attempt.belongsTo(models.Lesson, {
+        foreignKey: 'userId',
+        onDelete: 'cascade',
+      });
     };
-
+  
     return Attempt;
-}
+  };
+  

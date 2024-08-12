@@ -116,7 +116,8 @@ router.get("/auth", validateToken, async (req, res) => {
             lastName: user.lastName,
             description: user.description,
             imageFile: user.imageFile,
-            isAdmin: user.isAdmin
+            isAdmin: user.isAdmin,
+            points: user.points
         };
 
         res.json({ user: userInfo });
@@ -192,7 +193,7 @@ router.put("/description/:id", async (req, res) => {
 router.get("/userinfo", validateToken, async (req, res) => {
     try {
         const users = await User.findAll({
-            attributes: ['id', 'firstName', 'lastName', 'email', 'isAdmin', 'imageFile']  // Only fetch id and email attributes
+            attributes: ['id', 'firstName', 'lastName', 'email', 'isAdmin', 'imageFile', 'points']  // Only fetch id and email attributes
         });
         res.json(users);
     } catch (error) {
@@ -207,7 +208,7 @@ router.get("/:id", validateToken, async (req, res) => {
     try {
         const user = await User.findOne({
             where: { id: userId },  // Fetch the user with the specified ID
-            attributes: ['id', 'firstName', 'lastName', 'email', 'isAdmin', 'imageFile', 'goals', 'description', 'goaltype']  // Only fetch specified attributes
+            attributes: ['id', 'firstName', 'lastName', 'email', 'isAdmin', 'imageFile', 'goals', 'description', 'goaltype', 'points']  // Only fetch specified attributes
         });
 
         if (!user) {
