@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Typography, Grid, Avatar, Container, Paper } from '@mui/material';
+import { Box, Typography, Grid, Avatar, Container, Paper, Button } from '@mui/material';
 import { useParams } from 'react-router-dom';
 import http from '../http';
 
@@ -7,7 +7,7 @@ function GuestProfile() {
     const { id } = useParams(); // Get user ID from URL
     const [user, setUser] = useState(null);
     const [trackerList, setTrackerList] = useState([]);
-    const [participatedEvents, setParticipatedEvents] = useState([]); // Store participated events
+    const [participatedEvents, setParticipatedEvents] = useState([]);
     const [description, setDescription] = useState('');
     const [eventcount, seteventcount] = useState(0);
 
@@ -38,7 +38,6 @@ function GuestProfile() {
             const participatedData = participatedResponse.data;
             const eventsData = eventsResponse.data;
 
-            // Link the eventId from participated events to the events data
             const linkedEvents = participatedData.map(pe => {
                 const eventDetails = eventsData.find(event => event.id === pe.eventId);
                 return {
@@ -46,6 +45,7 @@ function GuestProfile() {
                     eventDetails,
                 };
             });
+
             const eventCount = linkedEvents.length;
             setParticipatedEvents(linkedEvents);
             seteventcount(eventCount);
@@ -58,7 +58,6 @@ function GuestProfile() {
         getUser();
         getTrackers();
         getEvents();
-        console.log(description)
     }, [id]);
 
     if (!user) {
@@ -71,10 +70,15 @@ function GuestProfile() {
     return (
         <Box sx={{ bgcolor: '#F7FAFC', minHeight: '100vh', width: '100%' }}>
             <Container maxWidth="lg">
-                <Paper elevation={3} sx={{ padding: 4, marginTop: 4, borderRadius: 2, backgroundColor: 'white' }}>
+                <Paper elevation={3} sx={{ padding: 4, marginTop: 4, borderRadius: 2 }}>
                     <Grid container spacing={3}>
                         <Grid item xs={12} md={4}>
-                            <Box sx={{ position: 'relative', display: 'inline-block', textAlign: 'center' }}>
+                            <Box sx={{
+                                position: 'relative',
+                                display: 'inline-block',
+                                textAlign: 'center',
+                                ml: 2 // Shift the profile image slightly to the right
+                            }}>
                                 <Avatar
                                     alt={`${user.firstName} ${user.lastName}`}
                                     src={`${import.meta.env.VITE_FILE_PROFILE_URL}${user.imageFile}`}
@@ -83,21 +87,21 @@ function GuestProfile() {
                             </Box>
                         </Grid>
                         <Grid item xs={12} md={8}>
-                            <Typography variant="h4" sx={{ fontWeight: 'bold', color: 'primary.main' }}>
+                            <Typography variant="h4" sx={{ fontWeight: 'bold', color: 'black' }}>
                                 {user.firstName} {user.lastName}
                             </Typography>
                             <Typography variant="body1" color="textSecondary" gutterBottom>
                                 {user.email}
                             </Typography>
                             <Typography variant="body1" color="textSecondary" sx={{ marginTop: 2 }}>
-                                {description} 
+                                {description}
                             </Typography>
                         </Grid>
                     </Grid>
 
                     <Grid container spacing={4} sx={{ marginTop: 4 }}>
                         <Grid item xs={12} md={6}>
-                            <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold', color: 'primary.main' }}>
+                            <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold', color: 'black' }}>
                                 Stats
                             </Typography>
                             <Grid container spacing={2}>
@@ -144,10 +148,10 @@ function GuestProfile() {
                             </Grid>
                         </Grid>
                         <Grid item xs={12} md={6}>
-                            <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold', color: 'primary.main' }}>
+                            <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold', color: 'black' }}>
                                 Activities
                             </Typography>
-                            <Paper elevation={2} sx={{ padding: 2, maxHeight: 248, overflowY: 'auto' }}> {/* Scrollable container */}
+                            <Paper elevation={2} sx={{ padding: 2, maxHeight: 248, overflowY: 'auto' }}>
                                 {participatedEvents.length > 0 ? (
                                     participatedEvents.map((event, index) => (
                                         <Box key={index} display="flex" justifyContent="space-between" alignItems="center" sx={{ marginBottom: 1 }}>
