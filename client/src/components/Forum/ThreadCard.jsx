@@ -26,6 +26,9 @@ import RecyclingPopupPic from '../../assets/recyclingLOL.jpg';
 import ClimatePopupPic from '../../assets/meltingIcecaps.jpg';
 import lol from '../../assets/discussion.jpg';
 
+// For the Reply Functionality
+import { MentionsInput, Mention } from 'react-mentions';
+
 const ThreadCard = ({
     thread, onDeleteClick, onBookmarkToggle, onCommentClick, onCommentChange, onCommentSubmit, newComment, bookmarkedThreads, onViewCommentsToggle, truncateContent, getCategoryChipColor,
     showComments, comments, userVotes, handleVote, showFullContent, handleLikeToggle, handleToggleContent, user
@@ -34,6 +37,11 @@ const ThreadCard = ({
     const [commentLikes, setCommentLikes] = useState({});
     const [anchorEl, setAnchorEl] = useState(null);
     const [isHovered, setIsHovered] = useState(false); // New state for tracking hover
+
+    // For the Reply Functionality
+    const [replyingToCommentId, setReplyingToCommentId] = useState(null); // To track which comment we're replying to
+    const [replyText, setReplyText] = useState(''); // To manage the reply input content
+    const [userList, setUserList] = useState([]); // To store the list of users for mentions
 
     const handleReportButtonClick = () => {
         setReportFormOpen(true);
@@ -75,6 +83,20 @@ const ThreadCard = ({
 
         fetchCommentLikes();
     }, [comments, thread.id]);
+
+    // Fetch the Reply Comment Funcionality stuff
+    useEffect(() => {
+        const fetchUsers = async () => {
+            try {
+                const response = await http.get('/user/userinfo');
+                setUserList(response.data);
+            } catch (error) {
+                console.error('Error fetching user data:', error);
+            }
+        };
+
+        fetchUsers();
+    }, []);
 
     const handleMouseEnter = (event) => {
         setAnchorEl(event.currentTarget);
@@ -134,6 +156,32 @@ const ThreadCard = ({
         description: 'No description available.',
         threadCount: 0,
         picture: lol
+    };
+
+    // For the Reply Functionality
+    const handleReplyClick = (commentId) => {
+        setReplyingToCommentId(commentId);
+        const comment = comments[thread.id]?.find(c => c.id === commentId);
+        if (comment) {
+            setReplyText(`@${comment.user.firstName} `);
+        }
+    };
+
+    const handleReplyChange = (e) => {
+        setReplyText(e.target.value);
+    };
+
+    const handleReplySubmit = async (parentId) => {
+        if (!replyText.trim()) return; // Prevent submitting empty replies
+
+        try {
+            await http.post(`/comment/reply/${parentId}`, { description: replyText });
+            setReplyText('');
+            setReplyingToCommentId(null);
+            onCommentClick(thread.id); // Refresh comments
+        } catch (error) {
+            console.error('Error submitting reply:', error);
+        } 
     };
 
     return (
@@ -207,9 +255,9 @@ const ThreadCard = ({
                     </Button>
                     {showComments[thread.id] && (
                         <Box className="comments-container">
-                            {comments[thread.id]?.map((comment, index) => (
+                            {comments[thread.id]?.map((comment) => (
                                 <Box
-                                    key={index}
+                                    key={comment.id} // Use comment.id as the key
                                     className="comment"
                                     sx={{ mt: 2 }}
                                 >
@@ -249,13 +297,37 @@ const ThreadCard = ({
                                                     </IconButton>
                                                 </Tooltip>
                                                 <Tooltip title="Reply">
-                                                    <IconButton className="icon-button">
+                                                    <IconButton
+                                                        className="icon-button"
+                                                        onClick={() => handleReplyClick(comment.id)}
+                                                    >
                                                         <ReplyIcon />
                                                     </IconButton>
                                                 </Tooltip>
                                             </>
                                         )}
                                     </Box>
+                                    {replyingToCommentId === comment.id && (
+                                        <Box sx={{ mt: 2 }}>
+                                            <TextField
+                                                fullWidth
+                                                multiline
+                                                rows={4}
+                                                variant="outlined"
+                                                value={replyText}
+                                                onChange={handleReplyChange}
+                                                placeholder="Reply to this comment..."
+                                                sx={{ mb: 1 }}
+                                            />
+                                            <Button
+                                                variant="contained"
+                                                color="primary"
+                                                onClick={() => handleReplySubmit(comment.id)} // Pass the comment ID to handleReplySubmit
+                                            >
+                                                Post Reply
+                                            </Button>
+                                        </Box>
+                                    )}
                                 </Box>
                             ))}
                         </Box>
