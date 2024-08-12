@@ -8,6 +8,7 @@ import {
 import UserContext from '../../contexts/UserContext';
 import ForumNavigation from '../../components/Forum/ForumNavigation';
 import ThreadCard from '../../components/Forum/ThreadCard';
+import ForumSearchBar from '../../components/Forum/ForumSearchBar';
 import ForumHeader from '../../components/Forum/ForumHeader';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -53,6 +54,10 @@ function Forum() {
     useEffect(() => {
         fetchData();
     }, [user]);
+
+    const handleSearchResults = (results) => {
+        setThreadList(results);
+    }
 
     const handleToggleContent = () => {
         setShowFullContent(!showFullContent);
@@ -143,14 +148,14 @@ function Forum() {
             toast.error('You need to be logged in to comment.');
             return;
         }
-    
+
         try {
             // Post the new comment
             const response = await http.post(`/comment/${threadId}`, { description: newComment[threadId]?.text });
             const createdComment = response.data;
 
-            console.log(`this is my new comment ${createdComment.description}`);            
-    
+            console.log(`this is my new comment ${createdComment.description}`);
+
             // Optimistically update the UI
             setThreadList(prevThreads =>
                 prevThreads.map(thread =>
@@ -159,7 +164,7 @@ function Forum() {
                         : thread
                 )
             );
-    
+
             // Update comments locally
             setComments(prevState => ({
                 ...prevState,
@@ -168,12 +173,12 @@ function Forum() {
                     createdAt: new Date() // Update with the actual creation date if needed
                 }]
             }));
-    
+
             setNewComment(prevState => ({
                 ...prevState,
                 [threadId]: { text: '', expanded: false }
             }));
-    
+
             console.log(`This is the thread id: ${threadId}`)
 
             // Fetch the latest comment data
@@ -182,7 +187,7 @@ function Forum() {
 
             console.log(`updated thread.commentCount: ${updatedThread.commentCount}`);
 
-    
+
             setThreadList(prevThreads =>
                 prevThreads.map(thread =>
                     thread.id === threadId
@@ -190,7 +195,7 @@ function Forum() {
                         : thread
                 )
             );
-    
+
             // Notify the recipient
             const thread = threadList.find(t => t.id === threadId);
             const recipientEmail = await getUserEmailById(thread.userId);
@@ -207,7 +212,7 @@ function Forum() {
             console.error('Error posting comment:', error.message);
         }
     };
-    
+
 
 
 
@@ -319,7 +324,8 @@ function Forum() {
             <ForumHeader />
             <Grid container spacing={2}>
                 <ForumNavigation />
-                <Grid item xs={9}>
+                <Grid item xs={8.86}>
+                    <ForumSearchBar onSearchResults={handleSearchResults} sx={{ pb: 2}}/> {/* Add SearchBar here */}
                     {threadList.map((thread) => (
                         <ThreadCard
                             key={thread.id}
