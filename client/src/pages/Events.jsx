@@ -150,7 +150,7 @@ function Events() {
                                         </Box>
                                         <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
                                             <AccessTime sx={{ mr: 1, color: '#757575', fontSize: 16 }} />
-                                            <Typography variant="body2" color="textSecondary">{`${ev.timeStart} - ${ev.timeEnd}`}</Typography>
+                                            <Typography variant="body2" color="textSecondary">{`${ev.timeStart.slice(0, 5)} - ${ev.timeEnd.slice(0, 5)}`}</Typography>
                                         </Box>
                                         <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
                                             <AttachMoney sx={{ mr: 1, color: '#757575', fontSize: 16 }} />
@@ -163,7 +163,14 @@ function Events() {
                     ))}
                 </Carousel>
             </Box>
-            <Box sx={{ textAlign: 'center', padding: '40px 0' }}>
+
+            <Box
+                sx={{
+                    textAlign: 'center',
+                    padding: '40px 0',
+                    backgroundColor: '#f9f2eb'  //  light beige
+                }}
+            >
                 <Typography variant="h5">Propose your own Event</Typography>
                 <Typography variant="body1">Have an idea? Make it happen!</Typography>
                 <Button
@@ -172,7 +179,7 @@ function Events() {
                         marginTop: '20px',
                         backgroundColor: '#A37964',
                         '&:hover': {
-                            backgroundColor: '#8f6752', // Optional: a slightly darker shade for hover state
+                            backgroundColor: '#8f6752', 
                         }
                     }}
                     component={Link}
@@ -245,7 +252,7 @@ function Events() {
             </Box>
             <Box sx={{ padding: '20px 300px' }}>
                 <Grid container spacing={2} direction="column">
-                    {events.map((event) => (
+                    {filteredEvents.map((event) => (  // Change this line to iterate over filteredEvents
                         <Grid item key={event.id}>
                             <Box
                                 sx={{
@@ -283,7 +290,7 @@ function Events() {
                                         </Box>
                                         <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
                                             <AccessTime sx={{ mr: 1, color: '#757575', fontSize: 18 }} />
-                                            <Typography variant="body2" color="textSecondary">{`${event.timeStart} - ${event.timeEnd}`}</Typography>
+                                            <Typography variant="body2" color="textSecondary">{`${event.timeStart.slice(0, 5)} - ${event.timeEnd.slice(0, 5)}`}</Typography>
                                         </Box>
                                         <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
                                             <AttachMoney sx={{ mr: 1, color: '#757575', fontSize: 18 }} />
