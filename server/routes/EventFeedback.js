@@ -7,6 +7,7 @@ const { validateToken } = require('../middlewares/auth');
 
 router.post("/:id", validateToken, async (req, res) => {
     let data = req.body;
+    data.userId = req.user.id;
     data.eventId = req.params.id;
     console.log(data.eventId);
     let validationSchema = yup.object({

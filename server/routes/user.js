@@ -83,8 +83,8 @@ router.post("/login", async (req, res) => {
             lastName: user.lastName,
             description: user.description,
             isAdmin: user.isAdmin,
-            imageFile: user.imageFile
-
+            imageFile: user.imageFile,
+            points: user.points
         };
         let accessToken = sign(userInfo, process.env.APP_SECRET,
             { expiresIn: process.env.TOKEN_EXPIRES_IN });
@@ -116,7 +116,8 @@ router.get("/auth", validateToken, async (req, res) => {
             lastName: user.lastName,
             description: user.description,
             imageFile: user.imageFile,
-            isAdmin: user.isAdmin
+            isAdmin: user.isAdmin,
+            points: user.points
         };
 
         res.json({ user: userInfo });
@@ -207,7 +208,7 @@ router.get("/:id", validateToken, async (req, res) => {
     try {
         const user = await User.findOne({
             where: { id: userId },  // Fetch the user with the specified ID
-            attributes: ['id', 'firstName', 'lastName', 'email', 'isAdmin', 'imageFile', 'goals', 'description', 'goaltype']  // Only fetch specified attributes
+            attributes: ['id', 'firstName', 'lastName', 'email', 'isAdmin', 'imageFile', 'goals', 'description', 'goaltype', 'points']
         });
 
         if (!user) {
