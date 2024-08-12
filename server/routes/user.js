@@ -99,18 +99,33 @@ router.post("/login", async (req, res) => {
     }
 });
 
-router.get("/auth", validateToken, (req, res) => {
-    let userInfo = {
-        id: req.user.id,
-        email: req.user.email,
-        firstName: req.user.firstName,
-        lastName: req.user.lastName,
-        isAdmin: req.user.isAdmin
-    };
-    res.json({
-        user: userInfo
-    });
+router.get("/auth", validateToken, async (req, res) => {
+    try {
+        // Fetch the user from the database using the ID from the token
+        let user = await User.findOne({ where: { id: req.user.id } });
+
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        // Prepare the user info with all necessary fields
+        let userInfo = {
+            id: user.id,
+            email: user.email,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            description: user.description,
+            imageFile: user.imageFile,
+            isAdmin: user.isAdmin
+        };
+
+        res.json({ user: userInfo });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: "Internal server error" });
+    }
 });
+
 
 router.post('/upload/profile-pic', validateToken, (req, res) => {
     ppupload(req, res, async (err) => {
@@ -192,7 +207,7 @@ router.get("/:id", validateToken, async (req, res) => {
     try {
         const user = await User.findOne({
             where: { id: userId },  // Fetch the user with the specified ID
-            attributes: ['id', 'firstName', 'lastName', 'email', 'isAdmin', 'imageFile', 'goals']  // Only fetch specified attributes
+            attributes: ['id', 'firstName', 'lastName', 'email', 'isAdmin', 'imageFile', 'goals', 'description', 'goaltype']  // Only fetch specified attributes
         });
 
         if (!user) {
