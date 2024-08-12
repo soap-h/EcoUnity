@@ -1,25 +1,3 @@
-// const { verify } = require('jsonwebtoken');
-// require('dotenv').config();
-
-// const validateToken = (req, res, next) => {
-//     try {
-//         const accessToken = req.header("Authorization").split(" ")[1];
-//         if (!accessToken) {
-//             return res.sendStatus(401);
-//         }
-
-//         const payload = verify(accessToken, process.env.APP_SECRET);
-//         req.user = payload;
-//         return next();
-//     }
-//     catch (err) {
-//         return res.sendStatus(401);
-//     }
-// }
-
-// module.exports = { validateToken };
-
-
 const { verify } = require('jsonwebtoken');
 
 const validateToken = (req, res, next) => {
@@ -36,20 +14,8 @@ const validateToken = (req, res, next) => {
         req.user = validToken;
         next();
     } catch (err) {
-        // return res.status(403).json({ error: "Invalid token" });
-        // if (err instanceof yup.ValidationError) {
-        //     return res.status(400).json({ error: err.errors });
-        // }
         return res.status(500).json({ error: err.message });
-
     }
 };
-
-// const checkAdmin = (req, res, next) => {
-//     if (req.user.role !== 'admin') {
-//         return res.status(403).json({ error: "Access denied" });
-//     }
-//     next();
-// };
 
 module.exports = { validateToken };

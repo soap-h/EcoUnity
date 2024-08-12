@@ -11,7 +11,7 @@ const ProtectedRoute = ({ element: Component, ...rest }) => {
         return <Navigate to="/login" />;
     }
 
-    if (parseInt(user.isAdmin) !== 1) {
+    if (user.isAdmin == false) {
         return <Navigate to="/" />;
     }
 
