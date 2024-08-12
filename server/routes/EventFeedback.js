@@ -9,6 +9,7 @@ router.post("/:id", validateToken, async (req, res) => {
     let data = req.body;
     data.eventId = req.params.id;
     console.log(data.eventId);
+
     let validationSchema = yup.object({
         EventName: yup.string().trim().min(3).max(100).required(),
         Improvement: yup.string().trim().min(3).max(500).required(),
@@ -16,6 +17,7 @@ router.post("/:id", validateToken, async (req, res) => {
         rating: yup.number().min(1).max(10).required(),
         eventId: yup.number().required()
     });
+
     try {
         data = await validationSchema.validate(data, { abortEarly: false });
 
@@ -27,9 +29,8 @@ router.post("/:id", validateToken, async (req, res) => {
             { feedback: 1 }, 
             { 
                 where: { 
-                    userId: req.user.id, 
-                    eventId: data.eventId 
-                } 
+                    id: data.eventId // Update the registration using the row ID
+                }
             }
         );
 
@@ -38,6 +39,7 @@ router.post("/:id", validateToken, async (req, res) => {
         res.status(400).json({ errors: err.errors });
     }
 });
+
 
 
 router.get("/", async (req, res) => {
