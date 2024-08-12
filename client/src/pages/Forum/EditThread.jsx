@@ -1,30 +1,20 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import http from '../../http';
 import { Box, Typography, TextField, Button, CircularProgress, Grid } from '@mui/material';
 import { useFormik } from 'formik';
 import * as yup from 'yup';
-import { useNavigate } from 'react-router-dom';
-
-// Toast For File Upload
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-
-
+import styles from './EditThread.module.css';
 
 function EditThread() {
-
     const navigate = useNavigate();
-
     const { id } = useParams();
-
-    const [thread, setThread] = useState({
-        title: "",
-        description: ""
-    })
-
-    // For File Upload
+    const [thread, setThread] = useState({ title: "", description: "" });
     const [imageFile, setImageFile] = useState(null);
+    const [loading, setLoading] = useState(true);
+
     const onFileChange = (e) => {
         let file = e.target.files[0];
         if (file) {
@@ -35,29 +25,19 @@ function EditThread() {
             let formData = new FormData();
             formData.append('file', file);
             http.post('/file/upload/threadPictures', formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data'
-                }
+                headers: { 'Content-Type': 'multipart/form-data' }
             })
-                .then((res) => {
-                    setImageFile(res.data.filename);
-                    console.log(res.data);
-                })
-                .catch(function (error) {
-                    console.log(error.response);
-                });
+            .then((res) => {
+                setImageFile(res.data.filename);
+            })
+            .catch((error) => {
+                console.log(error.response);
+            });
         }
     };
 
-
-
-    const [loading, setLoading] = useState(true);
-
-
     useEffect(() => {
         http.get(`/thread/id/${id}`).then((res) => {
-            console.log(res.data);
-
             setThread(res.data);
             setImageFile(res.data.imageFile);
             setLoading(false);
@@ -80,7 +60,6 @@ function EditThread() {
                 .max(2000, 'Description needs to be at most 2000 characters')
                 .required('Description is required')
         }),
-
         onSubmit: (data) => {
             if (imageFile) {
                 data.imageFile = imageFile;
@@ -89,93 +68,73 @@ function EditThread() {
             data.description = data.description.trim();
 
             http.put(`/thread/update/${id}`, data).then((res) => {
-                console.log(res.data);
-
                 navigate('/forum');
-            })
+            });
         }
     });
 
-    const [open, setOpen] = useState(false);
-
-    const handleOpen = () => {
-        setOpen(true);
-    };
-
-    const handleClose = () => {
-        setOpen(false);
-    };
-
     return (
-        <Box>
-            <Typography variant="h5" sx={{ my: 2 }}>Edit Thread</Typography>
+        <Box className={styles.container} sx={{mt:2}}>
+            <Typography variant="h5" className={styles.title} >Edit Thread</Typography>
 
-            {
-                loading ? (
+            {loading ? (
+                <Box className={styles.spinnerContainer}>
                     <CircularProgress />
-                ) : (
-
-                    <Box component="form" onSubmit={formik.handleSubmit}>
-                        <Grid container spacing={2}>
-                            <Grid item xs={12} md={6} lg={8}>
-                                {/* Adding text field for the title */}
-                                <TextField fullWidth margin="dense"
-                                    autoComplete='off'
-                                    label='Title'
-                                    name='title'
-                                    value={formik.values.title}
-                                    onChange={formik.handleChange}
-                                    onBlur={formik.handleBlur}
-                                    error={formik.touched.title && Boolean(formik.errors.title)}
-                                    helperText={formik.touched.title && formik.errors.title} />
-
-                                {/* Adding textfield for the description */}
-                                <TextField fullWidth margin="dense"
-                                    autoComplete='off'
-                                    multiline minRows={2}
-                                    label='Description'
-                                    name='description'
-                                    value={formik.values.description}
-                                    onChange={formik.handleChange}
-                                    onBlur={formik.handleBlur}
-                                    error={formik.touched.description && Boolean(formik.errors.title)}
-                                    helperText={formik.touched.description && formik.errors.title} />
-
-                            </Grid>
-                            <Grid item xs={12} md={6} lg={4}>
-                                <Box sx={{ textAlign: 'center', mt: 2 }}>
-                                    <Button variant="contained" component="label">
-                                        Upload Image
-                                        <input hidden accept="image/*" multiple type='file' onChange={onFileChange} />
-                                    </Button>
-                                    {
-                                        imageFile && (
-                                            <Box className="aspect-ratio-container" sx={{ mt: 2 }}>
-                                                <img alt="thread"
-                                                    src={`${import.meta.env.VITE_FILE_THREAD_URL}${imageFile}`}>
-                                                </img>
-                                            </Box>
-                                        )
-                                    }
-                                </Box>
-
-
-                            </Grid>
+                </Box>
+            ) : (
+                <Box component="form" onSubmit={formik.handleSubmit}>
+                    <Grid container spacing={2}>
+                        <Grid item xs={12} md={6} lg={8} sx={{mt:1}}>
+                            <TextField
+                                className={styles.textField}
+                                fullWidth
+                                margin="dense"
+                                autoComplete='off'
+                                label='Title'
+                                name='title'
+                                value={formik.values.title}
+                                onChange={formik.handleChange}
+                                onBlur={formik.handleBlur}
+                                error={formik.touched.title && Boolean(formik.errors.title)}
+                                helperText={formik.touched.title && formik.errors.title}
+                            />
+                            <TextField
+                                className={styles.textField}
+                                fullWidth
+                                margin="dense"
+                                multiline
+                                minRows={2}
+                                label='Description'
+                                name='description'
+                                value={formik.values.description}
+                                onChange={formik.handleChange}
+                                onBlur={formik.handleBlur}
+                                error={formik.touched.description && Boolean(formik.errors.description)}
+                                helperText={formik.touched.description && formik.errors.description}
+                            />
                         </Grid>
-
-
-                        <Box sx={{ mt: 2 }}>
-                            {/* Adding update button */}
-                            <Button variant="contained" type='submit'>Update</Button>
-
-                        </Box>
-
+                        <Grid item xs={12} md={6} lg={4}>
+                            <Box sx={{ textAlign: 'center', mt: 2 }}>
+                                <Button className={styles.uploadButton} variant="contained" component="label">
+                                    Upload Image
+                                    <input hidden accept="image/*" multiple type='file' onChange={onFileChange} />
+                                </Button>
+                                {imageFile && (
+                                    <Box className={styles.imagePreview}>
+                                        <img alt="thread" src={`${import.meta.env.VITE_FILE_THREAD_URL}${imageFile}`} />
+                                    </Box>
+                                )}
+                            </Box>
+                        </Grid>
+                    </Grid>
+                    <Box sx={{ mt: 2 }}>
+                        <Button className={styles.updateButton} variant="contained" type='submit'>Update</Button>
                     </Box>
-                )
-            }
+                </Box>
+            )}
             <ToastContainer />
         </Box>
-    )
+    );
 }
 
-export default EditThread
+export default EditThread;
