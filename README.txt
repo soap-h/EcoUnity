@@ -18,6 +18,7 @@ npm install @stripe/react-stripe-js @stripe/stripe-js
 npm install chart.js react-chartjs-2
 npm i recharts
 npm i nodemailer
+npm i react-loader-spinner
 
 under server:
 npm i cors
@@ -28,6 +29,10 @@ npm i nanoid@3
 
 for payments
 npm i @stripe/react-stripe-js @stripe/stripe-js
+npm i @stripe/stripe-js --legacy-peer-deps
 
 for emails
 npm i nodemailer
+
+for google maps
+npm install use-places-autocomplete @react-google-maps/api

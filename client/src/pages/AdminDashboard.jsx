@@ -1,10 +1,26 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Box, Typography, Grid, Paper } from '@mui/material';
 import AdminSidebar from '../components/AdminSidebar';
 import UserContext from '../contexts/UserContext';
+import http from '../http';
 
 const AdminDashboard = () => {
     const { user } = useContext(UserContext);
+    const [pendingProposalsCount, setPendingProposalsCount] = useState(0);
+
+    useEffect(() => {
+        const fetchPendingProposalsCount = async () => {
+            try {
+                const response = await http.get('/proposals');
+                const pendingProposals = response.data.filter(proposal => proposal.status === 'Pending');
+                setPendingProposalsCount(pendingProposals.length);
+            } catch (error) {
+                console.error('Failed to fetch pending proposals count:', error);
+            }
+        };
+
+        fetchPendingProposalsCount();
+    }, []);
 
     return (
         <Box sx={{ display: 'flex' }}>
@@ -20,7 +36,7 @@ const AdminDashboard = () => {
                                 Pending Proposals
                             </Typography>
                             <Typography variant="h4" sx={{ color: '#4CAF50' }}>
-                                0
+                                {pendingProposalsCount}
                             </Typography>
                         </Paper>
                     </Grid>

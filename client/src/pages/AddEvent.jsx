@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { Box, TextField, Button, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
+import { Box, TextField, Button, FormControl, InputLabel, Select, MenuItem, List, ListItem } from '@mui/material';
 import { LocalizationProvider, DatePicker, TimePicker } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import usePlacesAutocomplete, { getGeocode, getLatLng } from 'use-places-autocomplete';
 import http from '../http';
 
 const AddEvent = ({ onClose }) => {
@@ -10,31 +11,83 @@ const AddEvent = ({ onClose }) => {
     const [date, setDate] = useState(null);
     const [timeStart, setTimeStart] = useState(null);
     const [timeEnd, setTimeEnd] = useState(null);
-    const [venue, setVenue] = useState('');
+    const [venue, setVenue] = useState('');  // Venue state
     const [price, setPrice] = useState(0);
     const [participants, setParticipants] = useState(1);
     const [category, setCategory] = useState('');
     const [type, setType] = useState('');
     const [registerEndDate, setRegisterEndDate] = useState(null);
     const [imageFile, setImageFile] = useState(null);
+    const [location, setLocation] = useState({ lat: 1.3521, lng: 103.8198 }); // Default location
+
+    const {
+        ready,
+        value,
+        suggestions: { status, data },
+        setValue,
+        clearSuggestions,
+    } = usePlacesAutocomplete({
+        requestOptions: {
+            location: { lat: () => 1.3521, lng: () => 103.8198 },
+            radius: 200 * 1000,
+        },
+    });
+
+    const handleSelect = async (address) => {
+        setValue(address, false);
+        clearSuggestions();
+
+        try {
+            const results = await getGeocode({ address });
+            const { lat, lng } = await getLatLng(results[0]);
+            setVenue(address);  // Set the venue state
+            setLocation({ lat, lng });
+        } catch (error) {
+            console.error('Error: ', error);
+        }
+    };
 
     const handleSubmit = async () => {
+        // Ensure venue is a string and has a valid value
+        let venueText = venue || '';
+    
+        if (typeof venueText !== 'string' || venueText.trim().length < 3) {
+            // Fetch address from latitude and longitude if venue is not properly set
+            const geocoder = new google.maps.Geocoder();
+            const latLng = new google.maps.LatLng(location.lat, location.lng);
+            const response = await new Promise((resolve, reject) => {
+                geocoder.geocode({ location: latLng }, (results, status) => {
+                    if (status === "OK" && results[0]) {
+                        resolve(results[0].formatted_address);
+                    } else {
+                        reject('Failed to fetch address');
+                    }
+                });
+            });
+            venueText = response;
+        }
+    
+        // Log to check the final venue text before submission
+        console.log('Final Venue before submission:', venueText);
+    
         const formData = new FormData();
         formData.append('title', title);
         formData.append('details', details);
         formData.append('date', date ? date.format('YYYY-MM-DD') : null);
         formData.append('timeStart', timeStart ? timeStart.format('HH:mm:ss') : null);
         formData.append('timeEnd', timeEnd ? timeEnd.format('HH:mm:ss') : null);
-        formData.append('venue', venue);
+        formData.append('venue', venueText);  // Use the processed venue text
         formData.append('price', price);
         formData.append('participants', participants);
         formData.append('category', category);
         formData.append('type', type);
         formData.append('registerEndDate', registerEndDate ? registerEndDate.format('YYYY-MM-DD') : null);
+        formData.append('latitude', location.lat);
+        formData.append('longitude', location.lng);
         if (imageFile) {
             formData.append('file', imageFile);
         }
-
+    
         try {
             const response = await http.post('/events', formData, {
                 headers: {
@@ -92,11 +145,21 @@ const AddEvent = ({ onClose }) => {
                     />
                     <TextField
                         label="Venue"
-                        value={venue}
-                        onChange={(e) => setVenue(e.target.value)}
+                        value={value}
+                        onChange={(e) => setValue(e.target.value)}
                         fullWidth
                         margin="normal"
+                        placeholder="Enter the venue"
                     />
+                    {status === 'OK' && (
+                        <List sx={{ maxHeight: 200, overflow: 'auto', marginTop: '10px' }}>
+                            {data.map(({ place_id, description }) => (
+                                <ListItem key={place_id} button onClick={() => handleSelect(description)}>
+                                    {description}
+                                </ListItem>
+                            ))}
+                        </List>
+                    )}
                     <TextField
                         label="Price"
                         type="number"
@@ -154,9 +217,6 @@ const AddEvent = ({ onClose }) => {
                     />
                 </Box>
                 <Box display="flex" justifyContent="flex-end">
-                    <Button onClick={onClose} color="primary" variant="outlined" sx={{ mr: 1 }}>
-                        Cancel
-                    </Button>
                     <Button onClick={handleSubmit} color="primary" variant="contained">
                         Add Event
                     </Button>

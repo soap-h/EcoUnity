@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import {
     Card, CardContent, CardHeader, Avatar, Typography, IconButton, Chip, Button, Collapse, TextField, Divider, Box, Tooltip
 } from '@mui/material';
@@ -6,20 +6,24 @@ import {
     Add as AddIcon, Delete as DeleteIcon, Edit as EditIcon, Comment as CommentIcon, BookmarkBorder as BookmarkBorderIcon,
     Bookmark as BookmarkIcon, ExpandMore as ExpandMoreIcon, Mood as MoodIcon, MoodBad as MoodBadIcon
 } from '@mui/icons-material';
-import dayjs from 'dayjs';
+import dayjs from '../../dayjsConfig';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
+import FavoriteIcon from '@mui/icons-material/Favorite';
 import ReplyIcon from '@mui/icons-material/Reply';
 import ReportGmailerrorredIcon from '@mui/icons-material/ReportGmailerrorred';
 import { Link } from 'react-router-dom';
 import ReportThreadForm from './ReportThreadForm';
 import global from '../../global';
 import './ThreadCard.css'; // Import the CSS file
+import http from '../../http';
+import UserContext from '../../contexts/UserContext';
 
 const ThreadCard = ({
     thread, onDeleteClick, onBookmarkToggle, onCommentClick, onCommentChange, onCommentSubmit, newComment, bookmarkedThreads, onViewCommentsToggle, truncateContent, getCategoryChipColor,
-    showComments, comments, userVotes, handleVote, showFullContent, handleToggleContent, user
+    showComments, comments, userVotes, handleVote, showFullContent, handleLikeToggle, handleToggleContent, user
 }) => {
     const [reportFormOpen, setReportFormOpen] = useState(false);
+    const [commentLikes, setCommentLikes] = useState({});
 
     const handleReportButtonClick = () => {
         setReportFormOpen(true);
@@ -29,17 +33,53 @@ const ThreadCard = ({
         setReportFormOpen(false);
     };
 
+    const showThreadUserProfilePic = (picture) => {
+        const picUrl = `${import.meta.env.VITE_FILE_PROFILE_URL}${picture}`;
+        return picUrl || undefined;
+    }
+
+    const User = useContext(UserContext);
+
+    // Fetch comment like statuses
+    useEffect(() => {
+        const fetchCommentLikes = async () => {
+            try {
+                // Ensure comments[thread.id] is defined and an array
+                const commentsForThread = comments[thread.id] || [];
+                
+                // Map only if it's an array
+                const likeStatusPromises = commentsForThread.map(comment =>
+                    http.get(`/commentLikes/${comment.id}/like-status`)
+                );
+                
+                const results = await Promise.all(likeStatusPromises);
+                const likesData = {};
+
+                results.forEach((result, index) => {
+                    const commentId = commentsForThread[index].id;
+                    likesData[commentId] = result.data.liked;
+                });
+
+                setCommentLikes(likesData);
+            } catch (error) {
+                console.error('Error fetching comment like statuses', error);
+            }
+        };
+
+        fetchCommentLikes();
+    }, [comments, thread.id]);
+
     return (
         <>
             <Card key={thread.id} className="thread-card">
                 <CardHeader
                     avatar={<Link to={`/guestprofile/${thread.userId}`}>
-                        <Avatar alt={thread.user?.firstName} src={thread.user?.imageFile ? `${import.meta.env.VITE_FILE_PROFILE_URL}${thread.user?.imageFile}` : undefined} />
+                        <Avatar alt={thread.user?.firstName} src={showThreadUserProfilePic(thread.user?.imageFile)} />
                     </Link>}
                     title={<Link to={`/guestprofile/${thread.userId}`} style={{ textDecoration: 'none', color: 'inherit' }}>
                         {thread.user?.firstName}
                     </Link>}
-                    subheader={dayjs(thread.createdAt).format(global.datetimeFormat)}
+                    subheader={dayjs(thread.createdAt).fromNow()}
                     className="card-header"
                 />
                 <CardContent className="card-content">
@@ -102,7 +142,7 @@ const ThreadCard = ({
                                 <Box
                                     key={index}
                                     className="comment"
-                                    sx={{mt:2}}
+                                    sx={{ mt: 2 }}
                                 >
                                     <CardHeader
                                         avatar={
@@ -112,31 +152,44 @@ const ThreadCard = ({
                                             />
                                         }
                                         title={comment.user?.firstName}
-                                        subheader={dayjs(comment.createdAt).format('MMM D, YYYY h:mm A')}
+                                        subheader={dayjs(comment.createdAt).fromNow()}
                                         className="comment-header"
                                     />
                                     <Divider className="comment-divider" />
                                     <Typography
                                         variant="body1"
                                         color="text.primary"
-                                        sx={{mt:2}}
+                                        sx={{ mt: 2 }}
                                     >
                                         {comment.description}
                                     </Typography>
                                     <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
-                                        <Tooltip title="Like">
-                                            <IconButton className="icon-button">
-                                                <FavoriteBorderIcon />
-                                            </IconButton>
-                                        </Tooltip>
-                                        <Tooltip title="Reply">
-                                            <IconButton className="icon-button">
-                                                <ReplyIcon />
-                                            </IconButton>
-                                        </Tooltip>
+                                        {user && (
+                                            <>
+                                                <Tooltip title="Like">
+                                                    <IconButton
+                                                        className="icon-button"
+                                                        onClick={() => handleLikeToggle(thread.id, comment.id)} // <-- Pass comment.id
+                                                    >
+                                                        {commentLikes[comment.id] ? (
+                                                            <FavoriteIcon color="error" />
+                                                        ) : (
+                                                            <FavoriteBorderIcon />
+                                                        )}
+                                                        {comment.like ? comment.like : 0}
+                                                    </IconButton>
+                                                </Tooltip>
+                                                <Tooltip title="Reply">
+                                                    <IconButton className="icon-button">
+                                                        <ReplyIcon />
+                                                    </IconButton>
+                                                </Tooltip>
+                                            </>
+                                        )}
                                     </Box>
                                 </Box>
                             ))}
+
                         </Box>
                     )}
                 </CardContent>
@@ -174,7 +227,7 @@ const ThreadCard = ({
                             className="icon-button"
                         >
                             <CommentIcon />
-                            {thread.comments?.length || 0}
+                            {thread.commentCount || 0}
                         </IconButton>
                         <IconButton
                             color={bookmarkedThreads.includes(thread.id) ? 'primary' : 'default'}

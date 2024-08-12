@@ -302,7 +302,8 @@ const AdminEvents = () => {
                                 <TableHead>
                                     <TableRow>
                                         <TableCell>User ID</TableCell>
-                                        <TableCell>User Name</TableCell>
+                                        <TableCell>Name</TableCell>
+                                        <TableCell>Email</TableCell>
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
@@ -310,6 +311,7 @@ const AdminEvents = () => {
                                         <TableRow key={participant.id}>
                                             <TableCell>{participant.id}</TableCell>
                                             <TableCell>{participant.name}</TableCell>
+                                            <TableCell>{participant.email}</TableCell>
                                         </TableRow>
                                     ))}
                                 </TableBody>

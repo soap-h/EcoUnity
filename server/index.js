@@ -80,8 +80,12 @@ const userRoute = require('./routes/user');
 app.use("/user", userRoute);
 const fileRoute = require('./routes/file');
 app.use("/file", fileRoute);
+// const locationsRoute = require('./routes/locations');
+// app.use("/locations", locationsRoute);
 const eventsRoute = require('./routes/events');
 app.use("/events", eventsRoute);
+const paymentRoute = require('./routes/payment');
+app.use('/payment', paymentRoute);
 const proposalsRoute = require('./routes/proposals'); 
 app.use("/proposals", proposalsRoute); 
 const adminRoute = require('./routes/admin')
@@ -109,6 +113,8 @@ const bookmarkRoute = require('./routes/bookmark');
 app.use("/bookmarks", bookmarkRoute);
 const reportthreadRoute = require('./routes/reportthread');
 app.use("/reportthread", reportthreadRoute);
+const commentlikesRoute = require('./routes/commentLikes');
+app.use("/commentLikes", commentlikesRoute);
 
 
 

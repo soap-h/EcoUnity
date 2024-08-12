@@ -21,12 +21,17 @@ router.post("/", validateToken, upload, async (req, res) => {
         data.imageFile = req.file.filename; // Save the file name to the imageFile field
     }
 
+    // Log the data to inspect it
+    console.log('Data received:', data);
+
     let validationSchema = yup.object({
         title: yup.string().trim().min(3).max(100).required(),
         date: yup.date().required(),
         timeStart: yup.string().required(),
         timeEnd: yup.string().required(),
         venue: yup.string().trim().min(3).max(100).required(),
+        latitude: yup.number().required(),
+        longitude: yup.number().required(),
         participants: yup.number().required(),
         price: yup.number().required(),
         category: yup.string().trim().min(3).max(100).required(),
@@ -34,15 +39,19 @@ router.post("/", validateToken, upload, async (req, res) => {
         details: yup.string().trim().required(),
         registerEndDate: yup.date().required()
     });
+
     try {
         data = await validationSchema.validate(data, { abortEarly: false });
+        console.log('Data after validation:', data);
         let result = await Event.create(data);
         res.json(result);
     }
     catch (err) {
+        console.error('Validation failed:', err.errors);
         res.status(400).json({ errors: err.errors });
     }
 });
+
 
 router.get("/", async (req, res) => {
     let condition = {};
@@ -57,7 +66,7 @@ router.get("/", async (req, res) => {
     let list = await Event.findAll({
         where: condition,
         order: [['createdAt', 'DESC']],
-        attributes: ['id', 'title', 'date', 'participants', 'price', 'category', 'type', 'registerEndDate', 'timeStart', 'timeEnd', 'venue', 'details', 'userId', 'userName', 'imageFile', "registered"]
+        attributes: ['id', 'title', 'date', 'participants', 'price', 'category', 'type', 'registerEndDate', 'timeStart', 'timeEnd', 'venue', 'latitude', 'longitude', 'details', 'userId', 'userName', 'imageFile', "registered"]
         // include: { model: User, as: "user", attributes: ['firstName'] }
     });
     res.json(list);
@@ -109,6 +118,8 @@ router.put("/:id", validateToken, upload, async (req, res) => {
         timeStart: yup.string().required(),
         timeEnd: yup.string().required(),
         venue: yup.string().trim().min(3).max(100).required(),
+        latitude: yup.number().required(),
+        longitude: yup.number().required(),
         price: yup.number().required(),
         category: yup.string().trim().min(3).max(100).required(),
         type: yup.string().trim().min(3).max(100).required(),
@@ -172,13 +183,14 @@ router.get('/:id/participants', async (req, res) => {
                 {
                     model: User,
                     as: 'user',
-                    attributes: ['id', 'firstName', 'lastName'],
+                    attributes: ['id', 'firstName', 'lastName', 'email'],
                 },
             ],
         });
         const participants = registrations.map((registration) => ({
             id: registration.user.id,
             name: `${registration.user.firstName} ${registration.user.lastName}`,
+            email: registration.user.email
         }));
         res.json(participants);
     } catch (error) {
@@ -186,5 +198,17 @@ router.get('/:id/participants', async (req, res) => {
     }
 });
 
-
+router.get('/:id/participatedevents', async (req, res) => {
+    try {
+        const userid = req.params.id;
+        const registrations = await Registration.findAll({
+            where: { userId: userid },
+            order: [["createdAt", "DESC"]]
+        });
+        res.json(registrations);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+})
 module.exports = router;
+
