@@ -157,25 +157,29 @@ function IndividualReport() {
                     <>
                       <Grid container justifyContent="space-between" alignItems="center">
                         <Typography variant="h6">Reviewer Notes:</Typography>
-                        <IconButton onClick={handleEditClick}>
+                        {(report.EditNoteUser === undefined || report.EditNoteUser.id === user.id) &&(
+                          <IconButton onClick={handleEditClick}>
                           <EditIcon />
                         </IconButton>
+    
+                      )}  
+                        
                       </Grid>
                       <Typography variant="body1">
-                        {report.Note }
+                        {report.Note}
                       </Typography>
                       <Typography variant="body2" align="right">
                         Report by: {report.EditNoteUser?.firstName || 'N/A'}
                       </Typography>
                     </>
                   )}
-          </CardContent>
-        </Card>
-      </Grid>
-    </Grid>
+                </CardContent>
+              </Card>
+            </Grid>
+          </Grid>
         </Box >
       </Box >
-    <ToastContainer />
+      <ToastContainer />
     </Box >
   );
 }

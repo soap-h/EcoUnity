@@ -130,8 +130,9 @@ function AddFeedback() {
                     toast.success(`Form has been sent successfully!`);
 
                     // Update the feedback status to true
-                    http.put(`/registrations/update-feedback-status`, {
-                        feedbackstatus: true
+                    http.put(`/events/update-feedback-status/${selectedEventId}`, {
+                        userID: user.id,
+                        FeedbackStatus: true
                     })
                         .then(() => {
                             console.log('Feedback status updated successfully');

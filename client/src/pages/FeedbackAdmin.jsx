@@ -29,6 +29,8 @@ function FeedbackAdmin() {
     const [selectedEvent, setSelectedEvent] = useState('');
     const [participants, setParticipants] = useState([]);
     const [noParticipants, setNoParticipants] = useState('');
+    const [tempEventID, setTempEventID] = useState(''); 
+    const [tempUserID, setTempUserID] = useState('');
 
 
     useEffect(() => {
@@ -37,6 +39,34 @@ function FeedbackAdmin() {
             setFeedback(res.data);
         }).catch(error => {
             console.error('Error fetching feedback:', error);
+        });
+
+        Promise.all([
+            http.get(`/events/${2
+
+            }/participants`),
+            http.get('/EventFeedback')
+        ])
+        .then(([participantsRes, feedbackRes]) => {
+            const participants = participantsRes.data;
+            const feedback = feedbackRes.data;
+            console.log('Participants:', participants);
+            console.log('Feedback:', feedback);
+        
+            const combinedData = participants.map(participant => {
+                const matchingFeedback = feedback.find(fb => fb.eventId === participant.eventId && fb.userId === participant.id);
+                console.log('Matching Feedback:', matchingFeedback);
+                return {
+                    ...participant,
+                    feedback: matchingFeedback || null, // Attach feedback if it exists, otherwise null
+                };
+            });
+        
+            console.log('Combined Data:', combinedData);
+            setParticipants(combinedData);
+        })
+        .catch(error => {
+            console.error('Error fetching data:', error);
         });
     }, []);
 
@@ -55,16 +85,31 @@ function FeedbackAdmin() {
     const handleViewParticipants = () => {
         console.log('Selected event: after handleview', selectedEvent);
 
-        http.get(`/events/${selectedEvent}/participants`)
-            .then(res => {
-                setParticipants(res.data);
-                const noParticipants = res.data.length;
-                setNoParticipants(noParticipants);
-                console.log('Participants:', participants);
-            })
-            .catch(error => {
-                console.error('Failed to fetch participants:', error);
+        Promise.all([
+            http.get(`/events/${selectedEvent}/participants`),
+            http.get('/EventFeedback')
+        ])
+        .then(([participantsRes, feedbackRes]) => {
+            const participants = participantsRes.data;
+            const feedback = feedbackRes.data;
+            console.log('Participants:', participants);
+            console.log('Feedback:', feedback);
+        
+            const combinedData = participants.map(participant => {
+                const matchingFeedback = feedback.find(fb => fb.eventId === participant.eventId && fb.userId === participant.id);
+                console.log('Matching Feedback:', matchingFeedback);
+                return {
+                    ...participant,
+                    feedback: matchingFeedback || null, // Attach feedback if it exists, otherwise null
+                };
             });
+        
+            console.log('Combined Data:', combinedData);
+            setParticipants(combinedData);
+        })
+        .catch(error => {
+            console.error('Error fetching data:', error);
+        });
     };
 
     const handleChangeEvent = (event) => {
@@ -98,7 +143,7 @@ function FeedbackAdmin() {
                 recipient: FeedbackEmail,
                 userId: user.id
             };
-        
+
             http.post('/inbox', messageData)
                 .then(() => {
                     setFeedbackEmail(null);
@@ -111,8 +156,10 @@ function FeedbackAdmin() {
         }
     });
 
-    const handleOpenDeleteDialog = (id) => {
+    const handleOpenDeleteDialog = (id,eventid,userid) => {
         setFeedbackID(id);
+        setTempEventID(eventid);
+        setTempUserID(userid);
         setOpenDelete(true);
     };
 
@@ -140,6 +187,17 @@ function FeedbackAdmin() {
                     console.error('Error deleting feedback:', error);
                     toast.error('Failed to delete feedback.');
                 });
+            
+                http.put(`/events/update-feedback-status/${tempEventID}`, {
+                    userId: tempUserID,
+                    FeedbackStatus: false
+                })
+                    .then(() => {
+                        console.log('Feedback status updated successfully');
+                    })
+                    .catch((error) => {
+                        console.error('Error updating feedback status:', error);
+                    });
         }
     };
 
@@ -167,7 +225,7 @@ function FeedbackAdmin() {
                         <Grid item xs={4}>
                             <Box sx={{ p: 2, bgcolor: '#3f51b5', borderRadius: '8px', textAlign: 'center', color: 'white' }}>
                                 <Typography variant="h6">Total Particpants</Typography>
-                                <Typography variant="h4">{noParticipants}</Typography>
+                                <Typography variant="h4">{participants.length}</Typography>
                             </Box>
                         </Grid>
                         <Grid item xs={4}>
@@ -221,7 +279,7 @@ function FeedbackAdmin() {
                                         </TableCell>
                                         <TableCell align="center">{feedback.name}</TableCell>
                                         <TableCell align="center">{feedback.email}</TableCell>
-                                        {feedback?.FeedbackStatus === 0 ? (
+                                        {feedback?.feedbackstatus === true ? (
                                             <>
                                                 <TableCell align="center"><Link to={`/admin/FeedbackAdmin/${feedback.id}`}>Feedback</Link></TableCell>
                                                 <TableCell align="center">
@@ -230,7 +288,7 @@ function FeedbackAdmin() {
                                                     </IconButton>
                                                 </TableCell>
                                                 <TableCell align="center">
-                                                    <IconButton onClick={() => handleOpenDeleteDialog(feedback.id)}>
+                                                    <IconButton onClick={() => handleOpenDeleteDialog(feedback.id, feedback.eventId, feedback.userId)}>
                                                         <DeleteOutlineIcon />
                                                     </IconButton>
                                                 </TableCell>

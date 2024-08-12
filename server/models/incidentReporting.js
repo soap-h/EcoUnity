@@ -14,6 +14,7 @@ module.exports = (sequelize, DataTypes) => {
         },
         ActionTaken: {
             type: DataTypes.STRING(100),
+            defaultValue: 'pending',
         },
 
         Note: {

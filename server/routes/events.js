@@ -164,7 +164,7 @@ router.delete("/:id", validateToken, async (req, res) => {
     }
 });
 
-router.get('/:id/participants', async (req, res) => {
+router.get('/:id/participants' ,validateToken, async (req, res) => {
     try {
         const eventId = req.params.id;
         const registrations = await Registration.findAll({
@@ -183,6 +183,9 @@ router.get('/:id/participants', async (req, res) => {
             id: registration.user.id,
             name: `${registration.user.firstName} ${registration.user.lastName}`,
             email: registration.user.email, // Include the email in the response
+            userId: registration.userId,
+            eventId: registration.eventId,
+            feedbackstatus: registration.FeedbackStatus
         }));
 
         // Send the participants as the response
@@ -192,7 +195,7 @@ router.get('/:id/participants', async (req, res) => {
     }
 });
 
-router.get('/:id/registrations', async (req, res) => {
+router.get('/:id/registrations',validateToken, async (req, res) => {
     try {
         const userId = req.params.id; // Assuming you're passing userId as a query parameter
 
@@ -218,9 +221,11 @@ router.get('/:id/registrations', async (req, res) => {
     }
 });
 
-router.put('/registrations/update-feedback-status', async (req, res) => {
+router.put('/update-feedback-status/:eventID',validateToken, async (req, res) => {
+    const eventId = req.params.eventID
+    
     try {
-        const { userId, eventId, feedbackstatus } = req.body;
+        const { FeedbackStatus, userId } = req.body;
         
         const registration = await Registration.findOne({
             where: {
@@ -230,7 +235,7 @@ router.put('/registrations/update-feedback-status', async (req, res) => {
         });
 
         if (registration) {
-            registration.feedbackstatus = feedbackstatus;
+            registration.FeedbackStatus = FeedbackStatus;
             await registration.save();
             res.json({ message: 'Feedback status updated successfully' });
         } else {

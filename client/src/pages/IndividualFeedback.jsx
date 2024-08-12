@@ -44,7 +44,7 @@ function IndividualFeedback() {
                         <Grid item>
                             <h1>Feedback</h1>
                             <p>Feedback Date: {Feedback.CreatedAt || 'N/A'}</p>
-                            <p>NAme: {Feedback.EventName || 'N/A'}</p>
+                            <p>EventName: {Feedback.EventName || 'N/A'}</p>
                             <p>improvement: {Feedback.Improvement || 'N/A'}</p>
                             <p>Enjoyemnt: {Feedback.Enjoy || 'N/A'}</p>
                             <p>rating: {Feedback.rating || 'N/A'}</p>

@@ -16,7 +16,7 @@ import { toast, ToastContainer } from 'react-toastify';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 
-const statusOptions = ['Pending', 'Approved', 'Rejected'];
+const statusOptions = ['Pending', 'Resolved', 'Rejected'];
 
 function IncidentReportingUsers() {
   const [IncidentReportUsersList, setIncidentReportUsers] = useState([]);
@@ -128,7 +128,7 @@ function IncidentReportingUsers() {
           </Grid>
           <Grid item xs={4}>
             <Box sx={{ p: 2, bgcolor: '#4caf50', borderRadius: '8px', textAlign: 'center', color: 'white', position: 'relative' }}>
-              <Typography variant="h6">Approved Reports</Typography>
+              <Typography variant="h6">resolved Reports</Typography>
               <CircularProgress
                 variant="determinate"
                 value={approvedPercentage}
@@ -187,7 +187,7 @@ function IncidentReportingUsers() {
                     </IconButton>
                   </TableCell>
                   <TableCell align="center">
-                    {reviewerNoteMap[IncidentReportSubmits.Note] || 'No Note Available'}
+                    {IncidentReportSubmits.Note}
                   </TableCell>
                 </TableRow>
               ))}
