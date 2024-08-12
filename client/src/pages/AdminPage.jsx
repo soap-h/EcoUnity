@@ -47,7 +47,7 @@ function AdminPage() {
                     let formData = new FormData();
                     formData.append('file', imageFile);
                     
-                    const res = await http.post('/file/upload', formData, {
+                    const res = await http.post('/file/upload/productPictures', formData, {
                         headers: {
                             'Content-Type': 'multipart/form-data'
                         }
@@ -138,7 +138,7 @@ function AdminPage() {
             prod_price: product.prod_price,
             prod_stock: product.prod_stock,
         });
-        setPreviewURL(`${import.meta.env.VITE_FILE_BASE_URL}/${product.prod_img}`);
+        setPreviewURL(`${import.meta.env.VITE_FILE_PRODUCTS_URL}/${product.prod_img}`);
     };
 
     const handleDelete = (productId) => {
@@ -248,7 +248,7 @@ function AdminPage() {
                             <ListItemAvatar>
                                 <Avatar
                                     variant="square"
-                                    src={`${import.meta.env.VITE_FILE_BASE_URL}/${product.prod_img}`}
+                                    src={`${import.meta.env.VITE_FILE_PRODUCTS_URL}/${product.prod_img}`}
                                     alt={product.prod_name}
                                     sx={{ width: '100px', height: '100px', aspectRatio: '1/1', objectFit: 'cover' }}
                                 />
