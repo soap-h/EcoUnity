@@ -18,15 +18,20 @@ module.exports = (sequelize, DataTypes) => {
         },
         prod_rating: {
             type: DataTypes.FLOAT,
-            allowNull: true,
             defaultValue: 0
         },
         prod_stock: {
             type: DataTypes.INTEGER,
             allowNull: false,
+        },
+        prod_sold: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            defaultValue: 0
         }
+        
     }, {
-        tableName: 'products'
+        tableName: 'products',
     });
 
     Product.associate = (models) => {
@@ -34,9 +39,15 @@ module.exports = (sequelize, DataTypes) => {
             foreignKey: "productId",
             onDelete: "cascade"
         });
+        
         Product.hasMany(models.Review, {
             foreignKey: "productId",
             onDelete: "cascade"
+        });
+
+        Product.hasMany(models.Cart, {
+            foreignKey: "productId",
+            onDelete: "CASCADE"
         });
     };
 

@@ -22,6 +22,10 @@ module.exports = (sequelize, DataTypes) => {
         },
         imageFile: {
             type: DataTypes.STRING(20)
+        },
+        isPrivate: {
+            type: DataTypes.BOOLEAN,
+            defaultValue: false
         }
     }, {
         tableName: 'threads'

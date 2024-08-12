@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button, IconButton, Box, Typography } from '@mui/material';
 import MerchandiseBanner from '../assets/Merchandise Banner.png'; // Ensure path is correct
@@ -10,6 +10,9 @@ import { useCart } from '../contexts/CartContext.jsx';
 import ArrowCircleRightIcon from '@mui/icons-material/ArrowCircleRight';
 import ArrowCircleLeftIcon from '@mui/icons-material/ArrowCircleLeft';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
+import WorkHistoryIcon from '@mui/icons-material/WorkHistory';
+
+import { CustomPrevArrow, CustomNextArrow } from '../components/Arrows.jsx';
 
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -33,6 +36,8 @@ function Merchandise() {
         slidesToScroll: 1,
         swipeToSlide: true,
         touchThreshold: 20,
+        prevArrow: <CustomPrevArrow/>,
+        nextArrow: <CustomNextArrow/>,
         responsive: [
             {
                 breakpoint: 1024,
@@ -83,8 +88,12 @@ function Merchandise() {
     
 
     const handleCart = () => {
-        navigate('/cart')
+        navigate('/cart');
     };
+
+    const handleHistory = () => {
+        navigate('/purchasehistory')
+    }
 
     useEffect(() => {
         http.get("/products")
@@ -96,11 +105,20 @@ function Merchandise() {
             });
     }, []); // Dependency array includes endpoint to refetch if any endpoint changes
 
+    const sortedByNewest = [...products].sort((a, b) => b.id - a.id).slice(0, 10);
+    const sortedByRating = [...products].sort((a, b) => b.prod_rating - a.prod_rating).slice(0, 10);
+    console.log(sortedByRating)
+
     return (
         <>
             {/* <img src={MerchandiseBanner} alt="Merchandise Banner" style={{ width: '100%', marginBottom: '20px' }} /> */}
 
-            <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', width: '95%'}}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '95%', margin: 'auto'}}>
+                <IconButton onClick={handleHistory} sx={{ mt: 5, ml: 5, borderRadius: 10 }}>
+                    <WorkHistoryIcon sx={{ height: 35, width: 35 }} />
+                    <Typography>Purchase History</Typography>
+                </IconButton>
+
                 <IconButton onClick={handleCart} sx={{ mt: 5, mr: 5, borderRadius: 10 }}>
                     <ShoppingCartIcon sx={{ height: 35, width: 35 }} />
                     <Typography>Shopping Cart</Typography>
@@ -109,24 +127,36 @@ function Merchandise() {
             
 
             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', mt: 2, width: '95%', margin: 'auto' }}>
-                <IconButton variant="contained" onClick={handlePrev} sx={{ mr: 2 }}>                       
+                {/* <IconButton variant="contained" onClick={handlePrev} sx={{ mr: 2 }}>                       
                     <ArrowCircleLeftIcon sx={{height: '50px', width: '50px'}} />
-                </IconButton>
+                </IconButton> */}
 
                 <Box style={{ width: '90%' }}>
                     {/* New Products Carousel */}
-                    <h1>New Arrivals</h1>
-                    <Slider ref={sliderRef} {...settings}>
-                        {products.map((product) => (
-                            <ProductCard key={product.id} product={product} handleBuy={handleBuy} />
-                        ))}
-                    </Slider>
+                    <Box>
+                        <h1>New Arrivals</h1>
+                        <Slider ref={sliderRef} {...settings}>
+                            {sortedByNewest.map((product) => (
+                                <ProductCard key={product.id} product={product} handleBuy={handleBuy} />
+                            ))}
+                        </Slider>
+                    </Box>
+                  
+                    <Box sx={{mt: 15}}>
+                        <h1>Highest Rated</h1>
+                        <Slider ref={sliderRef} {...settings}>
+                            {sortedByRating.map((product) => (
+                                <ProductCard key={product.id} product={product} handleBuy={handleBuy} />
+                            ))}
+                        </Slider>
+                    </Box>        
+                 
 
                 </Box>
 
-                <IconButton variant="contained" onClick={handleNext}>
+                {/* <IconButton variant="contained" onClick={handleNext}>
                     <ArrowCircleRightIcon sx={{height: '50px', width: '50px'}} />
-                </IconButton>
+                </IconButton> */}
 
                 <ToastContainer/>
             </Box>
