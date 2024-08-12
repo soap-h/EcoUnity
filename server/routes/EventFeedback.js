@@ -1,13 +1,14 @@
 const express = require('express');
 const router = express.Router();
-const { User, EventFeedback } = require('../models');
+const { User, EventFeedback, Registration } = require('../models');
 const { Op } = require("sequelize");
 const yup = require("yup");
 const { validateToken } = require('../middlewares/auth');
 
-router.post("/", validateToken, async (req, res) => {
+router.post("/:eventId", validateToken, async (req, res) => {
     let data = req.body;
     data.userId = req.user.id;
+    data.eventId = req.params.eventId;
     let validationSchema = yup.object({
         EventName: yup.string().trim().min(3).max(100).required(),
         Improvement: yup.string().trim().min(3).max(500).required(),

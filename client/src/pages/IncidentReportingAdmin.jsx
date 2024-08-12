@@ -34,6 +34,7 @@ function IncidentReportingUsers() {
         statusMap[item.id] = item.ActionStatus || '';
         noteMap[item.id] = item.ReviewerNote || '';
       });
+      console.log('Status Map:', res.data);
       setActionStatusMap(statusMap);
       setReviewerNoteMap(noteMap);
     }).catch((error) => {

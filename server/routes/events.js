@@ -1,10 +1,11 @@
 const express = require('express');
 const router = express.Router();
 const { User, Event, Registration } = require('../models');
-const { Op } = require("sequelize");
+const { Op, where } = require("sequelize");
 const yup = require("yup");
 const { validateToken } = require('../middlewares/auth');
 const { upload } = require('../middlewares/upload'); // Import the upload middleware
+const EventFeedback = require('../models/EventFeedback');
 
 router.post("/", validateToken, upload, async (req, res) => {
     let data = req.body;
@@ -172,19 +173,70 @@ router.get('/:id/participants', async (req, res) => {
                 {
                     model: User,
                     as: 'user',
-                    attributes: ['id', 'firstName', 'lastName'],
+                    attributes: ['id', 'firstName', 'lastName', 'email'],
                 },
+        
+
             ],
         });
-        const participants = registrations.map((registration) => ({
-            id: registration.user.id,
-            name: `${registration.user.firstName} ${registration.user.lastName}`,
-        }));
-        res.json(participants);
+        // const participants = registrations.map((registration) => ({
+        //     id: registration.user.id,
+        //     name: `${registration.user.firstName} ${registration.user.lastName}`,
+        // }));
+        // res.json(participants);
+        res.json(registrations);
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
 });
 
+router.get('/:id/registrations', async (req, res) => {
+    try {
+        const userId = req.params.id; // Assuming you're passing userId as a query parameter
+
+        if (!userId) {
+            return res.status(400).json({ error: 'User ID is required' });
+        }
+
+        // Fetch all registrations for the user
+        const registrations = await Registration.findAll({
+            where: { userId },
+            include: [
+                {
+                    model: Event,
+                    as: 'event',
+                    attributes: ['id', 'title'],
+                },
+            ],
+        });
+
+        res.json(registrations);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+router.put('/registrations/update-feedback-status', async (req, res) => {
+    try {
+        const { userId, eventId, feedbackstatus } = req.body;
+        
+        const registration = await Registration.findOne({
+            where: {
+                userId,
+                eventId
+            }
+        });
+
+        if (registration) {
+            registration.feedbackstatus = feedbackstatus;
+            await registration.save();
+            res.json({ message: 'Feedback status updated successfully' });
+        } else {
+            res.status(404).json({ error: 'Registration not found' });
+        }
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
 
 module.exports = router;
