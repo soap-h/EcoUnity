@@ -2,48 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { Box, Button, FormControl, InputLabel, Select, MenuItem, Typography } from '@mui/material';
 import Carousel from 'react-material-ui-carousel';
 import { Link } from 'react-router-dom';
-import './Events.css';
+import { CalendarToday, Place, AccessTime, AttachMoney } from '@mui/icons-material';
 import bannerImage from '../assets/images/events-banner.png';
 import http from '../http';
-// import event1Image from '../assets/images/composting-workshop.png'; 
-// import event2Image from '../assets/images/beach-clean-up.png'; 
-// import event3Image from '../assets/images/sustainability-seminar.png'; 
-
-// const events = [
-//     {
-//         id: 1,
-//         title: "Beginner Composting workshop (Transform food waste into nutrient compost!)",
-//         date: "May 24",
-//         venue: "Bishan CC",
-//         time: "05:00 PM - 07:00 PM",
-//         price: "$5",
-//         category: "Education",
-//         type: "Workshop",
-//         imgSrc: event1Image
-//     },
-//     {
-//         id: 2,
-//         title: "East Coast Beach Park Clean-up (Equipment is provided)",
-//         date: "May 25",
-//         venue: "Siglap CC",
-//         time: "09:00 AM - 04:00 PM",
-//         price: "FREE",
-//         category: "Community",
-//         type: "Clean-up",
-//         imgSrc: event2Image
-//     },
-//     {
-//         id: 3,
-//         title: "Sustainable practices seminar (waste reduction, energy and water management)",
-//         date: "Jun 01",
-//         venue: "Kampong Kembangan CC",
-//         time: "02:00 PM - 04:00 PM",
-//         price: "FREE",
-//         category: "Education",
-//         type: "Seminar",
-//         imgSrc: event3Image
-//     },
-// ];
 
 function Events() {
     const [events, setEvents] = useState([]);
@@ -142,7 +103,8 @@ function Events() {
                                         boxShadow: 3,
                                         borderRadius: 2,
                                         backgroundColor: '#fff',
-                                        textAlign: 'left'
+                                        textAlign: 'left',
+                                        textDecoration: 'none',
                                     }}
                                     component={Link}
                                     to={`/event/${ev.id}`}
@@ -158,14 +120,26 @@ function Events() {
                                     />
                                     <Box sx={{ padding: '10px' }}>
                                         <Box sx={{ display: 'flex', gap: '5px', marginBottom: '10px' }}>
-                                            <Typography variant="caption" sx={{ backgroundColor: '#8bc34a', padding: '5px', borderRadius: '4px' }}>{ev.category}</Typography>
-                                            <Typography variant="caption" sx={{ backgroundColor: '#03a9f4', padding: '5px', borderRadius: '4px' }}>{ev.type}</Typography>
+                                            <Typography variant="caption" sx={{ backgroundColor: '#8bc34a', color: '#fff', padding: '5px', borderRadius: '4px' }}>{ev.category}</Typography>
+                                            <Typography variant="caption" sx={{ backgroundColor: '#03a9f4', color: '#fff', padding: '5px', borderRadius: '4px' }}>{ev.type}</Typography>
                                         </Box>
-                                        <Typography variant="h6">{ev.title}</Typography>
-                                        <Typography variant="body2" color="textSecondary">{new Date(ev.date).toDateString()}</Typography>
-                                        <Typography variant="body2" color="textSecondary">{ev.venue}</Typography>
-                                        <Typography variant="body2" color="textSecondary">{`${ev.timeStart} - ${ev.timeEnd}`}</Typography>
-                                        <Typography variant="body2" color="textSecondary">{ev.price}</Typography>
+                                        <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#075f6b' }}>{ev.title}</Typography>
+                                        <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
+                                            <CalendarToday sx={{ mr: 1, color: '#757575', fontSize: 18 }} />
+                                            <Typography variant="body2" color="textSecondary">{new Date(ev.date).toDateString()}</Typography>
+                                        </Box>
+                                        <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
+                                            <Place sx={{ mr: 1, color: '#757575', fontSize: 18 }} />
+                                            <Typography variant="body2" color="textSecondary">{ev.venue}</Typography>
+                                        </Box>
+                                        <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
+                                            <AccessTime sx={{ mr: 1, color: '#757575', fontSize: 18 }} />
+                                            <Typography variant="body2" color="textSecondary">{`${ev.timeStart} - ${ev.timeEnd}`}</Typography>
+                                        </Box>
+                                        <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
+                                            <AttachMoney sx={{ mr: 1, color: '#757575', fontSize: 18 }} />
+                                            <Typography variant="body2" color="textSecondary">{ev.price}</Typography>
+                                        </Box>
                                     </Box>
                                 </Box>
                             ))}
