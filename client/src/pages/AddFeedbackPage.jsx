@@ -11,16 +11,18 @@ import { useParams } from 'react-router-dom';
 function AddFeedback() {
     const [submissionStatus, setSubmissionStatus] = useState('');
     const [eventName, setEventName] = useState('');
+    const [event, setevent] = useState(null)
     const { id } = useParams();
     const getevent = () => {
         http.get(`/events/regis/${id}`)
-        .then((res) => {
-            setEventName(res.data.event.title);
-        })
-        .catch((error) => {
-            toast.error('Failed to fetch event details');
-            console.error(error);
-        });
+            .then((res) => {
+                setEventName(res.data.event.title);
+                setevent(res.data)
+            })
+            .catch((error) => {
+                toast.error('Failed to fetch event details');
+                console.error(error);
+            });
     }
 
     useEffect(() => {
@@ -49,7 +51,7 @@ function AddFeedback() {
                 .required('Rating is required')
         }),
         onSubmit: (data) => {
-            data.EventName = eventName.trim(); 
+            data.EventName = eventName.trim();
             data.Improvement = data.Improvement.trim();
             data.Enjoy = data.Enjoy.trim();
 
@@ -65,6 +67,16 @@ function AddFeedback() {
                     toast.error(`Error in submitting form`);
                     console.error(error);
                 });
+
+                const message = {
+                    'title': `You have Successfully sent your feedback!`,
+                    'content': `You rated ${eventName}, ${data.rating}. Thanks for giving us feedback! `,
+                    'recipient': `${event.user.email}`,
+                    'date': `${new Date()}`,
+                    'category': "misc",
+                    'unread': 1
+                };
+                http.post("/inbox", message);
         }
     });
 

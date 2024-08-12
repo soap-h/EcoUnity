@@ -128,7 +128,7 @@ router.put("/:id/register", validateToken, async (req, res) => {
             return res.status(400).json({ error: "Event is fully booked" });
         }
 
-        let registration = await Registration.create({ eventId, userId });
+        let registration = await Registration.create({ eventId, userId, feedback:0 });
         await event.increment('registered', { by: 1 });
 
         res.json({ message: "Successfully registered for the event" });
