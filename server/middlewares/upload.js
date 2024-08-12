@@ -71,7 +71,7 @@ const slidesUpload = multer({
             cb(new Error('Only .pdf and .pptx files are allowed!'));
         }
     }
-}).single('slidesPath'); // 'slidesPath' is the input field name for this upload
+}).single('file'); // 'slidesPath' is the input field name for this upload
 
 // Storage configuration for product picture uploads
 const productStorage = multer.diskStorage({

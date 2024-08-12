@@ -66,6 +66,17 @@ router.post('/upload/productPictures', productUpload, (req, res) => {
     res.status(200).json({ filename: req.file.filename });
 });
 
+router.post('/upload/slides', slidesUpload, (req, res) => {
+    console.log('File upload request received:', req.file); // Log the file info to ensure it's being processed correctly
+
+    if (!req.file) {
+        return res.status(400).send('No file uploaded.');
+    }
+
+    res.status(200).json({ filename: req.file.filename });
+});
+
+
 module.exports = router;
 
 

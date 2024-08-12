@@ -27,6 +27,7 @@
     "nanoid": "^3.3.7",
     "nodemailer": "^6.9.14",
     "react-chartjs-2": "^5.2.0",
+    "react-pdf": "^9.1.0",
     "sequelize": "^6.37.3",
     "stripe": "^16.7.0",
     "use-places-autocomplete": "^4.0.1",

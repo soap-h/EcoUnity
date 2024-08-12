@@ -4,18 +4,34 @@ import { Box, Typography, Button, Grid, Rating, IconButton } from '@mui/material
 import { styled } from '@mui/system';
 import http from '../http'; // Adjust the path to your http utility
 import LocalShippingIcon from '@mui/icons-material/LocalShipping';
-
+import { useCart } from '../contexts/CartContext.jsx';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function ProductPage( ) {
     const { id } = useParams();
     const [product, setProduct] = useState(null);
     const [reviews, setReviews] = useState([]);
     const [loading, setLoading] = useState(true);
+    const cartContext = useCart();
+    const dispatch = cartContext?.dispatch || (() => {});
 
     const navigate = useNavigate();
 
-    const handleClick = () => {
+    const handleReview = () => {
         navigate(`/reviews/${product.id}`)
+    };
+
+    const handleCart = (id) => {
+        if (product.prod_stock !== 0) {
+                dispatch({
+                    type: 'ADD_TO_CART',
+                    payload: { id: product.id, name: product.prod_name, price: product.prod_price, image: product.prod_img },
+                });
+                toast.success('Product added to cart!');
+            } else {
+                toast.error('Product is out of stock!');
+            }        
     };
     
     useEffect(() => {
@@ -68,7 +84,7 @@ function ProductPage( ) {
                     <RatingContainer>
                         <Rating value={product.prod_rating} readOnly precision={0.25} />
                         <ReviewCount>({reviewCount} reviews)</ReviewCount>
-                        <ReviewLink onClick={handleClick}>View Reviews</ReviewLink>
+                        <ReviewLink onClick={handleReview}>View Reviews</ReviewLink>
                     </RatingContainer>
                     <ProductPrice variant="h5">{product.prod_price} Points</ProductPrice>
                     <ShippingInfo>
@@ -76,17 +92,13 @@ function ProductPage( ) {
                         1-2 days
                     </ShippingInfo>
                     <ProductDescription>{product.prod_desc}</ProductDescription>
-                    <ProductSpecs>
-                        <SpecItem>Weight: 1 kilogram</SpecItem>
-                        <SpecItem>Size: 500mm x 70mm x 70mm</SpecItem>
-                    </ProductSpecs>
                     <ButtonContainer>
-                        <AddToCartButton variant="contained">Add to Cart</AddToCartButton>
-                        <BuyNowButton variant="contained">Buy Now</BuyNowButton>
+                        <AddToCartButton variant="contained" onClick={() => handleCart(product.id)}>Add to Cart</AddToCartButton>
                     </ButtonContainer>
                 </ProductDetails>
             </Grid>
         </Grid>
+        <ToastContainer/>
     </PageContainer>
     );
 }
@@ -168,6 +180,7 @@ const ShippingInfo = styled(Box)(({ theme }) => ({
 
 const ProductDescription = styled(Typography)(({ theme }) => ({
     marginBottom: theme.spacing(2),
+    minHeight: '100px'
 }));
 
 const ProductSpecs = styled(Box)(({ theme }) => ({
