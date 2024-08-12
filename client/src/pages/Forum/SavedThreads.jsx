@@ -61,6 +61,29 @@ function SavedThreads() {
     const navigate = useNavigate();
 
 
+    const [sortOption, setSortOption] = useState('most recent'); // Default sort option
+
+    const sortThreads = (threads, option) => {
+        switch (option) {
+            case 'most recent':
+                return threads.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+            case 'oldest':
+                return threads.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+            case 'A to Z':
+                return threads.sort((a, b) => a.title.localeCompare(b.title)); // Assuming thread has a title property
+            case 'Z to A':
+                return threads.sort((a, b) => b.title.localeCompare(a.title)); // Assuming thread has a title property
+            default:
+                return threads;
+        }
+    };
+
+    const handleSortChange = (option) => {
+        setSortOption(option);
+        setThreadList(prevThreads => sortThreads([...prevThreads], option)); // Sort the threads
+    };
+
+
     const handleToggleContent = () => {
         setShowFullContent(!showFullContent);
     };
@@ -168,14 +191,14 @@ function SavedThreads() {
             toast.error('You need to be logged in to comment.');
             return;
         }
-    
+
         try {
             // Post the new comment
             const response = await http.post(`/comment/${threadId}`, { description: newComment[threadId]?.text });
             const createdComment = response.data;
 
-            console.log(`this is my new comment ${createdComment.description}`);            
-    
+            console.log(`this is my new comment ${createdComment.description}`);
+
             // Optimistically update the UI
             setThreadList(prevThreads =>
                 prevThreads.map(thread =>
@@ -184,7 +207,7 @@ function SavedThreads() {
                         : thread
                 )
             );
-    
+
             // Update comments locally
             setComments(prevState => ({
                 ...prevState,
@@ -193,12 +216,12 @@ function SavedThreads() {
                     createdAt: new Date() // Update with the actual creation date if needed
                 }]
             }));
-    
+
             setNewComment(prevState => ({
                 ...prevState,
                 [threadId]: { text: '', expanded: false }
             }));
-    
+
             console.log(`This is the thread id: ${threadId}`)
 
             // Fetch the latest comment data
@@ -207,7 +230,7 @@ function SavedThreads() {
 
             console.log(`updated thread.commentCount: ${updatedThread.commentCount}`);
 
-    
+
             setThreadList(prevThreads =>
                 prevThreads.map(thread =>
                     thread.id === threadId
@@ -215,7 +238,7 @@ function SavedThreads() {
                         : thread
                 )
             );
-    
+
             // Notify the recipient
             const thread = threadList.find(t => t.id === threadId);
             const recipientEmail = await getUserEmailById(thread.userId);
@@ -362,10 +385,10 @@ function SavedThreads() {
         <Box sx={{ p: 4 }}>
             <ForumHeader />
             <Grid container spacing={2} sx={{ my: 2 }}>
-                <ForumNavigation />
+                <ForumNavigation handleSortChange={handleSortChange} />
 
                 <Grid item xs={8.86}>
-                    <ForumSearchBar onSearchResults={handleSearchResults} sx={{pb:2}}/>
+                    <ForumSearchBar onSearchResults={handleSearchResults} sx={{ pb: 2 }} />
                     {threadList.length === 0 ? (
                         <Grid>
                             <Typography variant="h6" sx={{ mt: 2 }}>
@@ -440,7 +463,7 @@ function SavedThreads() {
                     </Dialog>
                 </Grid>
             </Grid>
-            <ToastContainer/>
+            <ToastContainer />
         </Box>
     );
 }

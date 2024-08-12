@@ -5,7 +5,9 @@
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     transition: transform 0.3s, box-shadow 0.3s;
     overflow: hidden;
-    margin-bottom: 16px; /* Add space between each card */
+    margin-bottom: 20px; /* Add space between each card */
+    position: relative;
+    width: 100%;
 }
 
 .thread-card:hover {
@@ -22,12 +24,13 @@
 }
 
 .aspect-ratio-container {
-    position: relative;
+    position: absolute;
+    top: 0;
+    left: 0;
     width: 100%;
-    padding-top: 56.25%; /* 16:9 Aspect Ratio */
+    height: 56.25%; /* 16:9 Aspect Ratio */
     overflow: hidden;
     border-radius: 12px; /* Match card radius for consistency */
-    margin-top: 16px;
     background-color: #f0f0f0; /* Background color for the image container */
 }
 

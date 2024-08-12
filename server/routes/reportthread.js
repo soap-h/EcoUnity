@@ -32,14 +32,14 @@ router.post("/", validateToken, async (req, res) => {
 });
 
 // GET All reportThreads
-router.get("/", validateToken, async (req, res) => {
+router.get("/", async (req, res) => {
     try {
         let reports = await ReportThread.findAll({
             include: [
                 {
                     model: Thread,
                     as: 'thread',
-                    attributes: ['id', 'title', 'category'],  // Thread details
+                    attributes: ['id', 'title', 'category', 'description', 'upvote', 'downvote', 'createdAt', 'updatedAt', 'imageFile'],  // Thread details
                     include: [
                         {
                             model: User,

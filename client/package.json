@@ -41,6 +41,7 @@
     "react-mentions": "^4.4.10",
     "react-pdf": "^9.1.0",
     "react-router-dom": "^6.23.1",
+    "react-select": "^5.8.0",
     "react-slick": "^0.30.2",
     "react-toastify": "^10.0.5",
     "recharts": "^2.12.7",

@@ -12,7 +12,13 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.INTEGER,
             allowNull: false,
             default: 0
-        }
+        },
+
+        FeedbackStatus: {
+            type: DataTypes.BOOLEAN,
+            defaultValue: false,
+            allowNull: false
+        },
     }, {
         tableName: 'registrations'
     });
@@ -25,6 +31,12 @@ module.exports = (sequelize, DataTypes) => {
         Registration.belongsTo(models.Event, {
             foreignKey: "eventId",
             as: 'event'
+        });
+
+        Registration.hasMany(models.EventFeedback, {
+            foreignKey: 'userId',  // Part of composite key
+
+            as: 'feedbacks'
         });
     };
 

@@ -77,6 +77,10 @@ module.exports = (sequelize, DataTypes) => {
             foreignKey: "userId",
             as: 'user'
         });
+        Event.hasMany(models.EventFeedback, {
+            foreignKey: "eventId",
+            as: 'eventFeedback'
+        });
     };
 
     return Event;

@@ -50,7 +50,11 @@ router.get("/", async (req, res) => {
 router.get("/:id", async (req, res) => {
     let id = req.params.id;
     let incidentReporting = await IncidentReporting.findByPk(id, {
-        include: { model: User, as: "user", attributes: ['firstName','email']}
+        include: [
+        { model: User, as: "user", attributes: ['firstName','email']},
+        { model: User, as: "EditNoteUser", attributes: ['firstName','email']},
+        ]
+
     });
     if (!incidentReporting) {
         res.sendStatus(404);
@@ -59,51 +63,77 @@ router.get("/:id", async (req, res) => {
     res.json(incidentReporting);
 });
 
-router.put('/:id', validateToken, async (req, res) => {
+router.put("/updateStatus/:id", validateToken, async (req, res) => {
+    const reportID = req.params.id;
+    const { ActionTaken } = req.body;
+    const { id } = req.user;
+
+    // Check if the requesting user is an admin
+    
+
+
+    try {
+        const report = await IncidentReporting.findByPk(reportID);
+        if (!report) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        report.ActionTaken = ActionTaken;
+        await report.save();
+
+        res.json({ message: " ActionTaken updated successfully." });
+    } catch (error) {
+        console.error("Database Error: ", error);
+        res.status(500).json({ message: error.message });
+    }
+});
+
+
+
+
+
+router.put("/UpdateNote/:id", validateToken, async (req, res) => {
     const id = req.params.id;
-    const status = req.body.status; // Ensure you are extracting the correct field
+    let data = req.body;
+    data.EditNoteId = req.user.id;
+    // Check id not found
+    let incidentReporting = await IncidentReporting.findByPk(id, {
+        include: [
+        { model: User, as: "user", attributes: ['firstName','email']},
+        { model: User, as: "EditNoteUser", attributes: ['firstName','email']},
+        ]
 
-    console.log('Updating status for ID:', id);
-    console.log('New status:', status);
-
-    let incidentReporting = await IncidentReporting.findByPk(id);
+    });
     if (!incidentReporting) {
         res.sendStatus(404);
         return;
     }
-    // Check request user id
-    let userId = req.user.id;
-    if (incidentReporting.userId != userId) {
-        res.sendStatus(403);
-        return;
-    }
-    let data = req.body;
+
+    // Validate request body
     let validationSchema = yup.object({
-        ReportType: yup.string().trim().min(3).max(100).required(),
-        ReportDetails: yup.string().trim().min(3).max(500).required(),
-        Location: yup.string().trim().min(3).max(100).required(),
-
+        Note: yup.string().trim().min(3).max(100),
+        
     });
-
     try {
-        await validationSchema.validate({ status }, { abortEarly: false });
+        data = await validationSchema.validate(data,
+            { abortEarly: false });
 
-        const [updated] = await IncidentReporting.update({ ActionStatus: status }, {
+        let num = await IncidentReporting.update(data, {
             where: { id: id }
         });
         if (num == 1) {
             res.json({
-                message: "participant was updated successfully."
+                message: "Note was updated successfully."
             });
         }
         else {
             res.status(400).json({
-                message: `Cannot update participant with id ${id}.`
+                message: `Cannot update tutorial with id ${id}.`
             });
         }
-    } catch (err) {
-        console.error('Validation or update error:', err);
-        return res.status(400).json({ errors: err.errors });
+    }
+    catch (err) {
+        res.status(400).json({ errors: err.errors });
     }
 });
 
