@@ -1,5 +1,6 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { Box, Typography, Grid, Avatar, Container, Paper, IconButton, Button, TextField } from '@mui/material';
+import EditIcon from '@mui/icons-material/Edit';
 import { ToastContainer, toast } from 'react-toastify';
 import { useParams } from 'react-router-dom';
 import 'react-toastify/dist/ReactToastify.css';
@@ -14,7 +15,9 @@ function Profile() {
     const [trackerList, setTrackerList] = useState([]);
     const [description, setDescription] = useState(user ? user.description : '');
     const [isEditing, setIsEditing] = useState(false);
-    const navigate = useNavigate(); // For redirecting after deletion
+    const [eventcount, seteventcount] = useState(0);
+    const [participatedEvents, setParticipatedEvents] = useState([]); // Store participated events
+    const navigate = useNavigate();
 
     const getTrackers = () => {
         http.get("/tracker").then((res) => {
@@ -22,10 +25,48 @@ function Profile() {
         });
     };
 
+    const getEvents = async () => {
+        try {
+            const [participatedResponse, eventsResponse] = await Promise.all([
+                http.get(`events/${id}/participatedevents`),
+                http.get('/events/')
+            ]);
+
+            const participatedData = participatedResponse.data;
+            const eventsData = eventsResponse.data;
+
+            // Link the eventId from participated events to the events data
+            const linkedEvents = participatedData.map(pe => {
+                const eventDetails = eventsData.find(event => event.id === pe.eventId);
+                return {
+                    ...pe,
+                    eventDetails,
+                };
+            });
+
+            const eventCount = linkedEvents.length;
+
+            setParticipatedEvents(linkedEvents);
+            seteventcount(eventCount);
+        } catch (err) {
+            console.error("Failed to get events:", err);
+        }
+    };
+
     useEffect(() => {
-        getTrackers();
-        setDescription(user?.description || '');
-    }, [user]);
+        if (!user || !user.description) {
+            http.get(`/user/${id}`).then((res) => {
+                setUser(res.data);
+                localStorage.setItem('user', JSON.stringify(res.data));
+            }).catch(error => {
+                console.error("Error fetching user data: ", error);
+            });
+        } else {
+            setDescription(user?.description || '');
+            getTrackers();
+            getEvents();
+        }
+    }, [user, id]);
 
     const userTrackers = trackerList.filter(tracker => user && user.id === tracker.userId);
     const totalPoints = userTrackers.reduce((total, tracker) => total + tracker.points, 0);
@@ -55,7 +96,7 @@ function Profile() {
 
     const cancelButtonHandler = () => {
         setIsEditing(false);
-        setDescription(user.description); // Reset the description to the last saved state
+        setDescription(user.description);
     };
 
     const onFileChange = (e) => {
@@ -92,12 +133,10 @@ function Profile() {
     };
 
     const deleteUser = () => {
-        // Confirm dialog to ensure the user wants to delete their account
         if (window.confirm("Are you sure you want to delete your account? This action cannot be undone.")) {
             http.delete(`/user/${user.id}`)
                 .then(() => {
                     toast.success('User deleted successfully');
-                    // Redirect to the login page or home page after deletion
                     logout();
                 })
                 .catch((error) => {
@@ -106,43 +145,53 @@ function Profile() {
                 });
         }
     };
+
     const logout = () => {
         localStorage.clear();
         window.location = "/";
     };
 
     return (
-        <Box sx={{ bgcolor: '#F0F5F8', minHeight: '100vh', width: '100%' }}>
+        <Box sx={{ bgcolor: '#F7FAFC', minHeight: '100vh', width: '100%' }}>
             <Container maxWidth="lg">
-                <Paper elevation={3} sx={{ padding: 4, marginTop: 4 }}>
+                <Paper elevation={3} sx={{ padding: 4, marginTop: 4, borderRadius: 2 }}>
                     <Grid container spacing={3}>
                         <Grid item xs={12} md={4}>
-                            <Box sx={{ position: 'relative', display: 'inline-block' }}>
+                            <Box sx={{ 
+                                position: 'relative', 
+                                display: 'inline-block', 
+                                textAlign: 'center',
+                                ml: 2 // Shift the profile image slightly to the right
+                            }}>
                                 <Avatar
                                     alt={`${user.firstName} ${user.lastName}`}
-                                    src={`${import.meta.env.VITE_FILE_PROFILE_URL}${user?.imageFile}`} 
-                                    sx={{ width: 150, height: 150, marginLeft: 12 }}
+                                    src={`${import.meta.env.VITE_FILE_PROFILE_URL}${user.imageFile}`}
+                                    sx={{ width: 150, height: 150, marginBottom: 2, boxShadow: 2 }}
                                 />
-                               
                                 <IconButton
                                     component="label"
                                     sx={{
                                         position: 'absolute',
                                         bottom: 0,
-                                        right: 0,
-                                        backgroundColor: '#EEEEEE',
-                                        '&:hover': { backgroundColor: '#DDDDDD' },
+                                        right: 0, 
+                                        backgroundColor: 'grey', // Change icon color to grey
+                                        color: '#fff',
+                                        '&:hover': { backgroundColor: 'darkgrey' },
                                     }}
                                 >
                                     <AddPhotoAlternateIcon />
                                     <input hidden accept="image/*" type="file" onChange={onFileChange} />
                                 </IconButton>
+
                             </Box>
                         </Grid>
                         <Grid item xs={12} md={8}>
-                           
-                            <Typography variant="h4">{user.firstName} {user.lastName}</Typography>
-                            <Typography variant="body1" color="textSecondary">{user.email}</Typography>
+                            <Typography variant="h4" sx={{ fontWeight: 'bold', color: 'black' }}>
+                                {user.firstName} {user.lastName}
+                            </Typography>
+                            <Typography variant="body1" color="textSecondary" gutterBottom>
+                                {user.email}
+                            </Typography>
                             {isEditing ? (
                                 <TextField
                                     fullWidth
@@ -153,81 +202,109 @@ function Profile() {
                                     rows={4}
                                     value={description}
                                     onChange={handleDescriptionChange}
+                                    sx={{ marginTop: 2 }}
                                 />
                             ) : (
-                                <Typography variant="body1" color="textSecondary">{description}</Typography>
+                                <Typography variant="body1" color="textSecondary" sx={{ marginTop: 2 }}>
+                                    {description}
+                                </Typography>
                             )}
                             {isEditing ? (
-                                <>
-                                    <Button variant="contained" color="primary" onClick={saveDescription} sx={{ mt: 2, mr: 2 }}>
+                                <Box sx={{ marginTop: 2 }}>
+                                    <Button variant="contained" color="primary" onClick={saveDescription} sx={{ marginRight: 2 }}>
                                         Save
                                     </Button>
-                                    <Button variant="outlined" onClick={cancelButtonHandler} sx={{ mt: 2 }}>
+                                    <Button variant="outlined" onClick={cancelButtonHandler}>
                                         Cancel
                                     </Button>
-                                </>
+                                </Box>
                             ) : (
-                                <Button variant="contained" onClick={editButtonHandler} sx={{ mt: 2 }}>
-                                    Edit Description
-                                </Button>
+                                <IconButton onClick={editButtonHandler} sx={{ marginTop: 2 }}>
+                                    <EditIcon color="primary" />
+                                </IconButton>
                             )}
                         </Grid>
                     </Grid>
 
                     <Grid container spacing={4} sx={{ marginTop: 4 }}>
                         <Grid item xs={12} md={6}>
-                            <Typography variant="h6" gutterBottom>Stats</Typography>
+                            <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold', color: 'black' }}>
+                                Stats
+                            </Typography>
                             <Grid container spacing={2}>
                                 <Grid item xs={6}>
                                     <Paper elevation={2} sx={{ padding: 2, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: 100 }}>
-                                        <Typography variant="h5" component="div">112</Typography>
-                                        <Typography variant="body2">Recycling Points</Typography>
+                                        <Typography variant="h3" component="div" sx={{ fontWeight: 'bold' }}>
+                                            112
+                                        </Typography>
+                                        <Typography variant="body2" color="textSecondary">
+                                            Recycling Points
+                                        </Typography>
                                     </Paper>
                                 </Grid>
                                 <Grid item xs={6}>
                                     <Paper elevation={2} sx={{ padding: 2, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: 100 }}>
-                                        <Typography variant="h5" component="div">2</Typography>
-                                        <Typography variant="body2">Events Participated</Typography>
+                                        <Typography variant="h3" component="div" sx={{ fontWeight: 'bold' }}>
+                                            {eventcount}
+                                        </Typography>
+                                        <Typography variant="body2" color="textSecondary">
+                                            Events Participated
+                                        </Typography>
                                     </Paper>
                                 </Grid>
                                 <Grid item xs={6}>
                                     <Paper elevation={2} sx={{ padding: 2, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: 100 }}>
-                                        <Typography variant="h5" component="div">3</Typography>
-                                        <Typography variant="body2">Quizzes Taken</Typography>
+                                        <Typography variant="h3" component="div" sx={{ fontWeight: 'bold' }}>
+                                            3
+                                        </Typography>
+                                        <Typography variant="body2" color="textSecondary">
+                                            Quizzes Taken
+                                        </Typography>
                                     </Paper>
                                 </Grid>
                                 <Grid item xs={6}>
                                     <Paper elevation={2} sx={{ padding: 2, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: 100 }}>
-                                        <Typography variant="h5" component="div">{totalPoints}</Typography>
-                                        <Typography variant="body2">CO2 Saved</Typography>
+                                        <Typography variant="h3" component="div" sx={{ fontWeight: 'bold' }}>
+                                            {totalPoints}g
+                                        </Typography>
+                                        <Typography variant="body2" color="textSecondary">
+                                            CO2 Saved
+                                        </Typography>
                                     </Paper>
                                 </Grid>
                             </Grid>
                         </Grid>
                         <Grid item xs={12} md={6}>
-                            <Typography variant="h6" gutterBottom>Activities</Typography>
-                            <Paper elevation={2} sx={{ padding: 2 }}>
-                                <Box display="flex" justifyContent="space-between" alignItems="center" sx={{ marginBottom: 1 }}>
-                                    <Typography variant="body1">31/4/2024</Typography>
-                                    <Typography variant="body1">Plant-a-tree</Typography>
-                                    <Button variant="contained" color="primary">Give Feedback</Button>
-                                </Box>
-                                <Box display="flex" justifyContent="space-between" alignItems="center">
-                                    <Typography variant="body1">29/2/2024</Typography>
-                                    <Typography variant="body1">ZeroWaste Upcycling Workshop</Typography>
-                                    <Button variant="contained" color="secondary">Give Feedback</Button>
-                                </Box>
+                            <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold', color: 'black' }}>
+                                Activities
+                            </Typography>
+                            <Paper elevation={2} sx={{ padding: 2, maxHeight: 248, overflowY: 'auto' }}> {/* Scrollable container */}
+                                {participatedEvents.length > 0 ? (
+                                    participatedEvents.map((event, index) => (
+                                        <Box key={index} display="flex" justifyContent="space-between" alignItems="center" sx={{ marginBottom: 1 }}>
+                                            <Typography variant="body1">{event.eventDetails.date}</Typography>
+                                            <Typography variant="body1">{event.eventDetails.title}</Typography>
+                                            <Button variant="contained" color="primary" size="small">
+                                                Give Feedback
+                                            </Button>
+                                        </Box>
+                                    ))
+                                ) : (
+                                    <Typography variant="body1" color="textSecondary">
+                                        No events found.
+                                    </Typography>
+                                )}
                             </Paper>
                         </Grid>
                     </Grid>
-                    <Button variant="contained" color="primary" onClick={deleteUser} sx={{ mt: 2 }}>
-                                Delete Account
-                            </Button>
+                    <Button variant="contained" color="error" onClick={deleteUser} sx={{ mt: 4 }}>
+                        Delete Account
+                    </Button>
                 </Paper>
 
                 <ToastContainer />
             </Container>
-        </Box >
+        </Box>
     );
 }
 
