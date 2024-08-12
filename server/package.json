@@ -12,6 +12,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@react-google-maps/api": "^2.19.3",
     "@stripe/react-stripe-js": "^2.7.3",
     "@stripe/stripe-js": "^4.2.0",
     "bcrypt": "^5.1.1",
@@ -28,6 +29,7 @@
     "react-chartjs-2": "^5.2.0",
     "sequelize": "^6.37.3",
     "stripe": "^16.7.0",
+    "use-places-autocomplete": "^4.0.1",
     "yup": "^1.4.0"
   },
   "devDependencies": {
