@@ -1,60 +1,49 @@
 import React from 'react';
-import { Box, Typography, Paper, Divider, Grid, IconButton } from '@mui/material';
-import dayjs from 'dayjs';
-import { useTheme } from '@mui/material/styles';
+import { Card, CardContent, CardHeader, Avatar, Typography, IconButton, Divider, Box } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import dayjs from 'dayjs';
+import './ReportThreadCard.css'; // Import the external CSS
 
 const ReportThreadCard = ({ thread, onClose }) => {
-    const theme = useTheme();
-
     if (!thread) {
         return null;
     }
 
     return (
-        <Paper sx={{ padding: 3, maxWidth: 800, margin: 'auto' }}>
-            <Box display="flex" alignItems="center" mb={2}>
-                <IconButton onClick={onClose} sx={{ mr: 2 }}>
-                    <ArrowBackIcon/>
-                </IconButton>
-                <Typography variant="h5" component="h2">
-                    {thread.title}
-                </Typography>
-            </Box>
+        <Card className="card-container">
+            <CardHeader
+                avatar={
+                    <Avatar 
+                        alt={thread.user?.firstName} 
+                        src={thread.user?.imageFile ? `${import.meta.env.VITE_FILE_PROFILE_URL}${thread.user.imageFile}` : ''} 
+                    />
+                }
+                title={<Typography className="card-title">{thread.title}</Typography>}
+                subheader={<Typography className="card-subheader">{dayjs(thread.createdAt).fromNow()}</Typography>}
+                className="card-header"
+            />
             <Divider />
-            <Box mt={2}>
-                <Typography variant="h6" component="h3" gutterBottom>
+            <CardContent className="card-content">
+                <Typography variant="h6" component="h2" className="card-details" gutterBottom>
                     Details
                 </Typography>
                 <Typography variant="body1" paragraph>
-                    <strong>Category:</strong> {thread.category}
+                    <span className="card-detail-label">Category:</span> {thread.category}
                 </Typography>
                 <Typography variant="body1" paragraph>
-                    <strong>Description:</strong> {thread.description}
-                </Typography>
-                <Typography variant="body1" paragraph>
-                    <strong>Upvotes:</strong> {thread.upvote}
-                </Typography>
-                <Typography variant="body1" paragraph>
-                    <strong>Downvotes:</strong> {thread.downvote}
-                </Typography>
-                <Typography variant="body1" paragraph>
-                    <strong>Created At:</strong> {dayjs(thread.createdAt).format('YYYY-MM-DD HH:mm:ss')}
-                </Typography>
-                <Typography variant="body1" paragraph>
-                    <strong>Updated At:</strong> {dayjs(thread.updatedAt).format('YYYY-MM-DD HH:mm:ss')}
+                    <span className="card-detail-label">Description:</span> {thread.description}
                 </Typography>
                 {thread.imageFile && (
                     <Box mt={2}>
                         <img
                             src={`${import.meta.env.VITE_FILE_THREAD_URL}${thread.imageFile}`}
                             alt="Thread"
-                            style={{ width: '100%', maxHeight: 400, objectFit: 'contain' }}
+                            className="card-image"
                         />
                     </Box>
                 )}
-            </Box>
-        </Paper>
+            </CardContent>
+        </Card>
     );
 };
 
