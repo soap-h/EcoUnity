@@ -238,7 +238,7 @@ const AdminEvents = () => {
                                 <TableCell>{proposal.id}</TableCell>
                                 <TableCell>{proposal.date}</TableCell>
                                 <TableCell>
-                                    <a href={`/uploads/${proposal.document}`} download>
+                                    <a href={`/proposals/download/${proposal.document}`} download>
                                         {proposal.name}
                                     </a>
                                 </TableCell>
@@ -262,6 +262,7 @@ const AdminEvents = () => {
             </Table>
         </TableContainer>
     );
+
 
     return (
         <Box sx={{ display: 'flex' }}>
