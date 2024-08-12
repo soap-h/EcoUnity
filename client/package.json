@@ -43,6 +43,7 @@
     "slick-carousel": "^1.8.1",
     "stripe": "^16.5.0",
     "use-places-autocomplete": "^4.0.1",
+    "xlsx": "^0.18.5",
     "yup": "^1.4.0"
   },
   "devDependencies": {

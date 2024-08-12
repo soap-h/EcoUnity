@@ -38,3 +38,5 @@ for google maps
 npm install use-places-autocomplete @react-google-maps/api
 npm install @mui/material @mui/icons-material react-google-maps-api --legacy-peer-deps
 
+for client excel sheet
+npm i xlsx --legacy-peer-deps
