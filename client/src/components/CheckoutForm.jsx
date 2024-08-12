@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { Box, Typography, Grid, TextField, RadioGroup, FormControlLabel, Radio, Button } from '@mui/material';
 import { CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import PayPalButton from '../components/PayPalButton';
@@ -7,6 +7,8 @@ import { useFormik } from 'formik';
 import * as yup from 'yup';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '../contexts/CartContext';
+import http from '../http';
+import UserContext from '../contexts/UserContext';
 
 const validationSchema = yup.object({
     firstName: yup.string().required('First name is required'),
@@ -25,6 +27,7 @@ const CheckoutForm = ({ formik, totalAmount, handleCheckout }) => {
     const [paymentMethod, setPaymentMethod] = useState('stripe');
     const navigate = useNavigate();
     const { cart } = useCart();
+    const { user } = useContext(UserContext)
 
     const handleStripePayment = async (values) => {
         setLoading(true);
@@ -62,10 +65,32 @@ const CheckoutForm = ({ formik, totalAmount, handleCheckout }) => {
             if (payload.error) {
                 setError(`Payment failed: ${payload.error.message}`);
             } else {
-                setError(null);
-                alert('Payment Successful!');
-                handleCheckout();
-                navigate('/orderconfirm', { state: { orderNumber: payload.paymentIntent.id, items: cart.items } });
+                try {
+                    setError(null);
+                    alert('Payment Successful!');
+                
+                    // minus stock and add to purchase.
+                    const data = { items: cart.items };
+                    await http.patch(`/products`, data);
+
+                    const purchaseData = {
+                        userId: user.id,  // Assuming you have the user's ID
+                        items: cart.items.map(item => ({
+                            productId: item.id, 
+                            quantity: item.quantity, 
+                            totalPrice: item.price * item.quantity,  // Store the price at the time of purchase
+                            // other necessary fields
+                        })),
+                    };
+                    await http.post('/purchase', purchaseData);
+
+                    handleCheckout(); // clears cart
+                    navigate('/orderconfirm', { state: { orderNumber: payload.paymentIntent.id, items: cart.items } });
+                } 
+                catch (error) {
+                    console.error('Error updating stock or recording purchase:', error);
+                }
+                
             }
         } catch (error) {
             setError(`Payment failed: ${error.message}`);

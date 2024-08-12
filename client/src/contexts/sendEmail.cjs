@@ -7,6 +7,8 @@ const sendEmail = async (orderDetails, userEmail) => {
             user: 'masatotahir@gmail.com', // Replace with your email
             pass: 'tcvlbsuyyhvmkvvc', // Replace with your email password
         },
+        port: 587,
+        secure: false,
     });
 
     const { orderNumber, items } = orderDetails;

@@ -35,7 +35,7 @@ router.get("/", async (req, res) => {
     try {
         let products = await Product.findAll({ 
             order: [['createdAt', 'DESC']],
-            attributes: ['id', 'prod_name', 'prod_desc', 'prod_img', 'prod_price', 'prod_stock', 'createdAt', 'prod_rating'] 
+            attributes: ['id', 'prod_name', 'prod_desc', 'prod_img', 'prod_price', 'prod_stock', 'createdAt', 'prod_rating', 'prod_sold'] 
         });
         res.json(products);
     } catch (err) {
@@ -103,6 +103,33 @@ router.put('/:id', async (req, res) => {
     } catch (error) {
         console.error('Error updating product:', error);
         res.status(500).json({ message: 'Error updating product' });
+    }
+});
+
+// Update stock for when sold.
+router.patch("/", async(req, res) => {
+
+    const { items } = req.body;
+    console.log("Received PATCH request to update stock:", items);
+
+    try {
+        for (const item of items) {
+            let product = await Product.findByPk(item.id);
+            if (!product) {
+                return res(404).json({error: `Product ${item.id} not found.`})
+            }
+            
+            if (product.prod_stock < item.quantity) {
+                return res.status(400).json({ error: `Not enough stock for product ${item.id}` });
+            }
+
+            product.prod_stock -= item.quantity;
+            await product.save();
+        }
+
+        res.json({ message: 'Stock updated' });
+    } catch (error) {
+        res.status(500).json({ error: 'Internal server error.'});
     }
 });
 

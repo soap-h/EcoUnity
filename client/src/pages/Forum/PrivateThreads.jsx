@@ -12,8 +12,10 @@ import ForumSearchBar from '../../components/Forum/ForumSearchBar';
 import ForumHeader from '../../components/Forum/ForumHeader';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { useNavigate } from 'react-router-dom';  // Import useNavigate for redirection
+import PrivateThreadSearchBar from '../../components/Forum/PrivateThreadSearchBar';
 
-function Forum() {
+function PrivateThreads() {
     const [threadList, setThreadList] = useState([]);
     const [bookmarkedThreads, setBookmarkedThreads] = useState([]);
     const [userVotes, setUserVotes] = useState({});
@@ -24,11 +26,23 @@ function Forum() {
     const [showComments, setShowComments] = useState({});
     const { user } = useContext(UserContext);
     const [showFullContent, setShowFullContent] = useState(false);
+    const navigate = useNavigate();  // Initialize useNavigate hook
+
+    useEffect(() => {
+        // Redirect if not an admin
+        if (!user?.isAdmin) {
+            toast.error('You do not have permission to access this page.');
+            navigate('/forum');
+            return;
+        }
+        console.log(threadList);
+        fetchData();
+    }, [user, navigate]);
 
     const fetchData = async () => {
         try {
             const [threadsRes, bookmarksRes] = await Promise.all([
-                http.get('/thread'),
+                http.get('/thread/privatethreads/why'),
                 user ? http.get('/bookmarks') : Promise.resolve({ data: [] })  // Fetch bookmarks only if the user is logged in
             ]);
             setThreadList(threadsRes.data);
@@ -51,13 +65,9 @@ function Forum() {
         }
     };
 
-    useEffect(() => {
-        fetchData();
-    }, [user]);
-
     const handleSearchResults = (results) => {
         setThreadList(results);
-    }
+    };
 
     const handleToggleContent = () => {
         setShowFullContent(!showFullContent);
@@ -121,7 +131,7 @@ function Forum() {
             case 'climate change':
                 return 'info';
         }
-    }
+    };
 
     const handleCommentClick = (threadId) => {
         setNewComment(prevState => ({
@@ -150,13 +160,11 @@ function Forum() {
         }
 
         try {
-            // Post the new comment
             const response = await http.post(`/comment/${threadId}`, { description: newComment[threadId]?.text });
             const createdComment = response.data;
 
             console.log(`this is my new comment ${createdComment.description}`);
 
-            // Optimistically update the UI
             setThreadList(prevThreads =>
                 prevThreads.map(thread =>
                     thread.id === threadId
@@ -165,12 +173,11 @@ function Forum() {
                 )
             );
 
-            // Update comments locally
             setComments(prevState => ({
                 ...prevState,
                 [threadId]: [...(prevState[threadId] || []), {
                     ...createdComment,
-                    createdAt: new Date() // Update with the actual creation date if needed
+                    createdAt: new Date()
                 }]
             }));
 
@@ -179,14 +186,12 @@ function Forum() {
                 [threadId]: { text: '', expanded: false }
             }));
 
-            console.log(`This is the thread id: ${threadId}`)
+            console.log(`This is the thread id: ${threadId}`);
 
-            // Fetch the latest comment data
             const updatedThreadRes = await http.get(`/thread/id/${threadId}`);
             const updatedThread = updatedThreadRes.data;
 
             console.log(`updated thread.commentCount: ${updatedThread.commentCount}`);
-
 
             setThreadList(prevThreads =>
                 prevThreads.map(thread =>
@@ -196,7 +201,6 @@ function Forum() {
                 )
             );
 
-            // Notify the recipient
             const thread = threadList.find(t => t.id === threadId);
             const recipientEmail = await getUserEmailById(thread.userId);
             const message = {
@@ -205,7 +209,6 @@ function Forum() {
                 'recipient': `${recipientEmail}`,
                 'date': `${new Date()}`,
                 'category': "forum",
-                'unread': 1
             };
             await http.post("/inbox", message);
 
@@ -213,10 +216,6 @@ function Forum() {
             console.error('Error posting comment:', error.message);
         }
     };
-
-
-
-
 
     const handleViewCommentsToggle = async (threadId) => {
         if (showComments[threadId]) {
@@ -267,14 +266,13 @@ function Forum() {
                 }));
             }
 
-            const response = await http.get('/thread');
+            const response = await http.get('/private');
             setThreadList(response.data);
         } catch (error) {
             console.error('Error handling vote:', error);
         }
     };
 
-    // Comment Like
     const handleLikeToggle = async (threadId, commentId) => {
         if (!user) {
             toast.error('You need to be logged in to like comments.');
@@ -282,14 +280,11 @@ function Forum() {
         }
 
         try {
-            // Check the current like status  
             const { data } = await http.get(`/commentLikes/${commentId}/like-status`);
 
             const hasLiked = data.liked;
 
             if (hasLiked) {
-                // Unlike comment
-                console.log(hasLiked);
                 await http.delete(`/commentLikes/${commentId}/dislike`);
                 setComments(prevComments => ({
                     ...prevComments,
@@ -300,8 +295,6 @@ function Forum() {
                     )
                 }));
             } else {
-                // Like comment
-                console.log(hasLiked, commentId);
                 await http.post(`/commentLikes/${commentId}/like`);
                 setComments(prevComments => ({
                     ...prevComments,
@@ -317,16 +310,13 @@ function Forum() {
         }
     };
 
-
-
-
     return (
         <Box sx={{ p: 4 }}>
             <ForumHeader />
             <Grid container spacing={2}>
                 <ForumNavigation />
                 <Grid item xs={8.86}>
-                    <ForumSearchBar onSearchResults={handleSearchResults} sx={{ pb: 2}}/> {/* Add SearchBar here */}
+                    <PrivateThreadSearchBar onSearchResults={handleSearchResults} sx={{ pb: 2 }} />
                     {threadList.map((thread) => (
                         <ThreadCard
                             key={thread.id}
@@ -365,9 +355,9 @@ function Forum() {
                     <Button onClick={handleDeleteConfirm} color="error">Delete</Button>
                 </DialogActions>
             </Dialog>
-            <ToastContainer />
+            <ToastContainer/>
         </Box>
     );
 }
 
-export default Forum;
+export default PrivateThreads;
