@@ -44,11 +44,18 @@ function AddFeedback() {
                 // Fetch events and filter out those with feedback already provided
                 http.get('/events')
                     .then(eventRes => {
-                        const feedbackEventIds = feedbackData.map(fb => fb.eventId);
-                        const filteredEvents = eventRes.data
-                            .filter(event => registeredEventIds.includes(event.id) && !feedbackEventIds.includes(event.id));
-
-                        setEventsOptions(filteredEvents);
+                        const feedbackEventIdsForUser = feedbackData
+                        .filter(fb => fb.userId === userId) // Filter feedback data for the current user
+                        .map(fb => fb.eventId); // Extract the event IDs from the filtered feedback data
+                        console.log('Feedback event IDs:', feedbackEventIdsForUser);
+                    // Filter events that the user has registered for but not yet provided feedback
+                    const filteredEvents = eventRes.data
+                        .filter(event => 
+                            registeredEventIds.includes(event.id) && // Check if the event is in the list of registered events
+                            !feedbackEventIdsForUser.includes(event.id) // Check if the event is not in the feedback list for the user
+                        );
+                    
+                    setEventsOptions(filteredEvents);
                     })
                     .catch(error => {
                         console.error('Error fetching events:', error.response || error.message);

@@ -219,13 +219,13 @@ function FeedbackAdmin() {
                                         <TableCell component="th" scope="row">
                                             {dayjs(feedback.createdAt).format('YYYY-MM-DD')}
                                         </TableCell>
-                                        <TableCell align="center">{feedback.user?.firstName}</TableCell>
-                                        <TableCell align="center">{feedback.user?.email}</TableCell>
+                                        <TableCell align="center">{feedback.name}</TableCell>
+                                        <TableCell align="center">{feedback.email}</TableCell>
                                         {feedback?.FeedbackStatus === 0 ? (
                                             <>
                                                 <TableCell align="center"><Link to={`/admin/FeedbackAdmin/${feedback.id}`}>Feedback</Link></TableCell>
                                                 <TableCell align="center">
-                                                    <IconButton onClick={() => handleOpenMessageDialog(feedback.user?.email)}>
+                                                    <IconButton onClick={() => handleOpenMessageDialog(feedback.email)}>
                                                         <ReplyIcon />
                                                     </IconButton>
                                                 </TableCell>

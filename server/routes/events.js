@@ -175,16 +175,18 @@ router.get('/:id/participants', async (req, res) => {
                     as: 'user',
                     attributes: ['id', 'firstName', 'lastName', 'email'],
                 },
-        
-
             ],
         });
-        // const participants = registrations.map((registration) => ({
-        //     id: registration.user.id,
-        //     name: `${registration.user.firstName} ${registration.user.lastName}`,
-        // }));
-        // res.json(participants);
-        res.json(registrations);
+
+        // Map the registrations to extract participant details
+        const participants = registrations.map((registration) => ({
+            id: registration.user.id,
+            name: `${registration.user.firstName} ${registration.user.lastName}`,
+            email: registration.user.email, // Include the email in the response
+        }));
+
+        // Send the participants as the response
+        res.json(participants);
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
