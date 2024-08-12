@@ -96,11 +96,7 @@ function App() {
       })
         .then((res) => {
           setUser(res.data.user);
-
-          // if (res.data.user.isAdmin) {
-          //   window.location = "/admin";
-          // }
-
+          
         }).catch(() => {
           localStorage.clear();
         }).finally(() => {

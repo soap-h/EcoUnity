@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Typography, Box, Button, Paper, Grid } from '@mui/material';
+import { Link } from 'react-router-dom';
 import http from "../http";
 import { keyframes } from '@mui/system';
-import { Link } from 'react-router-dom';
 
 
 const fadeIn = keyframes`
@@ -162,48 +162,15 @@ function Home() {
                     Our CCs
                 </Typography>
                 <Grid container spacing={2}>
-                    <Grid item xs={6} sm={4} sx={{ animation: `${slideIn} 2s ease-out` }}>
-                        <Link to="/community-centre/1" style={{ textDecoration: 'none' }}>
-                            <Paper sx={{ cursor: 'pointer' }}>
-                                <img src="/src/assets/ccimages/cc1.png" alt="Community Centre 1" style={{ width: '100%' }} />
-                            </Paper>
-                        </Link>
-                    </Grid>
-                    <Grid item xs={6} sm={4} sx={{ animation: `${slideIn} 2s ease-out` }}>
-                        <Link to="/community-centre/2" style={{ textDecoration: 'none' }}>
-                            <Paper sx={{ cursor: 'pointer' }}>
-                                <img src="/src/assets/ccimages/cc2.png" alt="Community Centre 2" style={{ width: '100%' }} />
-                            </Paper>
-                        </Link>
-                    </Grid>
-                    <Grid item xs={6} sm={4} sx={{ animation: `${slideIn} 2s ease-out` }}>
-                        <Link to="/community-centre/3" style={{ textDecoration: 'none' }}>
-                            <Paper sx={{ cursor: 'pointer' }}>
-                                <img src="/src/assets/ccimages/cc3.png" alt="Community Centre 3" style={{ width: '100%' }} />
-                            </Paper>
-                        </Link>
-                    </Grid>
-                    <Grid item xs={6} sm={4} sx={{ animation: `${slideIn} 2s ease-out` }}>
-                        <Link to="/community-centre/4" style={{ textDecoration: 'none' }}>
-                            <Paper sx={{ cursor: 'pointer' }}>
-                                <img src="/src/assets/ccimages/cc4.png" alt="Community Centre 4" style={{ width: '100%' }} />
-                            </Paper>
-                        </Link>
-                    </Grid>
-                    <Grid item xs={6} sm={4} sx={{ animation: `${slideIn} 2s ease-out` }}>
-                        <Link to="/community-centre/5" style={{ textDecoration: 'none' }}>
-                            <Paper sx={{ cursor: 'pointer' }}>
-                                <img src="/src/assets/ccimages/cc5.png" alt="Community Centre 5" style={{ width: '100%' }} />
-                            </Paper>
-                        </Link>
-                    </Grid>
-                    <Grid item xs={6} sm={4} sx={{ animation: `${slideIn} 2s ease-out` }}>
-                        <Link to="/community-centre/6" style={{ textDecoration: 'none' }}>
-                            <Paper sx={{ cursor: 'pointer' }}>
-                                <img src="/src/assets/ccimages/cc6.png" alt="Community Centre 6" style={{ width: '100%' }} />
-                            </Paper>
-                        </Link>
-                    </Grid>
+                    {['cc1.png', 'cc2.png', 'cc3.png', 'cc4.png', 'cc5.png', 'cc6.png'].map((ccImage, index) => (
+                        <Grid item xs={6} sm={4} key={index} sx={{ animation: `${slideIn} 2s ease-out` }}>
+                            <Link to="/locations" style={{ textDecoration: 'none' }}>
+                                <Paper>
+                                    <img src={`/src/assets/ccimages/${ccImage}`} alt={`Community Centre ${index + 1}`} style={{ width: '100%' }} />
+                                </Paper>
+                            </Link>
+                        </Grid>
+                    ))}
                 </Grid>
             </Box>
 
