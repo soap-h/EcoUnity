@@ -11,7 +11,7 @@ import SortIcon from '@mui/icons-material/Sort';
 import { Link, useLocation } from 'react-router-dom';
 import './ForumNavigation.css';  // Import the updated CSS file
 
-function ForumNavigation() {
+function ForumNavigation({handleSortChange}) {
     const location = useLocation(); // Get current route location
 
     const getCategoryChipColor = (categoryName) => {
@@ -24,20 +24,20 @@ function ForumNavigation() {
                 return 'success';
             case 'agriculture':
                 return 'primary';
-                case 'recycling':
-                    return 'secondary';
-                case 'climate change':
-                    return 'info';
-                default:
-                    return 'default';
-            }
-        };
+            case 'recycling':
+                return 'secondary';
+            case 'climate change':
+                return 'info';
+            default:
+                return 'default';
+        }
+    };
 
-        // Function to determine if the link is active
+    // Function to determine if the link is active
     const isActive = (path) => location.pathname === path;
 
     return (
-        <Grid item xs={3} className="forum-navigation-container" sx={{ml:2, mt: 2}}>
+        <Grid item xs={3} className="forum-navigation-container" sx={{ ml: 2, mt: 2 }}>
             <MenuList>
                 <MenuItem
                     component={Link}
@@ -144,9 +144,18 @@ function ForumNavigation() {
                     </AccordionSummary>
                     <AccordionDetails className="forum-accordion-details">
                         <MenuList>
-                            <MenuItem className="forum-menu-item">Most Recent</MenuItem>
-                            <MenuItem className="forum-menu-item">Top Rated</MenuItem>
-                            <MenuItem className="forum-menu-item">Oldest</MenuItem>
+                            <MenuItem onClick={() => handleSortChange('most recent')} className="forum-menu-item">
+                                Most Recent
+                            </MenuItem>
+                            <MenuItem onClick={() => handleSortChange('oldest')} className="forum-menu-item">
+                                Oldest
+                            </MenuItem>
+                            <MenuItem onClick={() => handleSortChange('A to Z')} className="forum-menu-item">
+                                A to Z
+                            </MenuItem>
+                            <MenuItem onClick={() => handleSortChange('Z to A')} className="forum-menu-item">
+                                Z to A
+                            </MenuItem>
                         </MenuList>
                     </AccordionDetails>
                 </Accordion>
