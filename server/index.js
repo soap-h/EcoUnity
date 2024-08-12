@@ -81,6 +81,8 @@ app.use("/reviews", reviewRoute);
 
 const purchaseRoute = require('./routes/purchase');
 app.use("/purchase", purchaseRoute);
+const lessonRoute = require('./routes/lesson');
+app.use("/lesson", lessonRoute);
 
 const userRoute = require('./routes/user');
 app.use("/user", userRoute);

@@ -1,218 +1,200 @@
-import React, { useState } from 'react';
-import { Button, TextField, Typography, Paper, Grid, IconButton } from '@mui/material';
+import React from 'react';
+import { Formik, Form, Field, FieldArray } from 'formik';
+import { Button, TextField, Typography, Paper, Grid, IconButton, FormControlLabel, Radio, RadioGroup } from '@mui/material';
 import { AddCircleOutline, Delete } from '@mui/icons-material';
 import http from '../http';
 
 const AddLesson = () => {
-    const [title, setTitle] = useState('');
-    const [description, setDescription] = useState('');
-    const [lessonName, setLessonName] = useState('');
-    const [slidesPath, setSlidesPath] = useState(null);
-    const [questions, setQuestions] = useState([]);
-    const [tags, setTags] = useState([]);
+  return (
+    <Paper sx={{ padding: 3 }}>
+      <Typography variant="h4" gutterBottom>
+        Create a New Quiz and Lesson
+      </Typography>
 
-    const handleAddQuestion = () => {
-      setQuestions([
-        ...questions,
-        {
-          question_text: '',
-          options: ['', '', '', ''],
-          correct_answer: '',
-          points: '',
-          explanation: ''
-        }
-      ]);
-    };
-  
-    const handleQuestionChange = (index, field, value) => {
-      const newQuestions = [...questions];
-      newQuestions[index][field] = value;
-      setQuestions(newQuestions);
-    };
-  
-    const handleOptionChange = (questionIndex, optionIndex, value) => {
-      const newQuestions = [...questions];
-      newQuestions[questionIndex].options[optionIndex] = value;
-      setQuestions(newQuestions);
-    };
-  
-    const handleCorrectAnswerChange = (questionIndex, value) => {
-      const newQuestions = [...questions];
-      newQuestions[questionIndex].correct_answer = value;
-      setQuestions(newQuestions);
-    };
-  
-    const handleFileChange = (e) => {
-      setSlidesPath(e.target.files[0]);
-    };
-  
-    const handleSubmit = async (e) => {
-      e.preventDefault();
-  
-      try {
-        const formData = new FormData();
-        formData.append('title', title);
-        formData.append('description', description);
-        formData.append('lessonName', lessonName);
-        formData.append('slidesPath', slidesPath);
-  
-        // Append questions as a JSON string
-        formData.append('questions', JSON.stringify(questions));
-  
-        const response = await http.post('/createQuiz', formData);
-  
-        console.log(response.message);
-        // Handle successful quiz creation, like redirecting or showing a success message
-      } catch (error) {
-        console.error('Error creating quiz:', error);
-      }
-    };
-  
-    return (
-        <Paper sx={{ padding: 3 }}>
-        <Typography variant="h4" gutterBottom>
-          Create a New Quiz
-        </Typography>
-  
-        <form onSubmit={handleSubmit} encType="multipart/form-data">
-          <TextField
-            label="Quiz Title"
-            variant="outlined"
-            fullWidth
-            margin="normal"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            required
-          />
-  
-          <TextField
-            label="Description"
-            variant="outlined"
-            fullWidth
-            margin="normal"
-            multiline
-            rows={4}
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            required
-          />
-  
-          <TextField
-            label="Lesson Name"
-            variant="outlined"
-            fullWidth
-            margin="normal"
-            value={lessonName}
-            onChange={(e) => setLessonName(e.target.value)}
-            required
-          />
-  
-          <Button
-            variant="contained"
-            component="label"
-            fullWidth
-            sx={{ marginBottom: 2 }}
-          >
-            Upload Lesson Slides (PDF/PPTX)
-            <input
-              type="file"
-              accept=".pdf,.pptx"
-              hidden
-              onChange={handleFileChange}
+      <Formik
+        initialValues={{
+          title: '',
+          description: '',
+          slidesPath: null,
+          questions: []
+        }}
+        onSubmit={async (values, { setSubmitting }) => {
+          try {
+            const formData = new FormData();
+            formData.append('title', values.title);
+            formData.append('description', values.description);
+            formData.append('slidesPath', values.slidesPath);
+            
+
+            // Append the questions as a JSON string
+            formData.append('questions', JSON.stringify(values.questions));
+
+            const response = await http.post('/lesson', formData);
+            console.log(response.data);
+          } catch (error) {
+            console.error('Error creating quiz:', error);
+          } finally {
+            setSubmitting(false);
+          }
+        }}
+      >
+        {({ values, handleChange, setFieldValue, isSubmitting }) => (
+          <Form encType="multipart/form-data">
+            <Field
+              as={TextField}
+              label="Title"
+              variant="outlined"
+              fullWidth
+              margin="normal"
+              name="title"
               required
             />
-          </Button>
-  
-          {questions.map((question, qIndex) => (
-            <Paper key={qIndex} sx={{ padding: 2, marginBottom: 2 }}>
-              <Grid container spacing={2}>
-                <Grid item xs={12}>
-                  <TextField
-                    label={`Question ${qIndex + 1} Text`}
+
+            <Field
+              as={TextField}
+              label="Description"
+              variant="outlined"
+              fullWidth
+              margin="normal"
+              multiline
+              rows={4}
+              name="description"
+              required
+            />
+
+            <Button
+              variant="contained"
+              component="label"
+              fullWidth
+              sx={{ marginBottom: 2 }}
+            >
+              Upload Lesson Slides (PDF/PPTX)
+              <input
+                type="file"
+                accept=".pdf,.pptx"
+                hidden
+                onChange={(e) => setFieldValue('slidesPath', e.target.files[0])}
+                required
+              />
+            </Button>
+
+            <FieldArray name="questions">
+              {({ push, remove }) => (
+                <>
+                  {values.questions.map((question, qIndex) => (
+                    <Paper key={qIndex} sx={{ padding: 2, marginBottom: 2 }}>
+                      <Grid container spacing={2}>
+                        <Grid item xs={12}>
+                          <Field
+                            as={TextField}
+                            label={`Question ${qIndex + 1} Text`}
+                            variant="outlined"
+                            fullWidth
+                            name={`questions.${qIndex}.question_text`}
+                            required
+                          />
+                        </Grid>
+
+                        <FieldArray name={`questions.${qIndex}.options`}>
+                          {({ push: pushOption }) => (
+                            <>
+                              {question.options.map((option, oIndex) => (
+                                <Grid item xs={6} key={oIndex}>
+                                  <Field
+                                    as={TextField}
+                                    label={`Option ${oIndex + 1}`}
+                                    variant="outlined"
+                                    fullWidth
+                                    name={`questions.${qIndex}.options.${oIndex}`}
+                                    required
+                                  />
+                                  <FormControlLabel
+                                    control={
+                                      <Field
+                                        as={Radio}
+                                        type="radio"
+                                        name={`questions.${qIndex}.correct_answer`}
+                                        value={oIndex}
+                                        checked={values.questions[qIndex].correct_answer === oIndex}
+                                        onChange={() => setFieldValue(`questions.${qIndex}.correct_answer`, oIndex)}
+                                      />
+                                    }
+                                    label="Correct Answer"
+                                  />
+                                </Grid>
+                              ))}
+                            </>
+                          )}
+                        </FieldArray>
+
+                        <Grid item xs={12}>
+                          <Field
+                            as={TextField}
+                            label="Points"
+                            type="number"
+                            variant="outlined"
+                            fullWidth
+                            name={`questions.${qIndex}.points`}
+                            required
+                          />
+                        </Grid>
+
+                        <Grid item xs={12}>
+                          <Field
+                            as={TextField}
+                            label="Explanation"
+                            variant="outlined"
+                            fullWidth
+                            multiline
+                            rows={3}
+                            name={`questions.${qIndex}.explanation`}
+                          />
+                        </Grid>
+
+                        <Grid item xs={12} textAlign="right">
+                          <IconButton color="error" onClick={() => remove(qIndex)}>
+                            <Delete />
+                          </IconButton>
+                        </Grid>
+                      </Grid>
+                    </Paper>
+                  ))}
+
+                  <Button
                     variant="outlined"
+                    startIcon={<AddCircleOutline />}
+                    onClick={() =>
+                      push({
+                        question_text: '',
+                        options: ['', '', '', ''],
+                        correct_answer: '',
+                        points: '',
+                        explanation: ''
+                      })
+                    }
                     fullWidth
-                    value={question.question_text}
-                    onChange={(e) => handleQuestionChange(qIndex, 'question_text', e.target.value)}
-                    required
-                  />
-                </Grid>
-  
-                {question.options.map((option, oIndex) => (
-                  <Grid item xs={6} key={oIndex}>
-                    <TextField
-                      label={`Option ${oIndex + 1}`}
-                      variant="outlined"
-                      fullWidth
-                      value={option}
-                      onChange={(e) => handleOptionChange(qIndex, oIndex, e.target.value)}
-                      required
-                    />
-                    <input
-                      type="radio"
-                      name={`correct_answer_${qIndex}`}
-                      value={option}
-                      checked={question.correct_answer === option}
-                      onChange={(e) => handleCorrectAnswerChange(qIndex, option)}
-                    />
-                    Correct Answer
-                  </Grid>
-                ))}
-  
-                <Grid item xs={12}>
-                  <TextField
-                    label="Points"
-                    type="number"
-                    variant="outlined"
-                    fullWidth
-                    value={question.points}
-                    onChange={(e) => handleQuestionChange(qIndex, 'points', e.target.value)}
-                    required
-                  />
-                </Grid>
-  
-                <Grid item xs={12}>
-                  <TextField
-                    label="Explanation"
-                    variant="outlined"
-                    fullWidth
-                    multiline
-                    rows={3}
-                    value={question.explanation}
-                    onChange={(e) => handleQuestionChange(qIndex, 'explanation', e.target.value)}
-                  />
-                </Grid>
-  
-                <Grid item xs={12} textAlign="right">
-                  <IconButton color="error" onClick={() => handleRemoveQuestion(qIndex)}>
-                    <Delete />
-                  </IconButton>
-                </Grid>
-              </Grid>
-            </Paper>
-          ))}
-  
-          <Button
-            variant="outlined"
-            startIcon={<AddCircleOutline />}
-            onClick={handleAddQuestion}
-            fullWidth
-            sx={{ marginBottom: 2 }}
-          >
-            Add Question
-          </Button>
-  
-          <Button
-            type="submit"
-            variant="contained"
-            color="primary"
-            fullWidth
-          >
-            Create Quiz
-          </Button>
-        </form>
-      </Paper>
-    );
-  };
-  
+                    sx={{ marginBottom: 2 }}
+                  >
+                    Add Question
+                  </Button>
+                </>
+              )}
+            </FieldArray>
+
+            <Button
+              type="submit"
+              variant="contained"
+              color="primary"
+              fullWidth
+              disabled={isSubmitting}
+            >
+              Create Quiz
+            </Button>
+          </Form>
+        )}
+      </Formik>
+    </Paper>
+  );
+};
 
 export default AddLesson;
