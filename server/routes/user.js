@@ -115,7 +115,8 @@ router.get("/auth", validateToken, async (req, res) => {
             firstName: user.firstName,
             lastName: user.lastName,
             description: user.description,
-            imageFile: user.imageFile
+            imageFile: user.imageFile,
+            isadmin: user.isAdmin
         };
 
         res.json({ user: userInfo });
