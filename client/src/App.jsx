@@ -81,6 +81,7 @@ import IndividualReport from "./pages/IndividualReport";
 import FeedbackAdmin from "./pages/FeedbackAdmin";
 import IndividualFeedback from "./pages/IndividualFeedback";
 import PurchaseHistory from "./pages/PurchaseHistory.jsx";
+import PrivateThreads from "./pages/Forum/PrivateThreads.jsx";
 function App() {
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -193,6 +194,7 @@ function App() {
           <Route path={"/bookmarks"} element={<SavedThreads />} />
           <Route path={"/thread/user/:userId"} element={<UserThreads />} />
           <Route path={"/trending"} element={<ForumTrending />} />
+          <Route path={"/privatethread"} element={<PrivateThreads/>}/>
           <Route path={"/admin/reportthread"} element={<ReportThreadAdmin />} />
 
         </Routes>

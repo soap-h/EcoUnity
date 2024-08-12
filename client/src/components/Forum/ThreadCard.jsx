@@ -17,6 +17,17 @@ import global from '../../global';
 import './ThreadCard.css'; // Import the CSS file
 import http from '../../http';
 import UserContext from '../../contexts/UserContext';
+import CategoryPopup from './CategoryPopup'; // Import the CategoryPopup component
+import EnergyPopupPic from '../../assets/nuclear.jpg';
+import BiodiversityPopupPic from '../../assets/biodiversityCategoryPic.jpg';
+import ConservationPopupPic from '../../assets/zebras.jpg';
+import AgriculturePopupPic from '../../assets/farmingLOL.jpg';
+import RecyclingPopupPic from '../../assets/recyclingLOL.jpg';
+import ClimatePopupPic from '../../assets/meltingIcecaps.jpg';
+import lol from '../../assets/discussion.jpg';
+
+// For the Reply Functionality
+import { MentionsInput, Mention } from 'react-mentions';
 
 const ThreadCard = ({
     thread, onDeleteClick, onBookmarkToggle, onCommentClick, onCommentChange, onCommentSubmit, newComment, bookmarkedThreads, onViewCommentsToggle, truncateContent, getCategoryChipColor,
@@ -24,6 +35,13 @@ const ThreadCard = ({
 }) => {
     const [reportFormOpen, setReportFormOpen] = useState(false);
     const [commentLikes, setCommentLikes] = useState({});
+    const [anchorEl, setAnchorEl] = useState(null);
+    const [isHovered, setIsHovered] = useState(false); // New state for tracking hover
+
+    // For the Reply Functionality
+    const [replyingToCommentId, setReplyingToCommentId] = useState(null); // To track which comment we're replying to
+    const [replyText, setReplyText] = useState(''); // To manage the reply input content
+    const [userList, setUserList] = useState([]); // To store the list of users for mentions
 
     const handleReportButtonClick = () => {
         setReportFormOpen(true);
@@ -36,7 +54,7 @@ const ThreadCard = ({
     const showThreadUserProfilePic = (picture) => {
         const picUrl = `${import.meta.env.VITE_FILE_PROFILE_URL}${picture}`;
         return picUrl || undefined;
-    }
+    };
 
     const User = useContext(UserContext);
 
@@ -44,14 +62,11 @@ const ThreadCard = ({
     useEffect(() => {
         const fetchCommentLikes = async () => {
             try {
-                // Ensure comments[thread.id] is defined and an array
                 const commentsForThread = comments[thread.id] || [];
-                
-                // Map only if it's an array
                 const likeStatusPromises = commentsForThread.map(comment =>
                     http.get(`/commentLikes/${comment.id}/like-status`)
                 );
-                
+
                 const results = await Promise.all(likeStatusPromises);
                 const likesData = {};
 
@@ -68,6 +83,106 @@ const ThreadCard = ({
 
         fetchCommentLikes();
     }, [comments, thread.id]);
+
+    // Fetch the Reply Comment Funcionality stuff
+    useEffect(() => {
+        const fetchUsers = async () => {
+            try {
+                const response = await http.get('/user/userinfo');
+                setUserList(response.data);
+            } catch (error) {
+                console.error('Error fetching user data:', error);
+            }
+        };
+
+        fetchUsers();
+    }, []);
+
+    const handleMouseEnter = (event) => {
+        setAnchorEl(event.currentTarget);
+        setIsHovered(true); // Set hover state to true
+    };
+
+    const handleMouseLeave = () => {
+        setIsHovered(false); // Set hover state to false
+        setTimeout(() => {
+            if (!isHovered) {
+                setAnchorEl(null); // Only close if not hovered
+            }
+        }, 30); // Add a delay to prevent immediate closing
+    };
+
+    // Handle popover close on mouse leave
+    const handlePopoverClose = (event) => {
+        if (anchorEl && !anchorEl.contains(event.relatedTarget)) {
+            setAnchorEl(null);
+        }
+    };
+
+    const categoryDetails = {
+        'Energy': {
+            description: 'Discussions about renewable energy sources, energy efficiency, and innovations in energy technology.',
+            threadCount: Math.floor(Math.random() * 100) + 1,
+            picture: EnergyPopupPic
+        },
+        'Biodiversity': {
+            description: 'Topics related to the variety of life on Earth, the importance of biodiversity, and conservation efforts.',
+            threadCount: Math.floor(Math.random() * 100) + 1,
+            picture: BiodiversityPopupPic
+        },
+        'Conservation': {
+            description: 'Conversations on wildlife conservation, habitat preservation, and sustainable practices to protect nature.',
+            threadCount: Math.floor(Math.random() * 100) + 1,
+            picture: ConservationPopupPic
+        },
+        'Agriculture': {
+            description: 'Debates on sustainable agriculture practices, organic farming, and the impact of agriculture on the environment.',
+            threadCount: Math.floor(Math.random() * 100) + 1,
+            picture: AgriculturePopupPic
+        },
+        'Recycling': {
+            description: 'Discussions about recycling practices, waste management, and the benefits of reducing waste.',
+            threadCount: Math.floor(Math.random() * 100) + 1,
+            picture: RecyclingPopupPic
+        },
+        'Climate Change': {
+            description: 'Topics focusing on climate change causes, effects, and strategies to mitigate its impact on the planet.',
+            threadCount: Math.floor(Math.random() * 100) + 1,
+            picture: ClimatePopupPic
+        },
+    };
+
+    const currentCategoryDetails = categoryDetails[thread.category] || {
+        description: 'No description available.',
+        threadCount: 0,
+        picture: lol
+    };
+
+    // For the Reply Functionality
+    const handleReplyClick = (commentId) => {
+        setReplyingToCommentId(commentId);
+        const comment = comments[thread.id]?.find(c => c.id === commentId);
+        if (comment) {
+            setReplyText(`@${comment.user.firstName} `);
+        }
+    };
+
+    const handleReplyChange = (e) => {
+        setReplyText(e.target.value);
+    };
+
+    const handleReplySubmit = async (parentId) => {
+        if (!replyText.trim()) return; // Prevent submitting empty replies
+
+        try {
+            await http.post(`/comment/reply/${parentId}`, { description: replyText });
+            setReplyText('');
+            setReplyingToCommentId(null);
+            onCommentClick(thread.id); // Refresh comments
+        } catch (error) {
+            console.error('Error submitting reply:', error);
+        } 
+    };
 
     return (
         <>
@@ -104,6 +219,8 @@ const ThreadCard = ({
                             label={thread.category}
                             color={getCategoryChipColor(thread.category)}
                             className="chip"
+                            onMouseEnter={handleMouseEnter}
+                            onMouseLeave={handleMouseLeave}
                         />
                     )}
                     <Collapse in={newComment[thread.id]?.expanded || false} className="comment-section">
@@ -138,9 +255,9 @@ const ThreadCard = ({
                     </Button>
                     {showComments[thread.id] && (
                         <Box className="comments-container">
-                            {comments[thread.id]?.map((comment, index) => (
+                            {comments[thread.id]?.map((comment) => (
                                 <Box
-                                    key={index}
+                                    key={comment.id} // Use comment.id as the key
                                     className="comment"
                                     sx={{ mt: 2 }}
                                 >
@@ -169,7 +286,7 @@ const ThreadCard = ({
                                                 <Tooltip title="Like">
                                                     <IconButton
                                                         className="icon-button"
-                                                        onClick={() => handleLikeToggle(thread.id, comment.id)} // <-- Pass comment.id
+                                                        onClick={() => handleLikeToggle(thread.id, comment.id)}
                                                     >
                                                         {commentLikes[comment.id] ? (
                                                             <FavoriteIcon color="error" />
@@ -180,16 +297,39 @@ const ThreadCard = ({
                                                     </IconButton>
                                                 </Tooltip>
                                                 <Tooltip title="Reply">
-                                                    <IconButton className="icon-button">
+                                                    <IconButton
+                                                        className="icon-button"
+                                                        onClick={() => handleReplyClick(comment.id)}
+                                                    >
                                                         <ReplyIcon />
                                                     </IconButton>
                                                 </Tooltip>
                                             </>
                                         )}
                                     </Box>
+                                    {replyingToCommentId === comment.id && (
+                                        <Box sx={{ mt: 2 }}>
+                                            <TextField
+                                                fullWidth
+                                                multiline
+                                                rows={4}
+                                                variant="outlined"
+                                                value={replyText}
+                                                onChange={handleReplyChange}
+                                                placeholder="Reply to this comment..."
+                                                sx={{ mb: 1 }}
+                                            />
+                                            <Button
+                                                variant="contained"
+                                                color="primary"
+                                                onClick={() => handleReplySubmit(comment.id)} // Pass the comment ID to handleReplySubmit
+                                            >
+                                                Post Reply
+                                            </Button>
+                                        </Box>
+                                    )}
                                 </Box>
                             ))}
-
                         </Box>
                     )}
                 </CardContent>
@@ -261,6 +401,16 @@ const ThreadCard = ({
             {reportFormOpen && (
                 <ReportThreadForm threadId={thread.id} onClose={handleCloseReportForm} />
             )}
+            <CategoryPopup
+                anchorEl={anchorEl}
+                handleClose={handleMouseLeave}
+                onMouseEnter={handleMouseEnter}
+                onMouseLeave={handlePopoverClose}
+                categoryName={thread.category}
+                categoryDescription={currentCategoryDetails.description}
+                threadCount={currentCategoryDetails.threadCount}
+                picture={currentCategoryDetails.picture}
+            />
         </>
     );
 };

@@ -9,7 +9,7 @@ import CategoryIcon from '@mui/icons-material/Category';
 import LockIcon from '@mui/icons-material/Lock';
 import SortIcon from '@mui/icons-material/Sort';
 import { Link, useLocation } from 'react-router-dom';
-import './ForumNavigation.css';  // Import the CSS file
+import './ForumNavigation.css';  // Import the updated CSS file
 
 function ForumNavigation() {
     const location = useLocation(); // Get current route location
@@ -37,33 +37,33 @@ function ForumNavigation() {
     const isActive = (path) => location.pathname === path;
 
     return (
-        <Grid item xs={3} sx={{ position: 'sticky', top: 0, height: '100vh', overflow: 'auto' }}>
+        <Grid item xs={3} className="forum-navigation-container" sx={{ml:2, mt: 2}}>
             <MenuList>
                 <MenuItem
                     component={Link}
                     to="/forum"
-                    className={`menu-item ${isActive('/forum') ? 'selected' : ''}`}
+                    className={`forum-menu-item ${isActive('/forum') ? 'forum-menu-item-selected' : ''}`}
                 >
                     <HomeIcon sx={{ mr: 1 }} /> Home
                 </MenuItem>
                 <MenuItem
                     component={Link}
                     to="/trending"
-                    className={`menu-item ${isActive('/trending') ? 'selected' : ''}`}
+                    className={`forum-menu-item ${isActive('/trending') ? 'forum-menu-item-selected' : ''}`}
                 >
                     <TrendingUpIcon sx={{ mr: 1 }} /> Trending
                 </MenuItem>
                 <MenuItem
                     component={Link}
                     to="/bookmarks"
-                    className={`menu-item ${isActive('/bookmarks') ? 'selected' : ''}`}
+                    className={`forum-menu-item ${isActive('/bookmarks') ? 'forum-menu-item-selected' : ''}`}
                 >
                     <BookmarkIcon sx={{ mr: 1 }} /> Saved
                 </MenuItem>
                 <MenuItem
                     component={Link}
                     to="/thread/user/:userId"
-                    className={`menu-item ${isActive('/thread/user/:userId') ? 'selected' : ''}`}
+                    className={`forum-menu-item ${isActive('/thread/user/:userId') ? 'forum-menu-item-selected' : ''}`}
                 >
                     <PostAddIcon sx={{ mr: 1 }} /> Posted
                 </MenuItem>
@@ -72,7 +72,7 @@ function ForumNavigation() {
             <Divider sx={{ my: 2 }} />
 
             <MenuList>
-                <MenuItem className="menu-item">
+                <MenuItem component={Link} to="/privatethread" className={`forum-menu-item ${isActive('/privatethread') ? 'forum-menu-item-selected' : ''}`}>
                     <LockIcon sx={{ mr: 1 }} /> Private
                 </MenuItem>
 
@@ -81,52 +81,52 @@ function ForumNavigation() {
                         expandIcon={<ExpandMoreIcon />}
                         aria-controls="panel1-content"
                         id="panel1-header"
-                        className="accordion-summary"
+                        className="forum-accordion-summary"
                     >
                         <CategoryIcon sx={{ mr: 1 }} /> Categories
                     </AccordionSummary>
-                    <AccordionDetails className="accordion-details">
+                    <AccordionDetails className="forum-accordion-details">
                         <MenuList>
                             <MenuItem component={Link} to="/thread/Biodiversity">
                                 <Chip
                                     label={"Biodiversity"}
                                     color={getCategoryChipColor("Biodiversity")}
-                                    className="category-chip"
+                                    className="forum-category-chip"
                                 />
                             </MenuItem>
                             <MenuItem component={Link} to="/thread/Energy">
                                 <Chip
                                     label={"Energy"}
                                     color={getCategoryChipColor("Energy")}
-                                    className="category-chip"
+                                    className="forum-category-chip"
                                 />
                             </MenuItem>
                             <MenuItem component={Link} to="/thread/Conservation">
                                 <Chip
                                     label={"Conservation"}
                                     color={getCategoryChipColor("Conservation")}
-                                    className="category-chip"
+                                    className="forum-category-chip"
                                 />
                             </MenuItem>
                             <MenuItem component={Link} to="/thread/Agriculture">
                                 <Chip
                                     label={"Agriculture"}
                                     color={getCategoryChipColor("Agriculture")}
-                                    className="category-chip"
+                                    className="forum-category-chip"
                                 />
                             </MenuItem>
                             <MenuItem component={Link} to="/thread/Recycling">
                                 <Chip
                                     label={"Recycling"}
                                     color={getCategoryChipColor("Recycling")}
-                                    className="category-chip"
+                                    className="forum-category-chip"
                                 />
                             </MenuItem>
                             <MenuItem component={Link} to="/thread/Climate Change">
                                 <Chip
                                     label={"Climate Change"}
                                     color={getCategoryChipColor("Climate Change")}
-                                    className="category-chip"
+                                    className="forum-category-chip"
                                 />
                             </MenuItem>
                         </MenuList>
@@ -138,16 +138,16 @@ function ForumNavigation() {
                         expandIcon={<ExpandMoreIcon />}
                         aria-controls="panel1-content"
                         id="panel1-header"
-                        className="accordion-summary"
+                        className="forum-accordion-summary"
                     >
                         <SortIcon sx={{ mr: 1 }} /> Sort by:
                     </AccordionSummary>
-                    <AccordionDetails className="accordion-details">
+                    <AccordionDetails className="forum-accordion-details">
                         <MenuList>
-                            <MenuItem className="menu-item">Most Popular</MenuItem>
-                            <MenuItem className="menu-item">Most Recent</MenuItem>
-                            <MenuItem className="menu-item">Top Rated</MenuItem>
-                            <MenuItem className="menu-item">Oldest</MenuItem>
+                            <MenuItem className="forum-menu-item">Most Popular</MenuItem>
+                            <MenuItem className="forum-menu-item">Most Recent</MenuItem>
+                            <MenuItem className="forum-menu-item">Top Rated</MenuItem>
+                            <MenuItem className="forum-menu-item">Oldest</MenuItem>
                         </MenuList>
                     </AccordionDetails>
                 </Accordion>
