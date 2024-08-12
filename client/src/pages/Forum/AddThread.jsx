@@ -9,10 +9,8 @@ import 'react-toastify/dist/ReactToastify.css';
 import './AddThread.css'; // Import your updated CSS file
 import UserContext from '../../contexts/UserContext';
 
-
 function AddThread() {
     const navigate = useNavigate();
-
     const { user } = useContext(UserContext);
 
     // For File Upload
@@ -61,7 +59,6 @@ function AddThread() {
         }),
 
         onSubmit: (data) => {
-
             if (!user || !user.id) {
                 toast.error('You are not logged in.');
                 return;
@@ -81,8 +78,31 @@ function AddThread() {
         }
     });
 
+    const handlePrivateSubmit = () => {
+        if (!user || !user.id) {
+            toast.error('You are not logged in.');
+            return;
+        }
+
+        if (!user.isAdmin) {
+            toast.error('You are not an admin!');
+            return;
+        }
+
+        let data = { ...formik.values, imageFile };
+
+        data.title = data.title.trim();
+        data.category = data.category.trim();
+        data.description = data.description.trim();
+
+        http.post("/thread/private", data).then((res) => {
+            console.log(res.data);
+            navigate('/forum');
+        });
+    };
+
     return (
-        <Container className="container" sx={{mt:4}}>
+        <Container className="container" sx={{ mt: 4 }}>
             <Typography variant="h5" className="header">Add Thread</Typography>
 
             <Box component="form" onSubmit={formik.handleSubmit} className="form-container">
@@ -154,7 +174,8 @@ function AddThread() {
                 </Grid>
 
                 <Box className="button-container">
-                    <Button variant='contained' type='submit'>Create Thread</Button>
+                    <Button variant='contained' type='submit' sx={{mr:2}}>Create Thread</Button>
+                    <Button variant='contained' color='error' onClick={handlePrivateSubmit}>Create Thread for Private Only</Button>
                 </Box>
             </Box>
             <ToastContainer />

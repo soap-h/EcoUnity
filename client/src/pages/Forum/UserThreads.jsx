@@ -8,6 +8,7 @@ import ForumBigPicture from '../../components/Forum/ForumBigPicture';
 import UserContext from '../../contexts/UserContext';
 import ThreadCard from '../../components/Forum/ThreadCard';
 import ForumHeader from '../../components/Forum/ForumHeader';
+import ForumSearchBar from '../../components/Forum/ForumSearchBar';
 
 
 function UserThreads() {
@@ -102,6 +103,11 @@ function UserThreads() {
             }
         }));
     };
+
+    const handleSearchResults = (results) => {
+        setThreadList(results);
+    }
+
 
     const handleCommentSubmit = async (threadId) => {
         if (!user) {
@@ -327,7 +333,9 @@ function UserThreads() {
                         <Grid container spacing={2} sx={{ my: 2 }}>
                             <ForumNavigation />
 
-                            <Grid item xs={9}>
+                            <Grid item xs={8.86}>
+
+                                <ForumSearchBar onSearchResults={handleSearchResults} sx={{pb:2}}/>
                                 {threadList.length > 0 ? (
                                     threadList.map((thread) => (
                                         <ThreadCard

@@ -41,6 +41,9 @@ import dayjs from 'dayjs';
 import global from '../../global';
 import ThreadCard from '../../components/Forum/ThreadCard';
 import ForumHeader from '../../components/Forum/ForumHeader';
+import ForumSearchBar from '../../components/Forum/ForumSearchBar';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function SavedThreads() {
     const [threadList, setThreadList] = useState([]);
@@ -230,6 +233,11 @@ function SavedThreads() {
         }
     };
 
+    const handleSearchResults = (results) => {
+        setThreadList(results);
+    }
+
+
     const handleViewCommentsToggle = async (threadId) => {
         if (showComments[threadId]) {
             setShowComments(prevState => ({
@@ -356,7 +364,8 @@ function SavedThreads() {
             <Grid container spacing={2} sx={{ my: 2 }}>
                 <ForumNavigation />
 
-                <Grid item xs={9}>
+                <Grid item xs={8.86}>
+                    <ForumSearchBar onSearchResults={handleSearchResults} sx={{pb:2}}/>
                     {threadList.length === 0 ? (
                         <Grid>
                             <Typography variant="h6" sx={{ mt: 2 }}>
@@ -431,6 +440,7 @@ function SavedThreads() {
                     </Dialog>
                 </Grid>
             </Grid>
+            <ToastContainer/>
         </Box>
     );
 }
