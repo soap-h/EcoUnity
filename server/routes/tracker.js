@@ -158,6 +158,7 @@ router.get("/month", async (req, res) => {
 // Route to get tracker entries from the start of the current week
 router.get("/week", async (req, res) => {
   const startOfWeek = getStartOfWeek();
+  console.log("Getting data for /week");
   try {
     const trackers = await Tracker.findAll({
       where: {

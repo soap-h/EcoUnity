@@ -47,25 +47,15 @@ function Trackers() {
   const [activities, setActivities] = useState([]);
   const [co2Data, setCo2Data] = useState([]);
   const [improvement, setImprovement] = useState(0);
-  const [goalHit, setGoalHit] = useState(false); // State to check if goal is hit
+  const [goalHit, setGoalHit] = useState(false);
+  const [total, settotal] = useState(0);
 
   const formatDate = (date) => {
     const [year, month, day] = date.split("-");
     return `${day}/${month}/${year}`;
   };
 
-  const getTrackers = () => {
-    if (goalType === "monthly") {
-      http.get("/tracker/month").then((res) => {
-        setTrackerList(res.data);
-      });
-    } else if (goalType === "weekly") {
-      http.get("/tracker/w").then((res) => {
-        setTrackerList(res.data);
-      });
-    }
-  };
-
+  
   const getUserGoal = () => {
     http.get(`/user/${user.id}`).then((res) => {
       setGoal(res.data.goals || 1000);
@@ -74,6 +64,21 @@ function Trackers() {
       console.error("Failed to fetch user goal:", err);
     });
   };
+
+  const getTrackers = () => {
+    if (goalType === "monthly") {
+      http.get("/tracker/month").then((res) => {
+        setTrackerList(res.data);
+        console.log("month")
+      });
+    } else if (goalType === "weekly") {
+      http.get("/tracker/week").then((res) => {
+        setTrackerList(res.data);
+        console.log("week")
+      });
+    }
+  };
+
 
   const getImprovementFromLastMonth = () => {
     http.get("/tracker/improvement").then((res) => {
@@ -90,17 +95,31 @@ function Trackers() {
       console.error("Failed to fetch CO2 data:", err);
     });
   };
-
+ 
+  const getAllPoints = () => {
+    http.get("/tracker").then((res) => {
+      const totaltracker = res.data.filter(tracker => user && user.id === tracker.userId);
+      const totalCo2 = totaltracker.reduce((total, tracker) => total + tracker.points, 0);
+      settotal(totalCo2)
+    })
+  }
+  // const userTrackers = trackerList.filter(tracker => user && user.id === tracker.userId);
+  // const totalPoints = userTrackers.reduce((total, tracker) => total + tracker.points, 0);
 
   useEffect(() => {
-    getTrackers();
     getUserGoal();
     getImprovementFromLastMonth();
     http.get('/activities').then((res) => {
       setActivities(res.data);
     });
+    getAllPoints();
     getCo2Data();
   }, []);
+  
+  useEffect(() => {
+    getTrackers(); 
+  }, [goalType]);
+  
 
   const co2ChartData = {
     labels: co2Data.map(data => data.month),
@@ -193,8 +212,6 @@ function Trackers() {
       return () => clearTimeout(timeout);
     }
   }, [totalPoints, goal, goalHit]);
-
-
 
   const data = {
     labels: ["CO2 Saved", "Remaining"],
@@ -336,7 +353,7 @@ function Trackers() {
               position: "sticky",
               top: 0,
               zIndex: 1,
-              backgroundColor: "#eee",  // Ensure it's visible
+              backgroundColor: "#eee",
             }}
           >
             <Typography variant="body1" sx={{ width: "30%", color: "#333" }}>
@@ -415,7 +432,7 @@ function Trackers() {
             </DialogActions>
           </Dialog>
           <Box sx={{ position: "sticky", bottom: 16, right: 16, zIndex: 1, textAlign: 'right' }}> {/* Sticky add button */}
-            <Button onClick={handleOpenAddDialog} color="primary" sx={{backgroundColor: '#eee'}}><Add /></Button>
+            <Button onClick={handleOpenAddDialog} color="primary" sx={{ backgroundColor: '#eee' }}><Add sx={{ color: "#5A9895" }} /></Button>
             <AddActivity open={openAddDialog} handleClose={handleCloseAddDialog} activities={activities} onActivityAdded={addActivity} />
           </Box>
         </Box>
@@ -437,7 +454,7 @@ function Trackers() {
           }}
         >
           <Typography variant="h6" sx={{ position: 'absolute', top: 16, right: 16, fontWeight: "bold", color: "#5A9895" }}>
-            Total CO2 Saved: {totalPoints}g
+            Total CO2 Saved: {total}g
           </Typography>
           <Box sx={{ height: '500px', width: '100%' }}>
             <Bar data={co2ChartData} options={co2ChartOptions} />
