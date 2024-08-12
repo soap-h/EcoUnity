@@ -7,6 +7,11 @@ module.exports = (sequelize, DataTypes) => {
         eventId: {
             type: DataTypes.INTEGER,
             allowNull: false
+        },
+        feedback: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            default: 0
         }
     }, {
         tableName: 'registrations'

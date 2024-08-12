@@ -8,6 +8,8 @@ import AddPhotoAlternateIcon from '@mui/icons-material/AddPhotoAlternate';
 import UserContext from '../contexts/UserContext';
 import http from '../http';
 import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
+
 
 function Profile() {
     const { id } = useParams();
@@ -35,7 +37,7 @@ function Profile() {
             const participatedData = participatedResponse.data;
             const eventsData = eventsResponse.data;
 
-            
+
             const linkedEvents = participatedData.map(pe => {
                 const eventDetails = eventsData.find(event => event.id === pe.eventId);
                 return {
@@ -157,9 +159,9 @@ function Profile() {
                 <Paper elevation={3} sx={{ padding: 4, marginTop: 4, borderRadius: 2 }}>
                     <Grid container spacing={3}>
                         <Grid item xs={12} md={4}>
-                            <Box sx={{ 
-                                position: 'relative', 
-                                display: 'inline-block', 
+                            <Box sx={{
+                                position: 'relative',
+                                display: 'inline-block',
                                 textAlign: 'center',
                                 ml: 2 // Shift the profile image slightly to the right
                             }}>
@@ -173,7 +175,7 @@ function Profile() {
                                     sx={{
                                         position: 'absolute',
                                         bottom: 0,
-                                        right: 0, 
+                                        right: 0,
                                         backgroundColor: 'grey', // Change icon color to grey
                                         color: '#fff',
                                         '&:hover': { backgroundColor: 'darkgrey' },
@@ -278,15 +280,23 @@ function Profile() {
                             <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold', color: 'black' }}>
                                 Activities
                             </Typography>
-                            <Paper elevation={2} sx={{ padding: 2, maxHeight: 248, overflowY: 'auto' }}> {/* Scrollable container */}
+                            <Paper elevation={2} sx={{ padding: 2, maxHeight: 248, overflowY: 'auto' }}>
                                 {participatedEvents.length > 0 ? (
                                     participatedEvents.map((event, index) => (
                                         <Box key={index} display="flex" justifyContent="space-between" alignItems="center" sx={{ marginBottom: 1 }}>
                                             <Typography variant="body1">{event.eventDetails.date}</Typography>
                                             <Typography variant="body1">{event.eventDetails.title}</Typography>
-                                            <Button variant="contained" color="primary" size="small">
-                                                Give Feedback
-                                            </Button>
+                                            {event.feedback === 1 ? (
+                                                <Button variant="contained" color="primary" size="small" disabled>
+                                                    Feedback Given
+                                                </Button>
+                                            ) : (
+                                                <Link to={`/addfeedback/${event.id}`} style={{ textDecoration: 'none' }}>
+                                                    <Button variant="contained" color="primary" size="small">
+                                                        Give Feedback
+                                                    </Button>
+                                                </Link>
+                                            )}
                                         </Box>
                                     ))
                                 ) : (
@@ -295,6 +305,7 @@ function Profile() {
                                     </Typography>
                                 )}
                             </Paper>
+
                         </Grid>
                     </Grid>
                     <Button variant="contained" color="error" onClick={deleteUser} sx={{ mt: 4 }}>

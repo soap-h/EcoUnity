@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Box, Typography, TextField, Button, Grid } from '@mui/material';
 import { useFormik } from 'formik';
 import * as yup from 'yup';
@@ -6,10 +6,26 @@ import http from '../http';
 import PageBanner from '../assets/FeedbackBanner.jpg';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { useParams } from 'react-router-dom';
 
 function AddFeedback() {
     const [submissionStatus, setSubmissionStatus] = useState('');
+    const [eventName, setEventName] = useState('');
+    const { id } = useParams();
+    const getevent = () => {
+        http.get(`/events/regis/${id}`)
+        .then((res) => {
+            setEventName(res.data.event.title);
+        })
+        .catch((error) => {
+            toast.error('Failed to fetch event details');
+            console.error(error);
+        });
+    }
 
+    useEffect(() => {
+        getevent()
+    }, [id]);
 
     const formik = useFormik({
         initialValues: {
@@ -19,14 +35,6 @@ function AddFeedback() {
             rating: ""
         },
         validationSchema: yup.object({
-            Name: yup.string().trim()
-                .min(3, 'Name must be at least 3 characters'),
-            emailAddress: yup.string().trim().lowercase().email()
-                .max(50, 'Email must be at most 50 characters'),
-            EventName: yup.string().trim()
-                .min(3, 'Title must be at least 3 characters')
-                .max(100, 'Title must be at most 100 characters')
-                .required('Title is required'),
             Improvement: yup.string().trim()
                 .min(3, 'Description must be at least 3 characters')
                 .max(500, 'Description must be at most 500 characters')
@@ -41,29 +49,26 @@ function AddFeedback() {
                 .required('Rating is required')
         }),
         onSubmit: (data) => {
-            data.EventName = data.EventName.trim();
+            data.EventName = eventName.trim(); 
             data.Improvement = data.Improvement.trim();
             data.Enjoy = data.Enjoy.trim();
-            
 
-            http.post("/EventFeedback", data)
+            http.post(`/EventFeedback/${id}`, data)
                 .then((res) => {
                     setSubmissionStatus('success');
                     toast.success(`Form has been sent successfully!`);
-
                     formik.resetForm();
                     console.log(res.data);
                 })
                 .catch((error) => {
                     setSubmissionStatus('error');
-                    toast.error(`error in submitting form`);
+                    toast.error(`Error in submitting form`);
                     console.error(error);
                 });
         }
     });
 
     return (
-
         <Box sx={{ bgcolor: '#075F6B', minHeight: '100vh', padding: 3 }}>
             <Box>
                 <Grid container justifyContent='center'>
@@ -84,11 +89,10 @@ function AddFeedback() {
                     fullWidth margin="dense" autoComplete="off"
                     label="Event"
                     name="EventName"
-                    value={formik.values.EventName}
-                    onChange={formik.handleChange}
-                    onBlur={formik.handleBlur}
-                    error={formik.touched.EventName && Boolean(formik.errors.EventName)}
-                    helperText={formik.touched.EventName && formik.errors.EventName}
+                    value={eventName} // Set value from state
+                    InputProps={{
+                        readOnly: true, // Make it read-only
+                    }}
                 />
                 <TextField
                     fullWidth margin="dense" autoComplete="off"
@@ -129,7 +133,6 @@ function AddFeedback() {
                 </Box>
             </Box>
             <ToastContainer />
-        
         </Box>
     );
 }

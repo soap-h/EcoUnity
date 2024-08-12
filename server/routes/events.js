@@ -53,6 +53,36 @@ router.post("/", validateToken, upload, async (req, res) => {
 });
 
 
+router.get('/regis/:id', async (req, res) => {
+    try {
+        const registrationId = req.params.id;
+        const registration = await Registration.findByPk(registrationId, {
+            include: [
+                {
+                    model: User,
+                    as: 'user',
+                    attributes: ['id', 'firstName', 'lastName', 'email'],
+                },
+                {
+                    model: Event,
+                    as: 'event',
+                    attributes: ['id', 'title', 'date', 'venue'],
+                },
+            ],
+        });
+
+        if (!registration) {
+            return res.status(404).json({ error: "Registration not found" });
+        }
+
+
+        res.json(registration);
+    } catch (error) {
+        console.error('Error fetching registration:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
 router.get("/", async (req, res) => {
     let condition = {};
     let search = req.query.search;
@@ -209,6 +239,9 @@ router.get('/:id/participatedevents', async (req, res) => {
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
-})
+});
+
+
+
 module.exports = router;
 
