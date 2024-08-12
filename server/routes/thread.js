@@ -38,6 +38,46 @@ router.get("/", async (req, res) => {
     }
 });
 
+// GET ALL Public Threads with Search and Ordered by Upvotes and Comment Count API
+router.get("/trendingthreads", async (req, res) => {
+    let condition = { isPrivate: 0 };  // Add condition to only include public threads
+    let search = req.query.search;
+
+    if (search) {
+        condition[Op.or] = [
+            { title: { [Op.like]: `%${search}%` } },
+            { description: { [Op.like]: `%${search}%` } }
+        ];
+    }
+
+    try {
+        let list = await Thread.findAll({
+            where: condition,
+            order: [
+                // Order by upvotes in descending order
+                ['upvote', 'DESC'],
+                // Order by the count of associated comments in descending order
+                [literal('(SELECT COUNT(*) FROM comments WHERE comments.threadId = Thread.id)'), 'DESC']
+            ],
+            attributes: {
+                include: [
+                    // Adding a count of associated comments
+                    [literal('(SELECT COUNT(*) FROM comments WHERE comments.threadId = Thread.id)'), 'commentCount']
+                ]
+            },
+            include: {
+                model: User,
+                as: 'user',
+                attributes: ['firstName', 'imageFile']
+            }
+        });
+        res.json(list);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+
 // Retrieve Public Threads with Common Category
 router.get("/:category", async (req, res) => {
     let category = req.params.category;
