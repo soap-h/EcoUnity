@@ -10,11 +10,13 @@ function GuestProfile() {
     const [participatedEvents, setParticipatedEvents] = useState([]);
     const [description, setDescription] = useState('');
     const [eventcount, seteventcount] = useState(0);
+    const [points, setPoints] = useState(0);
 
     const getUser = () => {
         http.get(`/user/${id}`).then((res) => {
             setUser(res.data);
             setDescription(res.data.description);
+            setPoints(res.data.points);
         }).catch((error) => {
             console.error("Error fetching user: ", error);
         });
@@ -108,7 +110,7 @@ function GuestProfile() {
                                 <Grid item xs={6}>
                                     <Paper elevation={2} sx={{ padding: 2, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: 100 }}>
                                         <Typography variant="h3" component="div" sx={{ fontWeight: 'bold' }}>
-                                            112
+                                            {points}
                                         </Typography>
                                         <Typography variant="body2" color="textSecondary">
                                             Recycling Points

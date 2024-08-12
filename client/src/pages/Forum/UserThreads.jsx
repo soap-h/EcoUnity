@@ -27,6 +27,29 @@ function UserThreads() {
     const [loading, setLoading] = useState(true);
 
 
+    const [sortOption, setSortOption] = useState('most recent'); // Default sort option
+
+    const sortThreads = (threads, option) => {
+        switch (option) {
+            case 'most recent':
+                return threads.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+            case 'oldest':
+                return threads.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+            case 'A to Z':
+                return threads.sort((a, b) => a.title.localeCompare(b.title)); // Assuming thread has a title property
+            case 'Z to A':
+                return threads.sort((a, b) => b.title.localeCompare(a.title)); // Assuming thread has a title property
+            default:
+                return threads;
+        }
+    };
+
+    const handleSortChange = (option) => {
+        setSortOption(option);
+        setThreadList(prevThreads => sortThreads([...prevThreads], option)); // Sort the threads
+    };
+
+
 
 
 
@@ -229,7 +252,7 @@ function UserThreads() {
             try {
                 // Fetch the threads created by the logged-in user
                 const threadsRes = await http.get(`/thread/user/${user.id}`);
-                
+
                 setThreadList(threadsRes.data);
                 setLoading(false);
             } catch (error) {
@@ -331,11 +354,11 @@ function UserThreads() {
                     <Box>
                         <ForumHeader />
                         <Grid container spacing={2} sx={{ my: 2 }}>
-                            <ForumNavigation />
+                            <ForumNavigation handleSortChange={handleSortChange} />
 
                             <Grid item xs={8.86}>
 
-                                <ForumSearchBar onSearchResults={handleSearchResults} sx={{pb:2}}/>
+                                <ForumSearchBar onSearchResults={handleSearchResults} sx={{ pb: 2 }} />
                                 {threadList.length > 0 ? (
                                     threadList.map((thread) => (
                                         <ThreadCard

@@ -25,6 +25,28 @@ function ForumByCategory() {
     const [showFullContent, setShowFullContent] = useState(false);
     const { user } = useContext(UserContext);
 
+    const [sortOption, setSortOption] = useState('most recent'); // Default sort option
+
+    const sortThreads = (threads, option) => {
+        switch (option) {
+            case 'most recent':
+                return threads.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+            case 'oldest':
+                return threads.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+            case 'A to Z':
+                return threads.sort((a, b) => a.title.localeCompare(b.title)); // Assuming thread has a title property
+            case 'Z to A':
+                return threads.sort((a, b) => b.title.localeCompare(a.title)); // Assuming thread has a title property
+            default:
+                return threads;
+        }
+    };
+
+    const handleSortChange = (option) => {
+        setSortOption(option);
+        setCategoryThreadList(prevThreads => sortThreads([...prevThreads], option)); // Sort the threads
+    };
+
 
     useEffect(() => {
         http.get(`/thread/${category}`).then((res) => {
@@ -288,7 +310,7 @@ function ForumByCategory() {
         <Box sx={{ p: 4 }}>
             <ForumHeader />
             <Grid container spacing={2} sx={{ my: 2 }}>
-                <ForumNavigation />
+                <ForumNavigation handleSortChange={handleSortChange} />
                 <Grid item xs={8.86}>
                     <ForumSearchBar onSearchResults={handleSearchResults} sx={{ pb: 2 }} />
                     {categoryThreadList.length === 0 ? (
