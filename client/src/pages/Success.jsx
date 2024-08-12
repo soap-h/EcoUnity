@@ -1,5 +1,3 @@
-// Success.jsx
-
 import React, { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Box, Typography, CircularProgress } from '@mui/material';
@@ -19,7 +17,10 @@ function Success() {
                 const { data } = await http.get(`/payment/checkout-session/${sessionId}`);
                 
                 if (data.payment_status === 'paid') {
-                    // If payment is successful, send the receipt email
+                    // Register the participant using the event ID from metadata
+                    await http.put(`/events/${data.metadata.eventId}/register`);
+                    
+                    // Send the receipt email
                     await http.post('/payment/send-receipt', { sessionId });
                     setSuccess(true);
                 } else {
@@ -34,10 +35,10 @@ function Success() {
 
         if (sessionId) {
             verifyPayment();
+        } else {
+            setLoading(false);
+            setSuccess(true); // Assuming the user is registering for a free event
         }
-        else [
-            setLoading(false)
-        ]
     }, [sessionId]);
 
     if (loading) {
@@ -58,26 +59,16 @@ function Success() {
         );
     }
 
-    if (!sessionId) {
-        return (
-            <Box sx={{ padding: 4 }}>
-                <Typography variant="h4" gutterBottom>
-                    Registration Successful!
-                </Typography>
-                <Typography variant="body1">
-                    You may view your registered events under Profile.
-                </Typography>
-            </Box>
-        );
-    }
-
     return (
         <Box sx={{ padding: 4 }}>
             <Typography variant="h4" gutterBottom>
-                Payment Successful!
+                {sessionId ? 'Payment Successful!' : 'Registration Successful!'}
             </Typography>
             <Typography variant="body1">
-                Thank you for your purchase. A receipt has been sent to your email.
+                {sessionId 
+                    ? 'Thank you for your purchase. A receipt has been sent to your email.' 
+                    : 'You have successfully registered for the event.'
+                }
             </Typography>
         </Box>
     );

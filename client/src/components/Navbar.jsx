@@ -193,6 +193,9 @@ function Navbar({ setOpenLogin, setOpenRegister }) {
                                     >
                                         <MenuItem onClick={() => { handleMenuClose(); navigate(`/profile/${user.id}`) }}>Profile</MenuItem>
                                         <MenuItem onClick={() => { handleMenuClose(); navigate('/inbox') }}>Inbox</MenuItem>
+                                        {user.isAdmin && (
+                                            <MenuItem onClick={() => { handleMenuClose(); navigate('/admin'); }}>Admin</MenuItem>
+                                        )}
                                         <MenuItem onClick={() => { handleMenuClose(); logout(); }}>Logout</MenuItem>
                                     </Menu>
                                 </>

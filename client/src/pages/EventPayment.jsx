@@ -11,9 +11,9 @@ function EventPayment() {
     const location = useLocation();
     const { user } = useContext(UserContext);
     const navigate = useNavigate();
-    const { amount, currency, eventTitle, eventDetails, eventDate, eventTime, eventVenue } = location.state || {};
+    const { amount, currency, eventTitle, eventDetails, eventDate, eventTime, eventVenue, eventId } = location.state || {};
 
-    if (!amount || !currency || !eventTitle) {
+    if (!amount || !currency || !eventTitle || !eventId) {
         return <Typography>Error: Missing payment details</Typography>;
     }
 
@@ -31,6 +31,7 @@ function EventPayment() {
                 amount,
                 currency,
                 email: user.email, // Pass the user's email for receipt
+                eventId,  // Pass the event ID
             });
 
             const { id } = response.data;
