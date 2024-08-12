@@ -1,7 +1,6 @@
 import React, { useEffect, useState, useContext } from "react";
-import { Box, Typography, List, ListItem, ListItemText, ListItemAvatar, Avatar, IconButton, Divider, Button, Dialog, DialogActions, DialogTitle, DialogContent, DialogContentText } from "@mui/material";
+import { Box, Typography, List, ListItem, ListItemText, ListItemAvatar, Avatar, IconButton, Divider, Button, Dialog, DialogActions, DialogTitle, DialogContent, DialogContentText, Paper } from "@mui/material";
 import DeleteIcon from '@mui/icons-material/Delete';
-import ArchiveIcon from '@mui/icons-material/Archive';
 import UserContext from "../contexts/UserContext";
 import http from "../http";
 import { toast } from 'react-toastify';
@@ -40,6 +39,19 @@ function Inbox() {
 
     const handleSelectMail = (mail) => {
         setSelectedMail(mail);
+        if (mail.unread === 1) {
+            markAsRead(mail.id);
+        }
+    };
+
+    const markAsRead = (id) => {
+        http.put(`/inbox/${id}/read`).then(() => {
+            setMails(prevMails =>
+                prevMails.map(mail =>
+                    mail.id === id ? { ...mail, unread: 0 } : mail
+                )
+            );
+        }).catch(err => console.error("Failed to mark mail as read:", err));
     };
 
     const filterMails = (category) => {
@@ -55,6 +67,7 @@ function Inbox() {
         http.delete(`/inbox/${deleteMailId}`).then(() => {
             setMails(mails.filter(mail => mail.id !== deleteMailId));
             setOpenDeleteDialog(false);
+            setSelectedMail(null); // Deselect the mail after deletion
             toast.success("Mail deleted successfully");
         }).catch(err => {
             console.error("Error deleting mail:", err);
@@ -97,15 +110,34 @@ function Inbox() {
                             button
                             onClick={() => handleSelectMail(mail)}
                             selected={selectedMail && mail.id === selectedMail.id}
-                            sx={{ bgcolor: selectedMail && mail.id === selectedMail.id ? 'action.selected' : 'transparent' }}
+                            sx={{
+                                bgcolor: mail.unread ? '#e3f2fd' : 'transparent',
+                                display: 'flex',
+                                alignItems: 'center',
+                                borderLeft: selectedMail && mail.id === selectedMail.id ? '4px solid #1976d2' : 'none', 
+                                transition: 'background-color 0.3s, border-left 0.3s',
+                            }}
                         >
                             <ListItemAvatar>
-                                <Avatar sx={{ bgcolor: 'primary.main' }}>{mail.title[0]}</Avatar>
+                                <Avatar>{mail.title[0]}</Avatar>
                             </ListItemAvatar>
                             <ListItemText
                                 primary={mail.title}
                                 secondary={`From: ${getUserEmailById(mail.userId)}`}
+                                sx={{
+                                    '& .MuiListItemText-primary': {
+                                        fontWeight: mail.unread ? 'bold' : 'normal',
+                                    },
+                                    '& .MuiListItemText-secondary': {
+                                        color: selectedMail && mail.id === selectedMail.id ? 'text.primary' : 'text.secondary',
+                                    }
+                                }}
                             />
+                            {selectedMail && mail.id === selectedMail.id && (
+                                <IconButton edge="end" aria-label="delete" onClick={() => handleDeleteMail(mail.id)}>
+                                    <DeleteIcon />
+                                </IconButton>
+                            )}
                         </ListItem>
                         <Divider variant="inset" component="li" />
                     </React.Fragment>
@@ -121,12 +153,22 @@ function Inbox() {
                     <Button onClick={confirmDeleteMail} color="error">Delete</Button>
                 </DialogActions>
             </Dialog>
-            {selectedMail && (
-                <Box sx={{ flex: 1, p: 3, bgcolor: 'grey.100' }}>
-                    <Typography variant="h5">{selectedMail.title}</Typography>
-                    <Typography variant="subtitle1">From: {getUserEmailById(selectedMail.userId)}</Typography>
-                    <Typography variant="body1">{selectedMail.content}</Typography>
-                </Box>
+            {selectedMail ? (
+                <Paper elevation={3} sx={{ flex: 1, p: 3, bgcolor: 'background.paper', borderRadius: 2 }}>
+                    <Typography variant="h5" sx={{ mb: 2, borderBottom: '2px solid #1976d2', pb: 1 }}>{selectedMail.title}</Typography>
+                    <Typography variant="subtitle1" sx={{ mb: 2, color: 'text.secondary' }}>
+                        From: {getUserEmailById(selectedMail.userId)}
+                    </Typography>
+                    <Typography variant="body1" sx={{ lineHeight: 1.6 }}>
+                        {selectedMail.content}
+                    </Typography>
+                </Paper>
+            ) : (
+                <Paper elevation={3} sx={{ flex: 1, p: 3, bgcolor: 'background.paper', borderRadius: 2, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                    <Typography variant="body1" sx={{ color: 'text.secondary' }}>
+                        Select a message to view its content.
+                    </Typography>
+                </Paper>
             )}
         </Box>
     );

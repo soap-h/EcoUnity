@@ -22,6 +22,10 @@ module.exports = (sequelize, DataTypes) => {
         },
         imageFile: {
             type: DataTypes.STRING(20)
+        },
+        isPrivate: {
+            type: DataTypes.BOOLEAN,
+            defaultValue: false
         }
     }, {
         tableName: 'threads'
@@ -51,7 +55,7 @@ module.exports = (sequelize, DataTypes) => {
             foreignKey: 'threadId',
             as: 'reports',
             onDelete: 'CASCADE'
-        })
+        });
     };
 
     return Thread;

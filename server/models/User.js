@@ -39,7 +39,7 @@ module.exports = (sequelize, DataTypes) => {
         goals: {
             type: DataTypes.INTEGER,
             allowNull: true,
-            defaultValue: 1000
+            defaultValue: 5000
         },
 
         goaltype: {
@@ -51,6 +51,11 @@ module.exports = (sequelize, DataTypes) => {
                 }
             },
             defaultValue: "monthly"
+        },
+
+        points: {
+            type: DataTypes.INTEGER,
+            defaultValue: 0,
         }
     }, {
         tableName: 'users'
@@ -98,7 +103,25 @@ module.exports = (sequelize, DataTypes) => {
             foreignKey: 'reporterId',
             as: 'reportedThreads',
             onDelete: 'CASCADE'
-        })
+        });
+
+        // User can have many comment likes 
+        User.hasMany(models.CommentLike, {
+            foreignKey: 'userId',
+            as: 'likedComments'
+        });
+
+        // One-to-Many Relationship with Cart Table
+        User.hasMany(models.Cart, {
+            foreignKey: "userId",
+            onDelete: 'cascade'
+        });
+
+        User.hasMany(models.Review, { 
+            foreignKey: 'userId',
+            onDelete: 'cascade'
+        });
+
     };
     // User.associate = (models) => {
     //     User.hasMany(models.EventFeedback, {

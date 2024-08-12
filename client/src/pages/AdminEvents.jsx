@@ -134,6 +134,26 @@ const AdminEvents = () => {
         }
     };
 
+    const handleApproveProposal = async (proposalId) => {
+        try {
+            await http.put(`/proposals/${proposalId}/approve`);
+            // Filter out the approved proposal from the list
+            setProposals((prevProposals) => prevProposals.filter((proposal) => proposal.id !== proposalId));
+        } catch (error) {
+            console.error('Failed to approve proposal:', error);
+        }
+    };
+    
+    const handleRejectProposal = async (proposalId) => {
+        try {
+            await http.put(`/proposals/${proposalId}/reject`);
+            // Filter out the rejected proposal from the list
+            setProposals((prevProposals) => prevProposals.filter((proposal) => proposal.id !== proposalId));
+        } catch (error) {
+            console.error('Failed to reject proposal:', error);
+        }
+    };
+    
     const now = dayjs();
 
     const currentEvents = events.filter(event => {
@@ -238,16 +258,26 @@ const AdminEvents = () => {
                                 <TableCell>{proposal.id}</TableCell>
                                 <TableCell>{proposal.date}</TableCell>
                                 <TableCell>
-                                    <a href={`/uploads/${proposal.document}`} download>
+                                    <a href={`/proposals/download/${proposal.document}`} download>
                                         {proposal.name}
                                     </a>
                                 </TableCell>
                                 <TableCell>{proposal.userId}</TableCell>
                                 <TableCell>
-                                    <Button variant="contained" sx={{ backgroundColor: 'green', color: 'white' }} onClick={() => handleApproveProposal(proposal.id)} disabled={proposal.status !== 'Pending'}>
+                                    <Button
+                                        variant="contained"
+                                        sx={{ backgroundColor: 'green', color: 'white' }}
+                                        onClick={() => handleApproveProposal(proposal.id)}
+                                        disabled={proposal.status !== 'Pending'}
+                                    >
                                         Approve
                                     </Button>
-                                    <Button variant="contained" sx={{ backgroundColor: 'red', color: 'white', ml: 2 }} onClick={() => handleRejectProposal(proposal.id)} disabled={proposal.status !== 'Pending'}>
+                                    <Button
+                                        variant="contained"
+                                        sx={{ backgroundColor: 'red', color: 'white', ml: 2 }}
+                                        onClick={() => handleRejectProposal(proposal.id)}
+                                        disabled={proposal.status !== 'Pending'}
+                                    >
                                         Reject
                                     </Button>
                                 </TableCell>
@@ -262,6 +292,8 @@ const AdminEvents = () => {
             </Table>
         </TableContainer>
     );
+    
+
 
     return (
         <Box sx={{ display: 'flex' }}>
@@ -302,7 +334,8 @@ const AdminEvents = () => {
                                 <TableHead>
                                     <TableRow>
                                         <TableCell>User ID</TableCell>
-                                        <TableCell>User Name</TableCell>
+                                        <TableCell>Name</TableCell>
+                                        <TableCell>Email</TableCell>
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
@@ -310,6 +343,7 @@ const AdminEvents = () => {
                                         <TableRow key={participant.id}>
                                             <TableCell>{participant.id}</TableCell>
                                             <TableCell>{participant.name}</TableCell>
+                                            <TableCell>{participant.email}</TableCell>
                                         </TableRow>
                                     ))}
                                 </TableBody>

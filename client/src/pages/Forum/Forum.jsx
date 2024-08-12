@@ -1,15 +1,17 @@
 import React, { useEffect, useState, useContext } from 'react';
-import { Box, Grid, Button, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, Typography, Paper } from '@mui/material';
+import { Box, Grid, Button, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions } from '@mui/material';
 import http from '../../http';
 import {
-    Add as AddIcon, Delete as DeleteIcon, Edit as EditIcon, Comment as CommentIcon, BookmarkBorder as BookmarkBorderIcon,
+    Add as AddIcon, Delete as DeleteIcon, Comment as CommentIcon, BookmarkBorder as BookmarkBorderIcon,
     Bookmark as BookmarkIcon, ExpandMore as ExpandMoreIcon, Mood as MoodIcon, MoodBad as MoodBadIcon
 } from '@mui/icons-material';
 import UserContext from '../../contexts/UserContext';
 import ForumNavigation from '../../components/Forum/ForumNavigation';
-import ForumBigPicture from '../../components/Forum/ForumBigPicture';
 import ThreadCard from '../../components/Forum/ThreadCard';
-import { Link } from 'react-router-dom';
+import ForumSearchBar from '../../components/Forum/ForumSearchBar';
+import ForumHeader from '../../components/Forum/ForumHeader';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function Forum() {
     const [threadList, setThreadList] = useState([]);
@@ -27,10 +29,12 @@ function Forum() {
         try {
             const [threadsRes, bookmarksRes] = await Promise.all([
                 http.get('/thread'),
-                http.get('/bookmarks'),
+                user ? http.get('/bookmarks') : Promise.resolve({ data: [] })  // Fetch bookmarks only if the user is logged in
             ]);
             setThreadList(threadsRes.data);
-            setBookmarkedThreads(bookmarksRes.data.map(b => b.threadId));
+            if (user) {
+                setBookmarkedThreads(bookmarksRes.data.map(b => b.threadId));
+            }
         } catch (error) {
             console.error('Error fetching data:', error);
         }
@@ -50,6 +54,10 @@ function Forum() {
     useEffect(() => {
         fetchData();
     }, [user]);
+
+    const handleSearchResults = (results) => {
+        setThreadList(results);
+    }
 
     const handleToggleContent = () => {
         setShowFullContent(!showFullContent);
@@ -80,6 +88,11 @@ function Forum() {
     };
 
     const handleBookmarkToggle = async (threadId) => {
+        if (!user) {
+            toast.error('You need to be logged in to bookmark threads.');
+            return;
+        }
+
         try {
             if (bookmarkedThreads.includes(threadId)) {
                 await http.delete(`/bookmarks/${threadId}`);
@@ -131,36 +144,79 @@ function Forum() {
     };
 
     const handleCommentSubmit = async (threadId) => {
+        if (!user) {
+            toast.error('You need to be logged in to comment.');
+            return;
+        }
+
         try {
-            await http.post(`/comment/${threadId}`, { description: newComment[threadId]?.text });
+            // Post the new comment
+            const response = await http.post(`/comment/${threadId}`, { description: newComment[threadId]?.text });
+            const createdComment = response.data;
+
+            console.log(`this is my new comment ${createdComment.description}`);
+
+            // Optimistically update the UI
+            setThreadList(prevThreads =>
+                prevThreads.map(thread =>
+                    thread.id === threadId
+                        ? { ...thread, commentCount: (thread.commentCount || 0) + 1 }
+                        : thread
+                )
+            );
+
+            // Update comments locally
             setComments(prevState => ({
                 ...prevState,
-                [threadId]: [...(prevState[threadId] || []), newComment[threadId]?.text]
+                [threadId]: [...(prevState[threadId] || []), {
+                    ...createdComment,
+                    createdAt: new Date() // Update with the actual creation date if needed
+                }]
             }));
+
             setNewComment(prevState => ({
                 ...prevState,
                 [threadId]: { text: '', expanded: false }
             }));
+
+            console.log(`This is the thread id: ${threadId}`)
+
+            // Fetch the latest comment data
+            const updatedThreadRes = await http.get(`/thread/id/${threadId}`);
+            const updatedThread = updatedThreadRes.data;
+
+            console.log(`updated thread.commentCount: ${updatedThread.commentCount}`);
+
+
+            setThreadList(prevThreads =>
+                prevThreads.map(thread =>
+                    thread.id === threadId
+                        ? { ...thread, commentCount: updatedThread.commentCount }
+                        : thread
+                )
+            );
+
+            // Notify the recipient
             const thread = threadList.find(t => t.id === threadId);
             const recipientEmail = await getUserEmailById(thread.userId);
-
             const message = {
                 'title': `${user.firstName} ${user.lastName} Commented on your post`,
-                'content': `${user.firstName} ${user.lastName} Commented ${newComment[threadId]?.text}`,
+                'content': `${user.firstName} ${user.lastName} Commented: ${newComment[threadId]?.text}`,
                 'recipient': `${recipientEmail}`,
                 'date': `${new Date()}`,
                 'category': "forum",
-            }
-            http.post("/inbox", message)
-                .catch((error) => {
-                    toast.error('error');
-                    console.log(error);
-                });
+                'unread': 1
+            };
+            await http.post("/inbox", message);
 
         } catch (error) {
-            console.error('Error posting comment:', error);
+            console.error('Error posting comment:', error.message);
         }
     };
+
+
+
+
 
     const handleViewCommentsToggle = async (threadId) => {
         if (showComments[threadId]) {
@@ -186,6 +242,11 @@ function Forum() {
     };
 
     const handleVote = async (threadId, voteType) => {
+        if (!user) {
+            toast.error('You need to be logged in to vote.');
+            return;
+        }
+
         try {
             const currentVote = userVotes[threadId];
 
@@ -213,27 +274,59 @@ function Forum() {
         }
     };
 
+    // Comment Like
+    const handleLikeToggle = async (threadId, commentId) => {
+        if (!user) {
+            toast.error('You need to be logged in to like comments.');
+            return;
+        }
+
+        try {
+            // Check the current like status  
+            const { data } = await http.get(`/commentLikes/${commentId}/like-status`);
+
+            const hasLiked = data.liked;
+
+            if (hasLiked) {
+                // Unlike comment
+                console.log(hasLiked);
+                await http.delete(`/commentLikes/${commentId}/dislike`);
+                setComments(prevComments => ({
+                    ...prevComments,
+                    [threadId]: prevComments[threadId].map(comment =>
+                        comment.id === commentId
+                            ? { ...comment, like: comment.like - 1, likes: comment.likes.filter(like => like !== user.id) }
+                            : comment
+                    )
+                }));
+            } else {
+                // Like comment
+                console.log(hasLiked, commentId);
+                await http.post(`/commentLikes/${commentId}/like`);
+                setComments(prevComments => ({
+                    ...prevComments,
+                    [threadId]: prevComments[threadId].map(comment =>
+                        comment.id === commentId
+                            ? { ...comment, like: comment.like + 1, likes: [...(comment.likes || []), user.id] }
+                            : comment
+                    )
+                }));
+            }
+        } catch (error) {
+            console.error('Error toggling like status', error);
+        }
+    };
+
+
+
+
     return (
         <Box sx={{ p: 4 }}>
-
-            {/* Header Section */}
-            <Paper elevation={3} sx={{ p: 4, mb: 4, backgroundColor: '#ffffff', borderRadius: 2 }}>
-                <Typography variant="h4" component="h1" gutterBottom sx={{ color: '#1976d2' }}>
-                    Welcome to the Forum
-                </Typography>
-                <Typography variant="body1" color="text.secondary" sx={{ mb: 2 }}>
-                    Join the discussion and share your thoughts on various topics. Engage with others, post new threads, and contribute to ongoing conversations. Your opinions matter!
-                </Typography>
-                <Link to="/addthread">
-                    <Button variant='contained' startIcon={<AddIcon />} sx={{ bgcolor: '#1976d2', '&:hover': { bgcolor: '#1565c0' } }}>
-                        Add a New Thread
-                    </Button>
-                </Link>
-            </Paper>
-
+            <ForumHeader />
             <Grid container spacing={2}>
                 <ForumNavigation />
-                <Grid item xs={9}>
+                <Grid item xs={8.86}>
+                    <ForumSearchBar onSearchResults={handleSearchResults} sx={{ pb: 2}}/> {/* Add SearchBar here */}
                     {threadList.map((thread) => (
                         <ThreadCard
                             key={thread.id}
@@ -253,13 +346,13 @@ function Forum() {
                             userVotes={userVotes}
                             handleVote={handleVote}
                             showFullContent={showFullContent}
+                            handleLikeToggle={handleLikeToggle}
                             handleToggleContent={handleToggleContent}
                             user={user}
                         />
                     ))}
                 </Grid>
             </Grid>
-
             <Dialog open={open} onClose={handleClose}>
                 <DialogTitle>Confirm Deletion</DialogTitle>
                 <DialogContent>
@@ -272,6 +365,7 @@ function Forum() {
                     <Button onClick={handleDeleteConfirm} color="error">Delete</Button>
                 </DialogActions>
             </Dialog>
+            <ToastContainer />
         </Box>
     );
 }

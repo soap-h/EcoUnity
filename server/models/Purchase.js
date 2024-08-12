@@ -19,9 +19,14 @@ module.exports = (sequelize, DataTypes) => {
         quantity: {
             type: DataTypes.INTEGER,
             allowNull: false
+        },
+        totalprice: {
+            type: DataTypes.INTEGER,
+            allowNull: false
         }
+
     }, {
-        tableName: 'purchases'
+        tableName: 'purchases',
     });
 
     Purchase.associate = (models) => {
@@ -36,4 +41,4 @@ module.exports = (sequelize, DataTypes) => {
     };
 
     return Purchase;
-}
+};

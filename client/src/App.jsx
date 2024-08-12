@@ -3,13 +3,25 @@ import { useState, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route, Link, Navigate } from "react-router-dom";
 import { ThemeProvider } from "@mui/material/styles";
 import http from "./http";
-// import ProtectedRoute from "./ProtectedRoute";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 // pages
 import Home from "./pages/Home.jsx";
+import Locations from "./pages/Locations.jsx"
 import Events from "./pages/Events.jsx";
 import EventRegistration from './pages/EventRegistration';
+import EventPayment from './pages/EventPayment';
+import Success from './pages/Success';
+import Cancel from './pages/Cancel';
 import ProposeEvent from './pages/ProposeEvent';
+import UserContext from "./contexts/UserContext";
+import AdminDashboard from "./pages/AdminDashboard.jsx";
+import AdminEvents from "./pages/AdminEvents.jsx";
+import DebugAdminCheck from "./components/DebugAdminCheck.jsx";
+import Login from "./pages/Login.jsx";
+import Register from "./pages/Register.jsx";
+import { Dialog } from "@mui/material";
+
 import Learning from "./pages/Learning.jsx";
 import Merchandise from "./pages/Merchandise.jsx";
 import AdminPage from "./pages/AdminPage.jsx";
@@ -18,12 +30,15 @@ import TrackerDashboard from "./pages/TrackerDashboard.jsx";
 import Reviews from "./pages/ReviewPage.jsx";
 
 import Navbar from "./components/Navbar";
+
 import { CartProvider } from './contexts/CartContext'; // Ensure correct import path
 import Cart from './pages/Cart.jsx'
 import Payment from './pages/Payment.jsx'
 import CartLayout from './components/CartLayout.jsx'; // Import the CartLayout component
 import ProductPage from './pages/ProductPage.jsx';
 import OrderConfirm from './pages/OrderConfirm.jsx'
+
+import AddLesson from './pages/AddLesson.jsx';
 
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements } from '@stripe/react-stripe-js';
@@ -54,13 +69,6 @@ import ReportThreadAdmin from "./pages/Forum/ReportThreadAdmin.jsx";
 
 
 // context
-
-import UserContext from "./contexts/UserContext";
-import AdminDashboard from "./pages/AdminDashboard.jsx";
-import AdminEvents from "./pages/AdminEvents.jsx";
-import Login from "./pages/Login.jsx";
-import Register from "./pages/Register.jsx";
-import { Dialog } from "@mui/material";
 import GuestProfile from "./pages/GuestProfile.jsx"
 
 const stripePromise = loadStripe('pk_test_51PibywRwqbBNo0bk0Y04vn93VZZoeNxfBZzlbLy8KVwfvEAi0OnxZPtCfhbbjCG2rjVuJ0Wcg4cznTAE22QPP4Zo00WRmChZjd');
@@ -72,6 +80,8 @@ import IncidentReportingUsers from './pages/IncidentReportingAdmin';
 import IndividualReport from "./pages/IndividualReport";
 import FeedbackAdmin from "./pages/FeedbackAdmin";
 import IndividualFeedback from "./pages/IndividualFeedback";
+import PurchaseHistory from "./pages/PurchaseHistory.jsx";
+import PrivateThreads from "./pages/Forum/PrivateThreads.jsx";
 function App() {
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -86,11 +96,7 @@ function App() {
       })
         .then((res) => {
           setUser(res.data.user);
-
-          if (res.data.user.isAdmin) {
-            window.location = "/admin";
-          }
-
+          
         }).catch(() => {
           localStorage.clear();
         }).finally(() => {
@@ -116,22 +122,40 @@ function App() {
       <Router>
         <Navbar setOpenLogin={setOpenLogin} setOpenRegister={setOpenRegister} />
         <Routes>
+          <Route path={"/login"} element={<Login />} />
+          <Route path={"/register"} element={<Register />} />
+
           <Route path={"/"} element={<Home />} />
+
+          <Route path={"/locations"} element={<Locations />} />
+
           <Route path={"/events"} element={<Events />} />
           <Route path="/event/:id" element={<EventRegistration />} />
           <Route path="/propose-event" element={<ProposeEvent />} />
+          <Route path="/event-payment/:id" element={<EventPayment />} />
+          <Route path="/success" element={<Success />} />
+          <Route path="/cancel" element={<Cancel />} />
+
+          {/* Protected admin routes */}
+          <Route path="/admin" element={<ProtectedRoute element={AdminDashboard} />} />
+          <Route path="/admin/events" element={<ProtectedRoute element={AdminEvents} />} />
+          <Route path="/debug-admin-check" element={<DebugAdminCheck />} />
+
+          
           {/* <Route path={"/forums"} element={<Forums />} /> */}
           <Route path={"/learning"} element={<Learning />} />
           <Route path={"/adminpage"} element={<AdminPage />} />
-          <Route path={"/reviews/:id"} element={<Reviews />} />
+          <Route path={"/reviews/:productId"} element={<Reviews />} />
           
           <Route element={<CartLayout />}>
-              <Route path={"/merchandise"} element={<Merchandise />} />
-              <Route path={"/products/:id"} element={<ProductPage />} />
-              <Route path={"/cart"} element={<Cart />} />
-              <Route path={"/payment"} element={<Payment />} /> 
-              <Route path={"/orderconfirm"} element={<OrderConfirm />} />
+            <Route path={"/merchandise"} element={<Merchandise />} />
+            <Route path={"/products/:id"} element={<ProductPage />} />
+            <Route path={"/cart"} element={<Cart />} />
+            <Route path={"/payment"} element={<Payment />} />
+            <Route path={"/orderconfirm"} element={<OrderConfirm />} />
           </Route>
+
+          <Route path={"/purchasehistory"} element={<PurchaseHistory/>}/>
 
 
           <Route path={"/login"} element={<Login />} />
@@ -143,20 +167,19 @@ function App() {
           <Route path={"/editactivity/:id"} element={<EditActivity />} />
           <Route path={"/activities"} element={<Activities />} />
           <Route path={"/createactivity"} element={<CreateActivity />} />
-          <Route path={"/admin"} element={<AdminDashboard />} />
-          <Route path={"/admin/events"} element={<AdminEvents />} />
-          <Route path={"/profile/:id"} element={user ? <Profile /> : <Navigate to="/login" />} />
+          <Route path={"/profile/:id"} element={user ? <Profile /> : <Navigate to="/" />} />
           <Route path={"/guestprofile/:id"} element={<GuestProfile />} />
           <Route path={"/inbox"} element={<Inbox />} />
           <Route path={"/addinbox"} element={<AddInboxMessage />} />
           <Route path="/admin/manageusers" element={<ManageUsers />} />
           <Route path="/admin/trackerdashboard" element={<TrackerDashboard />} />
           <Route path={"/AddincidentReporting"} element={<AddIncidentReport />} />
-          <Route path={"/addfeedback"} element={<AddFeedback />} />
+          <Route path={"/addfeedback/:id"} element={<AddFeedback />} />
           <Route path={"/admin/IncidentReportAdmin"} element={<IncidentReportingUsers />} />
           <Route path={"/admin/IncidentReportAdmin/:id"} element={<IndividualReport />} />
           <Route path={"/admin/FeedbackAdmin"} element={<FeedbackAdmin />} />
           <Route path={"/admin/FeedbackAdmin/:id"} element={<IndividualFeedback />} />
+          <Route path={"/admin/AddLesson"} element={<AddLesson />} />
 
 
           {/* Forum/Thread Routes */}
@@ -167,7 +190,8 @@ function App() {
           <Route path={"/bookmarks"} element={<SavedThreads />} />
           <Route path={"/thread/user/:userId"} element={<UserThreads />} />
           <Route path={"/trending"} element={<ForumTrending />} />
-          <Route path={"/admin/reportthread"} element={<ReportThreadAdmin/>}/>
+          <Route path={"/privatethread"} element={<PrivateThreads/>}/>
+          <Route path={"/admin/reportthread"} element={<ReportThreadAdmin />} />
 
         </Routes>
         <Dialog open={openLogin} onClose={() => setOpenLogin(false)}>

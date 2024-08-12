@@ -73,14 +73,14 @@ function Navbar({ setOpenLogin, setOpenRegister }) {
                     backgroundColor: "#5A9895",
                     color: "white",
                     textAlign: "center",
-                    py: 2,
+                    py: 1,
                     display: "flex",
                     flexDirection: "row",
                     alignItems: "center",
                     justifyContent: "center",
                 }}
             >
-                <Typography variant="h6" sx={{ mr: 1 }}>
+                <Typography variant="body1" sx={{ mr: 1 }}>
                     REGISTER TO BE A COMMUNITY VOLUNTEER!
                 </Typography>
                 <ChevronRightIcon />
@@ -193,6 +193,9 @@ function Navbar({ setOpenLogin, setOpenRegister }) {
                                     >
                                         <MenuItem onClick={() => { handleMenuClose(); navigate(`/profile/${user.id}`) }}>Profile</MenuItem>
                                         <MenuItem onClick={() => { handleMenuClose(); navigate('/inbox') }}>Inbox</MenuItem>
+                                        {user.isAdmin && (
+                                            <MenuItem onClick={() => { handleMenuClose(); navigate('/admin'); }}>Admin</MenuItem>
+                                        )}
                                         <MenuItem onClick={() => { handleMenuClose(); logout(); }}>Logout</MenuItem>
                                     </Menu>
                                 </>

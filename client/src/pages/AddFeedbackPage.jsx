@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, useEffect } from 'react';
 import { Box, Typography, TextField, Button, Grid, FormControl, InputLabel, Select, MenuItem, FormHelperText } from '@mui/material';
 import { useFormik } from 'formik';
 import * as yup from 'yup';
@@ -7,6 +7,7 @@ import PageBanner from '../assets/FeedbackBanner.jpg';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import UserContext from '../contexts/UserContext';
+import { useParams } from 'react-router-dom';
 
 function AddFeedback() {
     const [submissionStatus, setSubmissionStatus] = useState('');
@@ -91,7 +92,24 @@ function AddFeedback() {
 
         // Update the event ID state
         setSelectedEventId(selectedId);
-    };
+    };    const [eventName, setEventName] = useState('');
+    const [event, setevent] = useState(null)
+    const { id } = useParams();
+    const getevent = () => {
+        http.get(`/events/regis/${id}`)
+            .then((res) => {
+                setEventName(res.data.event.title);
+                setevent(res.data)
+            })
+            .catch((error) => {
+                toast.error('Failed to fetch event details');
+                console.error(error);
+            });
+    }
+
+    useEffect(() => {
+        getevent()
+    }, [id]);
 
     const formik = useFormik({
         initialValues: {
@@ -149,6 +167,16 @@ function AddFeedback() {
                     toast.error(`Error in submitting form`);
                     console.error(error);
                 });
+
+                const message = {
+                    'title': `You have Successfully sent your feedback!`,
+                    'content': `You rated ${eventName}, ${data.rating}. Thanks for giving us feedback! `,
+                    'recipient': `${event.user.email}`,
+                    'date': `${new Date()}`,
+                    'category': "misc",
+                    'unread': 1
+                };
+                http.post("/inbox", message);
         }
     });
 
@@ -170,26 +198,15 @@ function AddFeedback() {
                 </Grid>
             </Box>
             <Box component="form" onSubmit={formik.handleSubmit} sx={{ bgcolor: 'white', p: 3, borderRadius: 2 }}>
-                <FormControl fullWidth margin="dense">
-                    <InputLabel>Event</InputLabel>
-                    <Select
-                        name="EventName"
-                        value={formik.values.EventName}
-                        onChange={handleEventChange}
-                        onBlur={formik.handleBlur}
-                        error={formik.touched.EventName && Boolean(formik.errors.EventName)}
-                        label="Event"
-                    >
-                        {eventsOptions.map((event) => (
-                            <MenuItem key={event.id} value={event.id}>
-                                {event.title}
-                            </MenuItem>
-                        ))}
-                    </Select>
-                    {formik.touched.EventName && formik.errors.EventName && (
-                        <FormHelperText error>{formik.errors.EventName}</FormHelperText>
-                    )}
-                </FormControl>
+                <TextField
+                    fullWidth margin="dense" autoComplete="off"
+                    label="Event"
+                    name="EventName"
+                    value={eventName} // Set value from state
+                    InputProps={{
+                        readOnly: true, // Make it read-only
+                    }}
+                />
                 <TextField
                     fullWidth
                     margin="dense"

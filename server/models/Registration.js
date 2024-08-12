@@ -8,6 +8,11 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.INTEGER,
             allowNull: false
         },
+        feedback: {
+            type: DataTypes.INTEGER,
+            allowNull: false,
+            default: 0
+        },
 
         FeedbackStatus: {
             type: DataTypes.BOOLEAN,

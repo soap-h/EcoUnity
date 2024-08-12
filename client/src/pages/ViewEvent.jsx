@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Box, Typography, Button, Dialog, DialogTitle, DialogContent, DialogActions, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } from '@mui/material';
 import http from '../http';
+import * as XLSX from 'xlsx';
 
 const ViewEvent = ({ event, onClose }) => {
     const [participants, setParticipants] = useState([]);
@@ -18,6 +19,19 @@ const ViewEvent = ({ event, onClose }) => {
 
     const handleCloseParticipantsDialog = () => {
         setOpenParticipantsDialog(false);
+    };
+
+    const handleDownloadParticipants = () => {
+        if (participants.length === 0) return;
+
+        const worksheet = XLSX.utils.json_to_sheet(participants.map(p => ({
+            "User ID": p.id,
+            "Name": p.name,
+            "Email": p.email
+        })));
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Participants");
+        XLSX.writeFile(workbook, `${event.title.replace(/\s+/g, '_')}_Participants.xlsx`);
     };
 
     return (
@@ -52,24 +66,36 @@ const ViewEvent = ({ event, onClose }) => {
                 <DialogTitle>Registered Participants</DialogTitle>
                 <DialogContent>
                     {participants.length > 0 ? (
-                        <TableContainer component={Paper}>
-                            <Table>
-                                <TableHead>
-                                    <TableRow>
-                                        <TableCell>User ID</TableCell>
-                                        <TableCell>User Name</TableCell>
-                                    </TableRow>
-                                </TableHead>
-                                <TableBody>
-                                    {participants.map((participant) => (
-                                        <TableRow key={participant.id}>
-                                            <TableCell>{participant.id}</TableCell>
-                                            <TableCell>{participant.name}</TableCell>
+                        <>
+                            <TableContainer component={Paper}>
+                                <Table>
+                                    <TableHead>
+                                        <TableRow>
+                                            <TableCell>User ID</TableCell>
+                                            <TableCell>Name</TableCell>
+                                            <TableCell>Email</TableCell>
                                         </TableRow>
-                                    ))}
-                                </TableBody>
-                            </Table>
-                        </TableContainer>
+                                    </TableHead>
+                                    <TableBody>
+                                        {participants.map((participant) => (
+                                            <TableRow key={participant.id}>
+                                                <TableCell>{participant.id}</TableCell>
+                                                <TableCell>{participant.name}</TableCell>
+                                                <TableCell>{participant.email}</TableCell>
+                                            </TableRow>
+                                        ))}
+                                    </TableBody>
+                                </Table>
+                            </TableContainer>
+                            <Button
+                                variant="contained"
+                                color="primary"
+                                onClick={handleDownloadParticipants}
+                                sx={{ marginTop: 2 }}
+                            >
+                                Download List as Excel
+                            </Button>
+                        </>
                     ) : (
                         <Typography>No participants registered yet.</Typography>
                     )}

@@ -33,13 +33,17 @@ import {
     MoodBad as MoodBadIcon
 } from '@mui/icons-material';
 import http from '../../http';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import ForumNavigation from '../../components/Forum/ForumNavigation';
 import ForumBigPicture from '../../components/Forum/ForumBigPicture';
 import UserContext from '../../contexts/UserContext';
 import dayjs from 'dayjs';
 import global from '../../global';
 import ThreadCard from '../../components/Forum/ThreadCard';
+import ForumHeader from '../../components/Forum/ForumHeader';
+import ForumSearchBar from '../../components/Forum/ForumSearchBar';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function SavedThreads() {
     const [threadList, setThreadList] = useState([]);
@@ -54,6 +58,7 @@ function SavedThreads() {
     const [showComments, setShowComments] = useState({});
     const [showFullContent, setShowFullContent] = useState(false);
     const [userVotes, setUserVotes] = useState({});
+    const navigate = useNavigate();
 
 
     const handleToggleContent = () => {
@@ -77,6 +82,12 @@ function SavedThreads() {
     };
 
     useEffect(() => {
+        if (!user || !user.id) {
+            // Redirect to login if user is not logged in
+            navigate('/login');
+            return;
+        }
+
         if (!user || !user.id) return; // Ensure user is logged in
 
         // Fetch bookmarked threads
@@ -140,21 +151,92 @@ function SavedThreads() {
         }));
     };
 
-    const handleCommentSubmit = async (threadId) => {
+    const getUserEmailById = async (userId) => {
         try {
-            await http.post(`/comment/${threadId}`, { description: newComment[threadId]?.text });
+            const response = await http.get(`/user/userinfo`);
+            const user = response.data.find(u => u.id === userId);
+            return user ? user.email : "Unknown sender";
+        } catch (error) {
+            console.error('Error fetching user email:', error);
+            return null;
+        }
+    };
+
+
+    const handleCommentSubmit = async (threadId) => {
+        if (!user) {
+            toast.error('You need to be logged in to comment.');
+            return;
+        }
+    
+        try {
+            // Post the new comment
+            const response = await http.post(`/comment/${threadId}`, { description: newComment[threadId]?.text });
+            const createdComment = response.data;
+
+            console.log(`this is my new comment ${createdComment.description}`);            
+    
+            // Optimistically update the UI
+            setThreadList(prevThreads =>
+                prevThreads.map(thread =>
+                    thread.id === threadId
+                        ? { ...thread, commentCount: (thread.commentCount || 0) + 1 }
+                        : thread
+                )
+            );
+    
+            // Update comments locally
             setComments(prevState => ({
                 ...prevState,
-                [threadId]: [...(prevState[threadId] || []), newComment[threadId]?.text]
+                [threadId]: [...(prevState[threadId] || []), {
+                    ...createdComment,
+                    createdAt: new Date() // Update with the actual creation date if needed
+                }]
             }));
+    
             setNewComment(prevState => ({
                 ...prevState,
                 [threadId]: { text: '', expanded: false }
             }));
+    
+            console.log(`This is the thread id: ${threadId}`)
+
+            // Fetch the latest comment data
+            const updatedThreadRes = await http.get(`/thread/id/${threadId}`);
+            const updatedThread = updatedThreadRes.data;
+
+            console.log(`updated thread.commentCount: ${updatedThread.commentCount}`);
+
+    
+            setThreadList(prevThreads =>
+                prevThreads.map(thread =>
+                    thread.id === threadId
+                        ? { ...thread, commentCount: updatedThread.commentCount }
+                        : thread
+                )
+            );
+    
+            // Notify the recipient
+            const thread = threadList.find(t => t.id === threadId);
+            const recipientEmail = await getUserEmailById(thread.userId);
+            const message = {
+                'title': `${user.firstName} ${user.lastName} Commented on your post`,
+                'content': `${user.firstName} ${user.lastName} Commented: ${newComment[threadId]?.text}`,
+                'recipient': `${recipientEmail}`,
+                'date': `${new Date()}`,
+                'category': "forum",
+            };
+            await http.post("/inbox", message);
+
         } catch (error) {
-            console.error('Error posting comment:', error);
+            console.error('Error posting comment:', error.message);
         }
     };
+
+    const handleSearchResults = (results) => {
+        setThreadList(results);
+    }
+
 
     const handleViewCommentsToggle = async (threadId) => {
         if (showComments[threadId]) {
@@ -233,20 +315,64 @@ function SavedThreads() {
         return showFullContent ? content : content.substring(0, maxLength) + '...';
     };
 
+    // Comment Like
+    const handleLikeToggle = async (threadId, commentId) => {
+        if (!user) {
+            toast.error('You need to be logged in to like comments.');
+            return;
+        }
+
+        try {
+            // Check the current like status  
+            const { data } = await http.get(`/commentLikes/${commentId}/like-status`);
+
+            const hasLiked = data.liked;
+
+            if (hasLiked) {
+                // Unlike comment
+                console.log(hasLiked);
+                await http.delete(`/commentLikes/${commentId}/dislike`);
+                setComments(prevComments => ({
+                    ...prevComments,
+                    [threadId]: prevComments[threadId].map(comment =>
+                        comment.id === commentId
+                            ? { ...comment, like: comment.like - 1, likes: comment.likes.filter(like => like !== user.id) }
+                            : comment
+                    )
+                }));
+            } else {
+                // Like comment
+                console.log(hasLiked, commentId);
+                await http.post(`/commentLikes/${commentId}/like`);
+                setComments(prevComments => ({
+                    ...prevComments,
+                    [threadId]: prevComments[threadId].map(comment =>
+                        comment.id === commentId
+                            ? { ...comment, like: comment.like + 1, likes: [...(comment.likes || []), user.id] }
+                            : comment
+                    )
+                }));
+            }
+        } catch (error) {
+            console.error('Error toggling like status', error);
+        }
+    };
+
     return (
-        <Box sx={{p:4}}>
-            <ForumBigPicture />
+        <Box sx={{ p: 4 }}>
+            <ForumHeader />
             <Grid container spacing={2} sx={{ my: 2 }}>
                 <ForumNavigation />
 
-                <Grid item xs={9}>
-                    <Link to="/addthread">
-                        <Button variant='contained' startIcon={<AddIcon />} fullWidth sx={{ mb: 2 }}>
-                            Add a new thread
-                        </Button>
-                    </Link>
-
-                    {threadList.map((thread) => (
+                <Grid item xs={8.86}>
+                    <ForumSearchBar onSearchResults={handleSearchResults} sx={{pb:2}}/>
+                    {threadList.length === 0 ? (
+                        <Grid>
+                            <Typography variant="h6" sx={{ mt: 2 }}>
+                                You did not save any threads, save some on Home now!!
+                            </Typography>
+                        </Grid>
+                    ) : (threadList.map((thread) => (
                         <ThreadCard
                             key={thread.id}
                             thread={thread}
@@ -264,13 +390,12 @@ function SavedThreads() {
                             comments={comments}
                             userVotes={userVotes}
                             handleVote={handleVote}
+                            handleLikeToggle={handleLikeToggle}
                             showFullContent={showFullContent}
                             handleToggleContent={handleToggleContent}
                             user={user}
                         />
-                    ))}
-
-
+                    )))}
 
                     <Dialog
                         open={openDeleteDialog}
@@ -315,6 +440,7 @@ function SavedThreads() {
                     </Dialog>
                 </Grid>
             </Grid>
+            <ToastContainer/>
         </Box>
     );
 }

@@ -89,4 +89,26 @@ router.delete("/:id", async (req, res) => {
 
 });
 
+// Update a message's 'unread' status
+router.put("/:id/read", validateToken, async (req, res) => {
+    try {
+        const id = req.params.id;
+        const inbox = await Inbox.findByPk(id);
+
+        if (!inbox) {
+            return res.status(404).json({ message: "Message not found" });
+        }
+
+        // Update the unread status to 0 (read)
+        inbox.unread = 0;
+        await inbox.save();
+
+        res.json({ message: "Message marked as read" });
+    } catch (error) {
+        console.error("Failed to update message:", error);
+        res.status(500).json({ message: error.message });
+    }
+});
+
+
 module.exports = router;
