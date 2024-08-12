@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route, Link, Navigate } from "react-router-dom";
 import { ThemeProvider } from "@mui/material/styles";
 import http from "./http";
-// import ProtectedRoute from "./ProtectedRoute";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 // pages
 import Home from "./pages/Home.jsx";
@@ -12,11 +12,12 @@ import Events from "./pages/Events.jsx";
 import EventRegistration from './pages/EventRegistration';
 import EventPayment from './pages/EventPayment';
 import Success from './pages/Success';
-import Cancel from './pages/Cancel';  // In case you have a cancel page
+import Cancel from './pages/Cancel';
 import ProposeEvent from './pages/ProposeEvent';
 import UserContext from "./contexts/UserContext";
 import AdminDashboard from "./pages/AdminDashboard.jsx";
 import AdminEvents from "./pages/AdminEvents.jsx";
+import DebugAdminCheck from "./components/DebugAdminCheck.jsx";
 import Login from "./pages/Login.jsx";
 import Register from "./pages/Register.jsx";
 import { Dialog } from "@mui/material";
@@ -92,9 +93,9 @@ function App() {
         .then((res) => {
           setUser(res.data.user);
 
-          if (res.data.user.isAdmin) {
-            window.location = "/admin";
-          }
+          // if (res.data.user.isAdmin) {
+          //   window.location = "/admin";
+          // }
 
         }).catch(() => {
           localStorage.clear();
@@ -130,13 +131,17 @@ function App() {
 
           <Route path={"/events"} element={<Events />} />
           <Route path="/event/:id" element={<EventRegistration />} />
-          <Route path={"/admin"} element={<AdminDashboard />} />
-          <Route path={"/admin/events"} element={<AdminEvents />} />
           <Route path="/propose-event" element={<ProposeEvent />} />
           <Route path="/event-payment/:id" element={<EventPayment />} />
           <Route path="/success" element={<Success />} />
           <Route path="/cancel" element={<Cancel />} />
 
+          {/* Protected admin routes */}
+          <Route path="/admin" element={<ProtectedRoute element={AdminDashboard} />} />
+          <Route path="/admin/events" element={<ProtectedRoute element={AdminEvents} />} />
+          <Route path="/debug-admin-check" element={<DebugAdminCheck />} />
+
+          
           {/* <Route path={"/forums"} element={<Forums />} /> */}
           <Route path={"/learning"} element={<Learning />} />
           <Route path={"/adminpage"} element={<AdminPage />} />

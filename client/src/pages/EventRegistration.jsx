@@ -27,6 +27,8 @@ function EventRegistration() {
         fetchEvent();
     }, [id]);
 
+    const isRegistrationClosed = event && new Date() > new Date(event.registerEndDate);
+
     const handleRegister = () => {
         if (!user) {
             navigate('/login');  // Redirect to login if the user is not logged in
@@ -178,9 +180,15 @@ function EventRegistration() {
                             color="primary"
                             onClick={handleRegister}
                             fullWidth
-                            disabled={event.registered >= event.participants}
+                            disabled={event.registered >= event.participants || isRegistrationClosed}
                         >
-                            {user ? (event.registered >= event.participants ? 'Event Full' : 'Book') : 'Login to Book'}
+                            {isRegistrationClosed
+                                ? 'Registration Closed'
+                                : user
+                                ? event.registered >= event.participants
+                                    ? 'Event Full'
+                                    : 'Book'
+                                : 'Login to Book'}
                         </Button>
                     </Card>
                 </Grid>
