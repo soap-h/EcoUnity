@@ -24,16 +24,16 @@ function ForumNavigation() {
                 return 'success';
             case 'agriculture':
                 return 'primary';
-            case 'recycling':
-                return 'secondary';
-            case 'climate change':
-                return 'info';
-            default:
-                return 'default';
-        }
-    };
+                case 'recycling':
+                    return 'secondary';
+                case 'climate change':
+                    return 'info';
+                default:
+                    return 'default';
+            }
+        };
 
-    // Function to determine if the link is active
+        // Function to determine if the link is active
     const isActive = (path) => location.pathname === path;
 
     return (
@@ -144,7 +144,6 @@ function ForumNavigation() {
                     </AccordionSummary>
                     <AccordionDetails className="forum-accordion-details">
                         <MenuList>
-                            <MenuItem className="forum-menu-item">Most Popular</MenuItem>
                             <MenuItem className="forum-menu-item">Most Recent</MenuItem>
                             <MenuItem className="forum-menu-item">Top Rated</MenuItem>
                             <MenuItem className="forum-menu-item">Oldest</MenuItem>

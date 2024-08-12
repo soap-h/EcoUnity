@@ -14,10 +14,10 @@ import ReportGmailerrorredIcon from '@mui/icons-material/ReportGmailerrorred';
 import { Link } from 'react-router-dom';
 import ReportThreadForm from './ReportThreadForm';
 import global from '../../global';
-import './ThreadCard.css'; // Import the CSS file
+import './ThreadCard.css';
 import http from '../../http';
 import UserContext from '../../contexts/UserContext';
-import CategoryPopup from './CategoryPopup'; // Import the CategoryPopup component
+import CategoryPopup from './CategoryPopup';
 import EnergyPopupPic from '../../assets/nuclear.jpg';
 import BiodiversityPopupPic from '../../assets/biodiversityCategoryPic.jpg';
 import ConservationPopupPic from '../../assets/zebras.jpg';
@@ -26,9 +26,6 @@ import RecyclingPopupPic from '../../assets/recyclingLOL.jpg';
 import ClimatePopupPic from '../../assets/meltingIcecaps.jpg';
 import lol from '../../assets/discussion.jpg';
 
-// For the Reply Functionality
-import { MentionsInput, Mention } from 'react-mentions';
-
 const ThreadCard = ({
     thread, onDeleteClick, onBookmarkToggle, onCommentClick, onCommentChange, onCommentSubmit, newComment, bookmarkedThreads, onViewCommentsToggle, truncateContent, getCategoryChipColor,
     showComments, comments, userVotes, handleVote, showFullContent, handleLikeToggle, handleToggleContent, user
@@ -36,12 +33,10 @@ const ThreadCard = ({
     const [reportFormOpen, setReportFormOpen] = useState(false);
     const [commentLikes, setCommentLikes] = useState({});
     const [anchorEl, setAnchorEl] = useState(null);
-    const [isHovered, setIsHovered] = useState(false); // New state for tracking hover
-
-    // For the Reply Functionality
-    const [replyingToCommentId, setReplyingToCommentId] = useState(null); // To track which comment we're replying to
-    const [replyText, setReplyText] = useState(''); // To manage the reply input content
-    const [userList, setUserList] = useState([]); // To store the list of users for mentions
+    const [isHovered, setIsHovered] = useState(false);
+    const [replyingToCommentId, setReplyingToCommentId] = useState(null);
+    const [replyText, setReplyText] = useState('');
+    const [userList, setUserList] = useState([]);
 
     const handleReportButtonClick = () => {
         setReportFormOpen(true);
@@ -58,7 +53,6 @@ const ThreadCard = ({
 
     const User = useContext(UserContext);
 
-    // Fetch comment like statuses
     useEffect(() => {
         const fetchCommentLikes = async () => {
             try {
@@ -84,7 +78,6 @@ const ThreadCard = ({
         fetchCommentLikes();
     }, [comments, thread.id]);
 
-    // Fetch the Reply Comment Funcionality stuff
     useEffect(() => {
         const fetchUsers = async () => {
             try {
@@ -100,19 +93,18 @@ const ThreadCard = ({
 
     const handleMouseEnter = (event) => {
         setAnchorEl(event.currentTarget);
-        setIsHovered(true); // Set hover state to true
+        setIsHovered(true);
     };
 
     const handleMouseLeave = () => {
-        setIsHovered(false); // Set hover state to false
+        setIsHovered(false);
         setTimeout(() => {
             if (!isHovered) {
-                setAnchorEl(null); // Only close if not hovered
+                setAnchorEl(null);
             }
-        }, 30); // Add a delay to prevent immediate closing
+        }, 30);
     };
 
-    // Handle popover close on mouse leave
     const handlePopoverClose = (event) => {
         if (anchorEl && !anchorEl.contains(event.relatedTarget)) {
             setAnchorEl(null);
@@ -158,7 +150,6 @@ const ThreadCard = ({
         picture: lol
     };
 
-    // For the Reply Functionality
     const handleReplyClick = (commentId) => {
         setReplyingToCommentId(commentId);
         const comment = comments[thread.id]?.find(c => c.id === commentId);
@@ -172,16 +163,16 @@ const ThreadCard = ({
     };
 
     const handleReplySubmit = async (parentId) => {
-        if (!replyText.trim()) return; // Prevent submitting empty replies
+        if (!replyText.trim()) return;
 
         try {
             await http.post(`/comment/reply/${parentId}`, { description: replyText });
             setReplyText('');
             setReplyingToCommentId(null);
-            onCommentClick(thread.id); // Refresh comments
+            onCommentClick(thread.id);
         } catch (error) {
             console.error('Error submitting reply:', error);
-        } 
+        }
     };
 
     return (
@@ -245,6 +236,7 @@ const ThreadCard = ({
                 </CardContent>
                 <Divider />
                 <CardContent>
+
                     <Button
                         variant="outlined"
                         endIcon={<ExpandMoreIcon />}
@@ -257,7 +249,7 @@ const ThreadCard = ({
                         <Box className="comments-container">
                             {comments[thread.id]?.map((comment) => (
                                 <Box
-                                    key={comment.id} // Use comment.id as the key
+                                    key={comment.id}
                                     className="comment"
                                     sx={{ mt: 2 }}
                                 >
@@ -322,7 +314,7 @@ const ThreadCard = ({
                                             <Button
                                                 variant="contained"
                                                 color="primary"
-                                                onClick={() => handleReplySubmit(comment.id)} // Pass the comment ID to handleReplySubmit
+                                                onClick={() => handleReplySubmit(comment.id)}
                                             >
                                                 Post Reply
                                             </Button>
