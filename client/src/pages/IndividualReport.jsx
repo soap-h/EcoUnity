@@ -157,7 +157,8 @@ function IndividualReport() {
                     <>
                       <Grid container justifyContent="space-between" alignItems="center">
                         <Typography variant="h6">Reviewer Notes:</Typography>
-                        {(report.EditNoteUser === undefined || report.EditNoteUser.id === user.id) &&(
+                        {console.log(report.EditNoteId, user.id)}
+                        {(report.EditNoteId === null || String(report.EditNoteId) === String(user.id)) &&(
                           <IconButton onClick={handleEditClick}>
                           <EditIcon />
                         </IconButton>

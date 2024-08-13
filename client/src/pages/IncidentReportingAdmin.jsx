@@ -1,22 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { InputLabel, FormControl, Box, Typography, Select, MenuItem, IconButton, Grid, CircularProgress } from '@mui/material';
-import Table from '@mui/material/Table';
-import TableBody from '@mui/material/TableBody';
-import TableCell from '@mui/material/TableCell';
-import TableContainer from '@mui/material/TableContainer';
-import TableHead from '@mui/material/TableHead';
-import TableRow from '@mui/material/TableRow';
-import Paper from '@mui/material/Paper';
-import http from '../http';
-import dayjs from 'dayjs';
-import AdminSidebar from '../components/AdminSidebar';
+import { InputLabel, FormControl, Box, Typography, Select, MenuItem, IconButton, Grid, CircularProgress, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
-import { Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Button } from '@mui/material';
-import { toast, ToastContainer } from 'react-toastify';
+import DeleteIcon from '@mui/icons-material/Delete';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
+import dayjs from 'dayjs';
+import http from '../http';
+import AdminSidebar from '../components/AdminSidebar';
+import { toast, ToastContainer } from 'react-toastify';
 
-const statusOptions = ['Pending', 'Resolved', 'Rejected'];
+const statusOptions = ['Pending', 'Rejected', 'Resolved'];
 
 function IncidentReportingUsers() {
   const [IncidentReportUsersList, setIncidentReportUsers] = useState([]);
@@ -24,6 +17,7 @@ function IncidentReportingUsers() {
   const [reviewerNoteMap, setReviewerNoteMap] = useState({});
   const [actionStatusMap, setActionStatusMap] = useState({});
   const [openDialog, setOpenDialog] = useState(false);
+  const [open, setOpen] = useState(false); // For Expand/Collapse IconButton
 
   useEffect(() => {
     http.get('/IncidentReporting').then((res) => {
@@ -34,7 +28,6 @@ function IncidentReportingUsers() {
         statusMap[item.id] = item.ActionStatus || '';
         noteMap[item.id] = item.ReviewerNote || '';
       });
-      console.log('Status Map:', res.data);
       setActionStatusMap(statusMap);
       setReviewerNoteMap(noteMap);
     }).catch((error) => {
@@ -63,6 +56,9 @@ function IncidentReportingUsers() {
       http.put(`/IncidentReporting/updateStatus/${selectedReport.id}`, { ActionTaken: actionStatusMap[selectedReport.id] })
         .then((res) => {
           toast.success('Admin status updated successfully!');
+          setIncidentReportUsers((prevList) => prevList.map((report) =>
+            report.id === selectedReport.id ? { ...report, ActionStatus: actionStatusMap[selectedReport.id] } : report
+          ));
           window.location.reload();
           handleEditClose();
         })
@@ -73,22 +69,31 @@ function IncidentReportingUsers() {
     }
   };
 
-  // Calculate the dashboard metrics
+  const handleDelete = (id) => {
+    http.delete(`/IncidentReporting/${id}`)
+      .then(() => {
+        toast.success('Report deleted successfully!');
+        setIncidentReportUsers((prevList) => prevList.filter((report) => report.id !== id));
+      })
+      .catch((error) => {
+        console.error('Error deleting report:', error);
+        toast.error('Error deleting report.');
+      });
+  };
+
   const totalReports = IncidentReportUsersList.length;
   const pendingReports = IncidentReportUsersList.filter((report) => report.ActionTaken === 'Pending').length;
-  const approvedReports = IncidentReportUsersList.filter((report) => report.ActionTaken === 'Approved').length;
+  const approvedReports = IncidentReportUsersList.filter((report) => report.ActionTaken === 'Resolved').length;
 
-  // Calculate percentages for the circular progress
   const pendingPercentage = totalReports ? (pendingReports / totalReports) * 100 : 0;
   const approvedPercentage = totalReports ? (approvedReports / totalReports) * 100 : 0;
 
   return (
     <Box sx={{ display: 'flex', height: '100vh' }}>
-      <AdminSidebar /> {/* Sidebar Component */}
+      <AdminSidebar />
       <Box sx={{ flexGrow: 1, p: 3 }}>
         <Typography variant="h3" className="events-participant-text">Incident Reporting</Typography>
 
-        {/* Dashboard Grid */}
         <Grid container spacing={2} sx={{ mb: 4 }}>
           <Grid item xs={4}>
             <Box sx={{ p: 2, bgcolor: '#3f51b5', borderRadius: '8px', textAlign: 'center', color: 'white' }}>
@@ -128,7 +133,7 @@ function IncidentReportingUsers() {
           </Grid>
           <Grid item xs={4}>
             <Box sx={{ p: 2, bgcolor: '#4caf50', borderRadius: '8px', textAlign: 'center', color: 'white', position: 'relative' }}>
-              <Typography variant="h6">resolved Reports</Typography>
+              <Typography variant="h6">Resolved Reports</Typography>
               <CircularProgress
                 variant="determinate"
                 value={approvedPercentage}
@@ -153,16 +158,17 @@ function IncidentReportingUsers() {
                 <TableCell align="center">Edit Status</TableCell>
                 <TableCell align="center"></TableCell>
                 <TableCell align="center">Reviewer Note</TableCell>
+                <TableCell align="center">Delete</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {IncidentReportUsersList.map((IncidentReportSubmits) => (
                 <TableRow
-                  key={IncidentReportSubmits.id} // Assuming each row has a unique 'id'
+                  key={IncidentReportSubmits.id}
                   sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                 >
                   <TableCell component="th" scope="row">
-                    {dayjs(IncidentReportSubmits.createdAt).format('YYYY-MM-DD')} {/* Format date as needed */}
+                    {dayjs(IncidentReportSubmits.createdAt).format('YYYY-MM-DD')}
                   </TableCell>
                   <TableCell align="center">{IncidentReportSubmits.user?.firstName}</TableCell>
                   <TableCell align="center">{IncidentReportSubmits.user?.email}</TableCell>
@@ -170,7 +176,7 @@ function IncidentReportingUsers() {
                     <a href={`/admin/IncidentReportAdmin/${IncidentReportSubmits.id}`}>View Details</a>
                   </TableCell>
                   <TableCell align="center">
-                    {IncidentReportSubmits.ActionTaken || 'Pending'} {/* Display status */}
+                    {IncidentReportSubmits.ActionTaken || 'Pending'}
                   </TableCell>
                   <TableCell align="center">
                     <IconButton onClick={() => handleEditOpen(IncidentReportSubmits)}>
@@ -189,6 +195,17 @@ function IncidentReportingUsers() {
                   <TableCell align="center">
                     {IncidentReportSubmits.Note}
                   </TableCell>
+                  <TableCell align="center">
+                    {IncidentReportSubmits.ActionTaken === 'Resolved' && (
+                      <IconButton
+                        aria-label="delete"
+                        color="error"
+                        onClick={() => handleDelete(IncidentReportSubmits.id)}
+                      >
+                        <DeleteIcon />
+                      </IconButton>
+                    )}
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
@@ -202,9 +219,9 @@ function IncidentReportingUsers() {
               Change the ACTIONSTATUS for ID:{selectedReport?.id}.
             </DialogContentText>
             <FormControl fullWidth>
-              <InputLabel>ActionStatus</InputLabel>
+              <InputLabel>Action Status</InputLabel>
               <Select
-                label="Status"
+                label="Action Status"
                 value={actionStatusMap[selectedReport?.id] || ''}
                 onChange={(e) => handleStatusChange(e, selectedReport?.id)}
               >
