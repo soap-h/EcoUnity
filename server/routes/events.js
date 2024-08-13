@@ -129,7 +129,7 @@ router.put("/:id/register", validateToken, async (req, res) => {
             return res.status(400).json({ error: "Event is fully booked" });
         }
 
-        let registration = await Registration.create({ eventId, userId, feedback:0 });
+        let registration = await Registration.create({ eventId, userId, feedback: 0 });
         await event.increment('registered', { by: 1 });
 
         res.json({ message: "Successfully registered for the event" });
@@ -205,7 +205,7 @@ router.delete("/:id", validateToken, async (req, res) => {
     }
 });
 
-router.get('/:id/participants' ,validateToken, async (req, res) => {
+router.get('/:id/participants', validateToken, async (req, res) => {
     try {
         const eventId = req.params.id;
         const registrations = await Registration.findAll({
@@ -220,9 +220,15 @@ router.get('/:id/participants' ,validateToken, async (req, res) => {
         });
 
         // Map the registrations to extract participant details
+
         const participants = registrations.map((registration) => ({
             id: registration.user.id,
             name: `${registration.user.firstName} ${registration.user.lastName}`,
+            email: registration.user.email,
+            eventId: registration.eventId,
+            userId: registration.userId,
+            FeedbackStatus: registration.FeedbackStatus,
+            feedback: registration.feedback
         }));
 
         // Send the participants as the response
@@ -246,7 +252,7 @@ router.get('/:id/participatedevents', async (req, res) => {
 });
 
 
-router.get('/:id/registrations',validateToken, async (req, res) => {
+router.get('/:id/registrations', validateToken, async (req, res) => {
     try {
         const userId = req.params.id; // Assuming you're passing userId as a query parameter
 
@@ -272,12 +278,12 @@ router.get('/:id/registrations',validateToken, async (req, res) => {
     }
 });
 
-router.put('/update-feedback-status/:eventID',validateToken, async (req, res) => {
+router.put('/update-feedback-status/:eventID', validateToken, async (req, res) => {
     const eventId = req.params.eventID
-    
+
     try {
         const { FeedbackStatus, userId } = req.body;
-        
+
         const registration = await Registration.findOne({
             where: {
                 userId,

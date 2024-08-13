@@ -28,47 +28,18 @@ function FeedbackAdmin() {
     const { user } = useContext(UserContext);
     const [selectedEvent, setSelectedEvent] = useState('');
     const [participants, setParticipants] = useState([]);
+    const [eventName, setEventName] = useState('');
     const [noParticipants, setNoParticipants] = useState('');
-    const [tempEventID, setTempEventID] = useState(''); 
+    const [tempEventID, setTempEventID] = useState('');
     const [tempUserID, setTempUserID] = useState('');
 
 
     useEffect(() => {
         retrieveEventParticipants();
-        http.get('/EventFeedback').then((res) => {
-            setFeedback(res.data);
-        }).catch(error => {
-            console.error('Error fetching feedback:', error);
-        });
-
-        Promise.all([
-            http.get(`/events/${2
-
-            }/participants`),
-            http.get('/EventFeedback')
-        ])
-        .then(([participantsRes, feedbackRes]) => {
-            const participants = participantsRes.data;
-            const feedback = feedbackRes.data;
-            console.log('Participants:', participants);
-            console.log('Feedback:', feedback);
-        
-            const combinedData = participants.map(participant => {
-                const matchingFeedback = feedback.find(fb => fb.eventId === participant.eventId && fb.userId === participant.id);
-                console.log('Matching Feedback:', matchingFeedback);
-                return {
-                    ...participant,
-                    feedback: matchingFeedback || null, // Attach feedback if it exists, otherwise null
-                };
-            });
-        
-            console.log('Combined Data:', combinedData);
-            setParticipants(combinedData);
-        })
-        .catch(error => {
-            console.error('Error fetching data:', error);
-        });
-    }, []);
+        if (selectedEvent) {
+            handleViewParticipants();
+        }
+    }, [selectedEvent]);
 
 
 
@@ -76,53 +47,47 @@ function FeedbackAdmin() {
         http.get('/events')
             .then(res => {
                 setEventsOptions(res.data);
+                const filteredEvents = res.data.filter(event => event.id === selectedEvent);
+                setEventName(filteredEvents[0].title);
             })
             .catch(error => {
                 console.error('Error fetching events:', error);
             });
     };
-
-    const handleViewParticipants = () => {
-        console.log('Selected event: after handleview', selectedEvent);
-
-        Promise.all([
-            http.get(`/events/${selectedEvent}/participants`),
-            http.get('/EventFeedback')
-        ])
-        .then(([participantsRes, feedbackRes]) => {
-            const participants = participantsRes.data;
-            const feedback = feedbackRes.data;
-            console.log('Participants:', participants);
-            console.log('Feedback:', feedback);
-        
-            const combinedData = participants.map(participant => {
-                const matchingFeedback = feedback.find(fb => fb.eventId === participant.eventId && fb.userId === participant.id);
-                console.log('Matching Feedback:', matchingFeedback);
-                return {
-                    ...participant,
-                    feedback: matchingFeedback || null, // Attach feedback if it exists, otherwise null
-                };
-            });
-        
-            console.log('Combined Data:', combinedData);
-            setParticipants(combinedData);
-        })
-        .catch(error => {
-            console.error('Error fetching data:', error);
-        });
-    };
+    // Trigger fetching participants when selectedEvent changes
 
     const handleChangeEvent = (event) => {
         const selectedValue = event.target.value;
-        setSelectedEvent(selectedValue);
-        console.log('Selected event:', selectedValue);
-        console.log('Selected event 1213:', selectedEvent);
-        setParticipants([]);
+        setSelectedEvent(selectedValue);  // Update the selected event
+    };
+    const handleViewParticipants = () => {
+        if (!selectedEvent) return;  // Only fetch participants if an event is selected
 
-        // Call handleViewParticipants to fetch participants after updating the selected event
+        http.get(`/events/${selectedEvent}/participants`)
+            .then((participantsRes) => {
+                const participants = participantsRes.data;
 
-        handleViewParticipants();
-    }
+                // Fetch feedback after participants are fetched
+                return http.get('/EventFeedback').then(feedbackRes => {
+                    const feedback = feedbackRes.data;
+
+                    const combinedData = participants.map(participant => {
+                        const matchingFeedback = feedback.find(fb => fb.eventId === participant.eventId && fb.userId === participant.id);
+                        console.log("matching: ", matchingFeedback)
+                        return {
+                            ...participant,
+                            feedback2: matchingFeedback || null,
+                        };
+                    });
+                    console.log('Combined data:', combinedData);
+
+                    setParticipants(combinedData);
+                });
+            })
+            .catch(error => {
+                console.error('Error fetching data:', error);
+            });
+    };
 
     const formik = useFormik({
         initialValues: {
@@ -135,7 +100,9 @@ function FeedbackAdmin() {
         validationSchema: yup.object({
             title: yup.string().required('Title is required').min(3, 'Title must be at least 3 characters long').max(100, 'Title can be at most 100 characters long'),
             content: yup.string().required('Content is required').min(3, 'Content must be at least 3 characters long').max(500, 'Content can be at most 500 characters long'),
-            date: yup.date().required('Date is required')
+            date: yup.date().required('Date is required'),
+            category: yup.string().trim().max(500).required('Category is required'),
+            recipient: yup.string().trim().lowercase().email().max(50, 'Max 50 characters only').required('Recipient is required')
         }),
         onSubmit: values => {
             const messageData = {
@@ -150,13 +117,21 @@ function FeedbackAdmin() {
                     handleCloseMessageDialog();
                     toast.success('Message sent successfully!');
                 }).catch(error => {
-                    console.error('Error sending message:', error);
+                    console.log(`This is message data title: ${messageData.title}`);
+                    console.log(`This is message data content: ${messageData.content}`);
+                    console.log(`This is message data date: ${messageData.date}`);
+                    console.log(`This is message data recipient: ${messageData.recipient}`);
+                    console.log(`This is message data category: ${messageData.category}`);
+                    console.log(`This is message data userId: ${messageData.userId}`);
+
+                    console.error('Error sending message:', error.message);
                     toast.error('Error sending message.');
                 });
         }
     });
 
-    const handleOpenDeleteDialog = (id,eventid,userid) => {
+
+    const handleOpenDeleteDialog = (id, eventid, userid) => {
         setFeedbackID(id);
         setTempEventID(eventid);
         setTempUserID(userid);
@@ -181,23 +156,24 @@ function FeedbackAdmin() {
             http.delete(`/EventFeedback/${FeedbackID}`)
                 .then(() => {
                     setFeedback(prevFeedback => prevFeedback.filter(feedback => feedback.id !== FeedbackID));
+                    setParticipants(prevParticipants => prevParticipants.filter(participant => participant.id !== tempUserID));
                     handleCloseDeleteDialog();
                     toast.success('Feedback deleted successfully!');
                 }).catch(error => {
                     console.error('Error deleting feedback:', error);
                     toast.error('Failed to delete feedback.');
                 });
-            
-                http.put(`/events/update-feedback-status/${tempEventID}`, {
-                    userId: tempUserID,
-                    FeedbackStatus: false
+
+            http.put(`/events/update-feedback-status/${tempEventID}`, {
+                userId: tempUserID,
+                FeedbackStatus: false
+            })
+                .then(() => {
+                    console.log('Feedback status updated successfully');
                 })
-                    .then(() => {
-                        console.log('Feedback status updated successfully');
-                    })
-                    .catch((error) => {
-                        console.error('Error updating feedback status:', error);
-                    });
+                .catch((error) => {
+                    console.error('Error updating feedback status:', error);
+                });
         }
     };
 
@@ -205,8 +181,11 @@ function FeedbackAdmin() {
         <Box sx={{ display: 'flex', height: '100vh' }}>
             <AdminSidebar />
             <Box sx={{ flexGrow: 1, p: 3 }}>
-                <Typography variant="h3" className="events-participant-text">Event Feedback {FeedbackList.length}</Typography>
-                <FormControl fullWidth sx={{ m: 1, minWidth: 120 }}>
+                <Typography variant="h3" className="events-participant-text" sx={{ mb: 2 }}>
+                    Event Feedback
+                </Typography>
+
+                <FormControl fullWidth sx={{ mb: 3, minWidth: 200 }}>
                     <InputLabel>Event</InputLabel>
                     <Select
                         value={selectedEvent}
@@ -219,6 +198,16 @@ function FeedbackAdmin() {
                         ))}
                     </Select>
                 </FormControl>
+
+                {selectedEvent ? (
+                    <Typography variant="h5" sx={{ fontWeight: 'bold', mt: 2 }}>
+                        Showing results for <span style={{ textDecoration: 'underline' }}>{eventName}</span>
+                    </Typography>
+                ) : (
+                    <Typography variant="h5" sx={{ fontStyle: 'italic', mt: 2 }}>
+                        No event selected
+                    </Typography>
+                )}
 
                 <Box sx={{ flexGrow: 1, p: 3, m: 3, bgcolor: '#9FCCC9' }} style={{ borderRadius: '16px' }}>
                     <Grid container spacing={2} sx={{ mb: 4 }}>
@@ -259,7 +248,7 @@ function FeedbackAdmin() {
                             </Box>
                         </Grid>
                     </Grid>
-                    <TableContainer component={Paper} sx={{ bgcolor: '#D7CAB7' }} className='Table'>
+                    <TableContainer component={Paper} sx={{ bgcolor: '', maxHeight: 180, overflowY: 'auto' }} className='Table'>
                         <Table sx={{ minWidth: 650 }} aria-label="simple table">
                             <TableHead>
                                 <TableRow>
@@ -279,25 +268,25 @@ function FeedbackAdmin() {
                                         </TableCell>
                                         <TableCell align="center">{feedback.name}</TableCell>
                                         <TableCell align="center">{feedback.email}</TableCell>
-                                        {feedback?.feedbackstatus === true ? (
+                                        {feedback?.feedback === 1 ? (
                                             <>
-                                                <TableCell align="center"><Link to={`/admin/FeedbackAdmin/${feedback.id}`}>Feedback</Link></TableCell>
+                                                <TableCell align="center"><Link to={`/admin/FeedbackAdmin/${feedback.feedback2  ?.id}`}>Feedback</Link></TableCell>
                                                 <TableCell align="center">
                                                     <IconButton onClick={() => handleOpenMessageDialog(feedback.email)}>
                                                         <ReplyIcon />
                                                     </IconButton>
                                                 </TableCell>
                                                 <TableCell align="center">
-                                                    <IconButton onClick={() => handleOpenDeleteDialog(feedback.id, feedback.eventId, feedback.userId)}>
+                                                    <IconButton onClick={() => handleOpenDeleteDialog(feedback.feedback2?.id, feedback.eventId, feedback.userId)}>
                                                         <DeleteOutlineIcon />
                                                     </IconButton>
                                                 </TableCell>
                                             </>
                                         ) : (
                                             <>
-                                                <TableCell align="center">UNAVAILABLE</TableCell>
-                                                <TableCell align="center">UNAVAILABLE</TableCell>
-                                                <TableCell align="center">UNAVAILABLE</TableCell>
+                                                <TableCell align="center" color='red'>UNAVAILABLE</TableCell>
+                                                <TableCell align="center" color='red'>UNAVAILABLE</TableCell>
+                                                <TableCell align="center" color='red'>UNAVAILABLE</TableCell>
                                             </>
                                         )}
                                     </TableRow>
@@ -368,3 +357,4 @@ function FeedbackAdmin() {
 }
 
 export default FeedbackAdmin;
+
