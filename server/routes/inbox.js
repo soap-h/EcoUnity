@@ -24,6 +24,28 @@ router.post("/", validateToken, async (req, res) => {
     }
 })
 
+
+// router.post("/:id", validateToken, async (req, res) => {
+//     let recipientId = req.params.id;
+//     let data = req.body;
+//     data.userId = req.user.id;
+//     let validationSchema = yup.object({
+//         title: yup.string().trim().min(3).max(100).required(),
+//         content: yup.string().trim().min(3).max(500).required(),
+//         date: yup.date().required(),
+//         category: yup.string().trim().max(500).required(),
+//         recipient: recipientId
+//     });
+//     try {
+//         data = await validationSchema.validate(data, { abortEarly: false });
+//         let result = await Inbox.create(data);
+//         res.json(result);
+//     } catch (err) {
+//         res.status(400).json({ errors: err.errors })
+//     }
+// })
+
+
 router.get("/", validateToken, async (req, res) => {
     try {
         // Assuming req.user.id contains the ID of the logged-in user

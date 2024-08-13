@@ -5,7 +5,7 @@ const { Op } = require("sequelize");
 const yup = require("yup");
 const { validateToken } = require('../middlewares/auth');
 
-router.post("/:id", validateToken, async (req, res) => {
+router.post("/:id:eventId", validateToken, async (req, res) => {
     let data = req.body;
     data.userId = req.user.id;
     data.eventId = req.params.id;
