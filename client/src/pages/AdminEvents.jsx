@@ -137,8 +137,13 @@ const AdminEvents = () => {
     const handleApproveProposal = async (proposalId) => {
         try {
             await http.put(`/proposals/${proposalId}/approve`);
-            // Filter out the approved proposal from the list
-            setProposals((prevProposals) => prevProposals.filter((proposal) => proposal.id !== proposalId));
+            
+            // Update the status of the proposal in the state
+            setProposals((prevProposals) => 
+                prevProposals.map((proposal) => 
+                    proposal.id === proposalId ? { ...proposal, status: 'Approved' } : proposal
+                )
+            );
         } catch (error) {
             console.error('Failed to approve proposal:', error);
         }
@@ -147,12 +152,18 @@ const AdminEvents = () => {
     const handleRejectProposal = async (proposalId) => {
         try {
             await http.put(`/proposals/${proposalId}/reject`);
-            // Filter out the rejected proposal from the list
-            setProposals((prevProposals) => prevProposals.filter((proposal) => proposal.id !== proposalId));
+            
+            // Update the status of the proposal in the state
+            setProposals((prevProposals) => 
+                prevProposals.map((proposal) => 
+                    proposal.id === proposalId ? { ...proposal, status: 'Rejected' } : proposal
+                )
+            );
         } catch (error) {
             console.error('Failed to reject proposal:', error);
         }
     };
+    
 
     const handleDownloadProposal = (filename) => {
         const link = document.createElement('a');
