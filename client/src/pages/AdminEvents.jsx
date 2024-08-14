@@ -137,8 +137,13 @@ const AdminEvents = () => {
     const handleApproveProposal = async (proposalId) => {
         try {
             await http.put(`/proposals/${proposalId}/approve`);
-            // Filter out the approved proposal from the list
-            setProposals((prevProposals) => prevProposals.filter((proposal) => proposal.id !== proposalId));
+            
+            // Update the status of the proposal in the state
+            setProposals((prevProposals) => 
+                prevProposals.map((proposal) => 
+                    proposal.id === proposalId ? { ...proposal, status: 'Approved' } : proposal
+                )
+            );
         } catch (error) {
             console.error('Failed to approve proposal:', error);
         }
@@ -147,11 +152,24 @@ const AdminEvents = () => {
     const handleRejectProposal = async (proposalId) => {
         try {
             await http.put(`/proposals/${proposalId}/reject`);
-            // Filter out the rejected proposal from the list
-            setProposals((prevProposals) => prevProposals.filter((proposal) => proposal.id !== proposalId));
+            
+            // Update the status of the proposal in the state
+            setProposals((prevProposals) => 
+                prevProposals.map((proposal) => 
+                    proposal.id === proposalId ? { ...proposal, status: 'Rejected' } : proposal
+                )
+            );
         } catch (error) {
             console.error('Failed to reject proposal:', error);
         }
+    };
+    
+
+    const handleDownloadProposal = (filename) => {
+        const link = document.createElement('a');
+        link.href = `/proposals/download/${filename}`;
+        link.download = filename;
+        link.click();
     };
     
     const now = dayjs();
@@ -165,7 +183,6 @@ const AdminEvents = () => {
             eventEndTime = eventEndTime.hour(hours).minute(minutes).second(seconds);
         }
 
-        console.log(`Event ${event.id} end time: ${eventEndTime.isValid() ? eventEndTime.format() : 'Invalid Date'}`);
         return now.isBefore(eventEndTime);
     });
 
@@ -177,7 +194,6 @@ const AdminEvents = () => {
             eventEndTime = eventEndTime.hour(hours).minute(minutes).second(seconds);
         }
 
-        console.log(`Event ${event.id} end time: ${eventEndTime.isValid() ? eventEndTime.format() : 'Invalid Date'}`);
         return now.isAfter(eventEndTime);
     });
 
@@ -258,9 +274,13 @@ const AdminEvents = () => {
                                 <TableCell>{proposal.id}</TableCell>
                                 <TableCell>{proposal.date}</TableCell>
                                 <TableCell>
-                                    <a href={`/proposals/download/${proposal.document}`} download>
+                                    <Button
+                                        variant="text"
+                                        color="primary"
+                                        onClick={() => handleDownloadProposal(proposal.document)}
+                                    >
                                         {proposal.name}
-                                    </a>
+                                    </Button>
                                 </TableCell>
                                 <TableCell>{proposal.userId}</TableCell>
                                 <TableCell>
@@ -293,8 +313,6 @@ const AdminEvents = () => {
         </TableContainer>
     );
     
-
-
     return (
         <Box sx={{ display: 'flex' }}>
             <AdminSidebar username={user?.firstName || 'User'} />

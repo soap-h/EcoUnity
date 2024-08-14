@@ -126,14 +126,39 @@ app.use("/commentLikes", commentlikesRoute);
 
 
 
-const db = require('./models');
-db.sequelize.sync({ alter: true })
-    .then(() => {
-        let port = process.env.APP_PORT;
-        app.listen(port, () => {
-            console.log(`⚡ Server running on http://localhost:${port}`);
-        });
-    })
-    .catch((err) => {
-        console.log(err);
-    });
+// const db = require('./models');
+// db.sequelize.sync({ alter: true })
+//     .then(() => {
+//         let port = process.env.APP_PORT;
+//         app.listen(port, () => {
+//             console.log(`⚡ Server running on http://localhost:${port}`);
+//         });
+//     })
+//     .catch((err) => {
+//         console.log(err);
+//     });
+
+// AWS stuff
+// Import the necessary library
+const mysql = require('sequelize'); // or sequelize if you're using it
+
+// Database connection configuration
+const connection = mysql.createConnection({
+  host: 'ecounity-database.cdcm4umusbz7.us-east-1.rds.amazonaws.com', // RDS endpoint
+  user: 'admin',          // RDS username
+  password: 'ilovetwinks69',      // RDS password
+  database: 'ecounity-database',          // Your database name
+  port: 3306                               // The port, typically 3306 for MySQL
+});
+
+// Connect to the database
+connection.connect((err) => {
+  if (err) {
+    console.error('Error connecting to the database:', err);
+    return;
+  }
+  console.log('Connected to the RDS database!');
+});
+
+// Now you can use `connection` to interact with your database.
+

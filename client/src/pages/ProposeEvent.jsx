@@ -1,6 +1,5 @@
 import React, { useState, useContext } from 'react';
 import { Box, Button, Typography, Dialog, DialogActions, DialogContent, DialogTitle } from '@mui/material';
-import { styled } from '@mui/system';
 import { CloudUpload as CloudUploadIcon } from '@mui/icons-material';
 import { Link, useNavigate } from 'react-router-dom';
 import Dropzone from 'react-dropzone';
@@ -11,8 +10,8 @@ import UserContext from '../contexts/UserContext';
 const ProposeEvent = () => {
     const [file, setFile] = useState(null);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
-    const [isConfirmationOpen, setIsConfirmationOpen] = useState(false); // New state for confirmation dialog
-    const { user } = useContext(UserContext);  // Accessing user context to check if user is logged in
+    const [isConfirmationOpen, setIsConfirmationOpen] = useState(false);
+    const { user } = useContext(UserContext);
     const navigate = useNavigate();
 
     const handleFileUpload = (acceptedFiles) => {
@@ -28,7 +27,7 @@ const ProposeEvent = () => {
 
         if (file) {
             const formData = new FormData();
-            formData.append('file', file);
+            formData.append('file', file); // Ensure the field name matches the middleware
 
             try {
                 const response = await http.post('/proposals', formData, {
@@ -75,7 +74,7 @@ const ProposeEvent = () => {
                     <Typography variant="body1" sx={{ marginRight: '10px' }}>
                         Download and fill in this template document for submission.
                     </Typography>
-                    <Button variant="contained" color="primary" href="/assets/proposal_template.docx" download>
+                    <Button variant="contained" color="primary" href="/proposal_template.docx" download>
                         <Typography variant="body1">proposal_template.docx</Typography>
                     </Button>
                 </Box>
@@ -115,8 +114,8 @@ const ProposeEvent = () => {
                     SUBMIT FILE
                 </Button>
             </Box>
-
-            {/* Dialog for login prompt */}
+            
+             {/* Dialog for login prompt */}
             <Dialog open={isDialogOpen} onClose={() => setIsDialogOpen(false)}>
                 <DialogTitle>Login Required</DialogTitle>
                 <DialogContent>
@@ -129,7 +128,7 @@ const ProposeEvent = () => {
                     <Button
                         onClick={() => {
                             setIsDialogOpen(false);
-                            navigate('/login');  // Redirect to the login page
+                            navigate('/login');
                         }}
                         color="primary"
                     >

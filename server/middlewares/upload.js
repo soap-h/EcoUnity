@@ -88,11 +88,28 @@ const productUpload = multer({
     limits: { fileSize: 1024 * 1024 } // 1MB limit
 }).single('file'); // 'file' is the input field name for this upload
 
+// Storage configuration for event proposal uploads
+const proposalStorage = multer.diskStorage({
+    destination: (req, file, callback) => {
+        callback(null, path.join(__dirname, '../public/uploads/proposals'));
+    },
+    filename: (req, file, callback) => {
+        callback(null, nanoid(10) + path.extname(file.originalname));
+    }
+});
+
+// Middleware for event proposal uploads
+const proposalUpload = multer({
+    storage: proposalStorage,
+    limits: { fileSize: 10 * 1024 * 1024 } // 10MB limit
+}).single('file'); // 'file' is the input field name
+
 // Exporting all the upload middlewares
 module.exports = { 
     upload,
     threadUpload,
     ppupload,
+    proposalUpload,
     slidesUpload,
     productUpload
 };
