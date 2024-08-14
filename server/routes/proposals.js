@@ -1,11 +1,11 @@
 const express = require('express');
 const path = require('path');
 const router = express.Router();
-const { Proposal, User } = require('../models');
-const { upload } = require('../middlewares/upload');
+const { Proposal } = require('../models');
+const { proposalUpload } = require('../middlewares/upload'); // Updated to use proposalUpload
 const { validateToken } = require('../middlewares/auth');
 
-router.post('/', validateToken, upload, async (req, res) => {
+router.post('/', validateToken, proposalUpload, async (req, res) => {
     try {
         const { file } = req;
         const proposal = await Proposal.create({
@@ -30,17 +30,19 @@ router.get('/', async (req, res) => {
     }
 });
 
-// Serve the uploaded files
-router.get('/download/:filename', async (req, res) => {
+// Express's built-in res.sendFile method
+router.get('/download/:filename', (req, res) => {
     const { filename } = req.params;
-    const fileLocation = path.join(__dirname, '..', 'public', 'uploads', filename);
-    res.download(fileLocation, filename, (err) => {
+    const fileLocation = path.join(__dirname, '..', 'public', 'uploads', 'proposals', filename);
+
+    res.sendFile(fileLocation, (err) => {
         if (err) {
-            console.error('File download error:', err);
+            console.error('File send error:', err);
             res.status(500).json({ error: 'File download failed' });
         }
     });
 });
+
 
 router.put('/:id/approve', async (req, res) => {
     try {

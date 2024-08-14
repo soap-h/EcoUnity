@@ -153,6 +153,13 @@ const AdminEvents = () => {
             console.error('Failed to reject proposal:', error);
         }
     };
+
+    const handleDownloadProposal = (filename) => {
+        const link = document.createElement('a');
+        link.href = `/proposals/download/${filename}`;
+        link.download = filename;
+        link.click();
+    };
     
     const now = dayjs();
 
@@ -165,7 +172,6 @@ const AdminEvents = () => {
             eventEndTime = eventEndTime.hour(hours).minute(minutes).second(seconds);
         }
 
-        console.log(`Event ${event.id} end time: ${eventEndTime.isValid() ? eventEndTime.format() : 'Invalid Date'}`);
         return now.isBefore(eventEndTime);
     });
 
@@ -177,7 +183,6 @@ const AdminEvents = () => {
             eventEndTime = eventEndTime.hour(hours).minute(minutes).second(seconds);
         }
 
-        console.log(`Event ${event.id} end time: ${eventEndTime.isValid() ? eventEndTime.format() : 'Invalid Date'}`);
         return now.isAfter(eventEndTime);
     });
 
@@ -258,9 +263,13 @@ const AdminEvents = () => {
                                 <TableCell>{proposal.id}</TableCell>
                                 <TableCell>{proposal.date}</TableCell>
                                 <TableCell>
-                                    <a href={`/proposals/download/${proposal.document}`} download>
+                                    <Button
+                                        variant="text"
+                                        color="primary"
+                                        onClick={() => handleDownloadProposal(proposal.document)}
+                                    >
                                         {proposal.name}
-                                    </a>
+                                    </Button>
                                 </TableCell>
                                 <TableCell>{proposal.userId}</TableCell>
                                 <TableCell>
@@ -293,8 +302,6 @@ const AdminEvents = () => {
         </TableContainer>
     );
     
-
-
     return (
         <Box sx={{ display: 'flex' }}>
             <AdminSidebar username={user?.firstName || 'User'} />
