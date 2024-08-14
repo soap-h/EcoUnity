@@ -1,9 +1,8 @@
 const express = require('express');
 const router = express.Router();
 // const { validateToken } = require('../middlewares/auth');
-const { upload } = require('../middlewares/upload');
+const { upload, threadUpload, slidesUpload, productUpload } = require('../middlewares/upload');
 const { User } = require('../models');
-const { threadUpload } = require('../middlewares/upload');
 
 
 router.post('/upload', (req, res) => {
@@ -58,6 +57,23 @@ router.post('/upload/threadPictures', (req, res) => {
             });
         }
     })
+});
+
+router.post('/upload/productPictures', productUpload, (req, res) => {
+    if (!req.file) {
+        return res.status(400).send('No file uploaded.');
+    }
+    res.status(200).json({ filename: req.file.filename });
+});
+
+router.post('/upload/slides', slidesUpload, (req, res) => {
+    console.log('File upload request received:', req.file); // Log the file info to ensure it's being processed correctly
+
+    if (!req.file) {
+        return res.status(400).send('No file uploaded.');
+    }
+
+    res.status(200).json({ filename: req.file.filename });
 });
 
 

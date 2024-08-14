@@ -83,8 +83,8 @@ router.post("/login", async (req, res) => {
             lastName: user.lastName,
             description: user.description,
             isAdmin: user.isAdmin,
-            imageFile: user.imageFile
-
+            imageFile: user.imageFile,
+            points: user.points
         };
         let accessToken = sign(userInfo, process.env.APP_SECRET,
             { expiresIn: process.env.TOKEN_EXPIRES_IN });
@@ -116,7 +116,8 @@ router.get("/auth", validateToken, async (req, res) => {
             lastName: user.lastName,
             description: user.description,
             imageFile: user.imageFile,
-            isAdmin: user.isAdmin
+            isAdmin: user.isAdmin,
+            points: user.points
         };
 
         res.json({ user: userInfo });
@@ -192,7 +193,7 @@ router.put("/description/:id", async (req, res) => {
 router.get("/userinfo", validateToken, async (req, res) => {
     try {
         const users = await User.findAll({
-            attributes: ['id', 'firstName', 'lastName', 'email', 'isAdmin', 'imageFile']  // Only fetch id and email attributes
+            attributes: ['id', 'firstName', 'lastName', 'email', 'isAdmin', 'imageFile', 'points']  // Only fetch id and email attributes
         });
         res.json(users);
     } catch (error) {

@@ -18,9 +18,10 @@ function Profile() {
     const [description, setDescription] = useState(user ? user.description : '');
     const [isEditing, setIsEditing] = useState(false);
     const [eventcount, seteventcount] = useState(0);
-    const [participatedEvents, setParticipatedEvents] = useState([]); // Store participated events
+    const [participatedEvents, setParticipatedEvents] = useState([]);
+    const [points, setPoints] = useState(0);
     const navigate = useNavigate();
-
+    
     const getTrackers = () => {
         http.get("/tracker").then((res) => {
             setTrackerList(res.data);
@@ -34,6 +35,8 @@ function Profile() {
                 http.get('/events/')
             ]);
 
+
+
             const participatedData = participatedResponse.data;
             const eventsData = eventsResponse.data;
 
@@ -45,11 +48,12 @@ function Profile() {
                     eventDetails,
                 };
             });
-
+            
             const eventCount = linkedEvents.length;
 
             setParticipatedEvents(linkedEvents);
             seteventcount(eventCount);
+           
         } catch (err) {
             console.error("Failed to get events:", err);
         }
@@ -237,7 +241,7 @@ function Profile() {
                                 <Grid item xs={6}>
                                     <Paper elevation={2} sx={{ padding: 2, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: 100 }}>
                                         <Typography variant="h3" component="div" sx={{ fontWeight: 'bold' }}>
-                                            112
+                                            {user.points}
                                         </Typography>
                                         <Typography variant="body2" color="textSecondary">
                                             Recycling Points

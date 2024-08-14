@@ -26,7 +26,8 @@ function Success() {
                 } else {
                     setError('Payment was not successful.');
                 }
-            } finally {
+            } 
+             finally {
                 setLoading(false);
             }
         };

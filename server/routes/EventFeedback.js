@@ -27,8 +27,7 @@ router.post("/:id", validateToken, async (req, res) => {
             { feedback: 1 }, 
             { 
                 where: { 
-                    userId: req.user.id, 
-                    eventId: data.eventId 
+                    id: data.eventId 
                 } 
             }
         );
