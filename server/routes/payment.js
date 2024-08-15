@@ -2,7 +2,7 @@
 
 const express = require('express');
 const router = express.Router();
-const stripe = require('stripe')(process.env.STRIPE_SOPHIE_SECRET_KEY);
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const { sendReceiptEmail } = require('./emailservice');
 const { Event } = require('../models'); // Assuming you have an Event model
 
