@@ -21,6 +21,7 @@ import DebugAdminCheck from "./components/DebugAdminCheck.jsx";
 import Login from "./pages/Login.jsx";
 import Register from "./pages/Register.jsx";
 import { Dialog } from "@mui/material";
+// import { Chatbot } from './components/Chatbot';
 
 import Learning from "./pages/Learning.jsx";
 import Lesson from "./pages/Lesson.jsx"
@@ -213,6 +214,7 @@ function App() {
           <Register onClose={() => setOpenRegister(false)} setOpenLogin={setOpenLogin} />
         </Dialog>
         <FixedButton />
+        {/* <Chatbot /> */}
       </Router>
 
 
